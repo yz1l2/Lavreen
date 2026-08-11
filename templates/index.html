@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lavreen | لافريين</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="brand">
+        <div class="logo-box">L</div>
+
+        <div>
+            <div class="logo-name">Lavreen</div>
+            <div class="logo-arabic">لافريين</div>
+        </div>
+    </div>
+
+    <nav class="nav-links">
+        <a href="#trending">الرائج 🔥</a>
+        <a href="#deals">أفضل الأسعار 💰</a>
+        <a href="#categories">الأقسام</a>
+        <a href="#new">جديد ✨</a>
+    </nav>
+
+    <div class="nav-buttons">
+        <button class="ai-button">✦ مساعد AI</button>
+        <a href="/sell" class="sell-button">+ بيع</a>
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="badge">
+            ✦ البيع والشراء صار أذكى
+        </div>
+
+        <h1>
+            وش تدور عليه؟
+            <span>لافريين يلقاه لك.</span>
+        </h1>
+
+        <p>
+            ابحث، قارن الأسعار، وخَل الذكاء الاصطناعي يساعدك
+            تختار أفضل خيار يناسبك.
+        </p>
+
+
+        <!-- البحث الحقيقي -->
+
+        <div class="search-area">
+
+            <form class="search-box" action="/search" method="GET">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="مثال: كامري 2022 بأقل من 75 ألف"
+                    value="{{ search_query or '' }}"
+                >
+
+                <button class="search-button" type="submit">
+                    بحث
+                </button>
+
+            </form>
+
+            <button class="ai-search">
+                ✦ اسأل Lavreen AI
+            </button>
+
+        </div>
+
+
+        <div class="search-tags">
+
+            <span>جرب:</span>
+
+            <button>كامري 2022</button>
+            <button>iPhone 15 Pro</button>
+            <button>RTX 4070</button>
+            <button>سيارات أقل من 70 ألف</button>
+
+        </div>
+
+    </section>
+
+
+    <!-- الأقسام -->
+
+    <section class="section" id="categories">
+
+        <div class="section-title">
+
+            <div>
+                <small>استكشف</small>
+                <h2>وش تبي تشتري؟</h2>
+            </div>
+
+            <a href="#">عرض الكل ←</a>
+
+        </div>
+
+
+        <div class="categories">
+
+            <div class="category">
+                <div class="category-icon">🚗</div>
+                <h3>سيارات</h3>
+                <p>سيارات جديدة ومستعملة</p>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">📱</div>
+                <h3>جوالات</h3>
+                <p>أحدث الأجهزة</p>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">💻</div>
+                <h3>كمبيوتر</h3>
+                <p>PC وقطع وإكسسوارات</p>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">🎮</div>
+                <h3>ألعاب</h3>
+                <p>أجهزة وألعاب</p>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">🏠</div>
+                <h3>عقارات</h3>
+                <p>بيع وإيجار</p>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">✨</div>
+                <h3>المزيد</h3>
+                <p>جميع الأقسام</p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- نتائج البحث / الرائج -->
+
+    <section class="section" id="trending">
+
+        <div class="section-title">
+
+            <div>
+                {% if search_query %}
+                    <small>نتائج البحث 🔎</small>
+                    <h2>نتائج البحث عن "{{ search_query }}"</h2>
+                {% else %}
+                    <small class="red">الرائج 🔥</small>
+                    <h2>الناس تدور عليها الآن</h2>
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <div class="products">
+
+            {% if listings %}
+
+                {% for listing in listings %}
+
+                <article class="product">
+
+                    <div class="product-image">
+
+                        {% if listing["category"] == "سيارات" %}
+                            🚗
+                        {% elif listing["category"] == "جوالات" %}
+                            📱
+                        {% elif listing["category"] == "كمبيوتر" %}
+                            💻
+                        {% elif listing["category"] == "ألعاب" %}
+                            🎮
+                        {% else %}
+                            📦
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <small>
+                            {{ listing["category"] }}
+                        </small>
+
+                        <h3>
+                            {{ listing["title"] }}
+                        </h3>
+
+                        <p>
+                            {{ listing["description"] }}
+                            · {{ listing["city"] }}
+                        </p>
+
+                        <div class="product-bottom">
+
+                            <strong>
+                                {{ "{:,.0f}".format(listing["price"]) }} ريال
+                            </strong>
+
+                            <span>♡</span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="no-results">
+
+                    <div>🔎</div>
+
+                    <h3>ما لقينا نتائج</h3>
+
+                    <p>
+                        جرّب كلمة بحث مختلفة.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- أفضل الأسعار -->
+
+    <section class="section" id="deals">
+
+        <div class="section-title">
+
+            <div>
+                <small class="green">أفضل الأسعار 💰</small>
+                <h2>صفقات تستاهل تشوفها</h2>
+            </div>
+
+        </div>
+
+
+        <div class="deal">
+
+            <div class="deal-text">
+
+                <span>
+                    تحليل الأسعار بالذكاء الاصطناعي
+                </span>
+
+                <h2>
+                    هل السعر يستاهل؟
+                </h2>
+
+                <p>
+                    لافريين يقارن الإعلان بالمنتجات المشابهة
+                    ويساعدك تعرف إذا السعر ممتاز أو مرتفع.
+                </p>
+
+                <button>
+                    جرّب AI ✦
+                </button>
+
+            </div>
+
+
+            <div class="price-card">
+
+                <small>السعر</small>
+
+                <strong>61,000</strong>
+
+                <span>ريال</span>
+
+                <b>
+                    ↓ أقل من متوسط السوق بـ 9%
+                </b>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI -->
+
+    <section class="ai-section">
+
+        <div class="ai-content">
+
+            <small>
+                ✦ LAVREEN AI
+            </small>
+
+            <h2>
+                لا تبحث لحالك.
+                <span>خل لافريين يبحث معك.</span>
+            </h2>
+
+            <p>
+                قل للذكاء الاصطناعي وش تبي،
+                وهو يبحث بين الإعلانات ويقارن الأسعار
+                ويطلع لك أفضل الخيارات حسب طلبك.
+            </p>
+
+
+            <div class="ai-chat">
+
+                <div class="user-message">
+                    أبي كامري 2022 أو أحدث،
+                    فل كامل، ممشى أقل من 100 ألف
+                    وميزانيتي 75 ألف.
+                </div>
+
+                <div class="ai-message">
+                    ✦ لقيت لك 14 إعلانًا مناسبًا.
+                    هذه أفضل 3 خيارات بناءً على
+                    السعر والممشى والمواصفات.
+                </div>
+
+            </div>
+
+
+            <button class="start-ai">
+                ابدأ مع Lavreen AI ✦
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- جديد -->
+
+    <section class="section" id="new">
+
+        <div class="section-title">
+
+            <div>
+                <small>✨ جديد الآن</small>
+                <h2>وصل حديثًا</h2>
+            </div>
+
+            <a href="#">عرض الكل ←</a>
+
+        </div>
+
+
+        <div class="new-products">
+
+            <div class="new-product">
+
+                <span>🚗</span>
+
+                <div>
+                    <strong>Mustang GT 2021</strong>
+                    <small>الرياض · قبل 4 دقائق</small>
+                </div>
+
+                <b>
+                    145,000 ريال
+                </b>
+
+            </div>
+
+
+            <div class="new-product">
+
+                <span>📱</span>
+
+                <div>
+                    <strong>iPhone 16 Pro Max</strong>
+                    <small>الرياض · قبل 7 دقائق</small>
+                </div>
+
+                <b>
+                    4,100 ريال
+                </b>
+
+            </div>
+
+
+            <div class="new-product">
+
+                <span>💻</span>
+
+                <div>
+                    <strong>RTX 4080 Super</strong>
+                    <small>الرياض · قبل 11 دقيقة</small>
+                </div>
+
+                <b>
+                    3,900 ريال
+                </b>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <strong>Lavreen</strong>
+
+    <span>
+        منصة البيع والشراء الذكية © 2026
+    </span>
+
+</footer>
+
+
+</body>
+</html>

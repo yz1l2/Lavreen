@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ listing["title"] }} | Lavreen</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="brand">
+        <div class="logo-box">L</div>
+
+        <div>
+            <div class="logo-name">Lavreen</div>
+            <div class="logo-arabic">لافريين</div>
+        </div>
+    </div>
+
+    <a href="/" class="sell-button">
+        الرئيسية
+    </a>
+
+</header>
+
+
+<main class="listing-page">
+
+    <div class="listing-container">
+
+        <div class="listing-image">
+            🚗
+        </div>
+
+
+        <div class="listing-info">
+
+            <span class="listing-category">
+                {{ listing["category"] }}
+            </span>
+
+            <h1>
+                {{ listing["title"] }}
+            </h1>
+
+            <div class="listing-price">
+                {{ "{:,.0f}".format(listing["price"]) }} ريال
+            </div>
+
+            <div class="listing-city">
+                📍 {{ listing["city"] }}
+            </div>
+
+            <div class="listing-description">
+
+                <h3>الوصف</h3>
+
+                <p>
+                    {{ listing["description"] or "لا يوجد وصف لهذا الإعلان." }}
+                </p>
+
+            </div>
+
+
+            <div class="ai-card">
+
+                <div class="ai-icon">
+                    ✦
+                </div>
+
+                <div>
+                    <strong>Lavreen AI</strong>
+
+                    <p>
+                        قريبًا سيحلل لك السعر ويخبرك هل الإعلان يستاهل.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <button class="contact-button">
+                💬 تواصل مع البائع
+            </button>
+
+        </div>
+
+    </div>
+
+</main>
+
+</body>
+</html>

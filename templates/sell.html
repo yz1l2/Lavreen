@@ -1,15 +1,27 @@
 from flask import Flask, render_template, request, redirect, url_for
 
-from database import get_db, create_database, add_sample_listings, add_listing
+from database import (
+    get_db,
+    create_database,
+    add_sample_listings,
+    add_listing
+)
 
 
 app = Flask(__name__)
 
 
+# =========================
 # تجهيز قاعدة البيانات
+# =========================
+
 create_database()
 add_sample_listings()
 
+
+# =========================
+# الصفحة الرئيسية
+# =========================
 
 @app.route("/")
 def home():
@@ -30,6 +42,10 @@ def home():
         search_query=""
     )
 
+
+# =========================
+# البحث
+# =========================
 
 @app.route("/search")
 def search():
@@ -72,14 +88,20 @@ def search():
     )
 
 
+# =========================
 # صفحة إضافة إعلان
+# =========================
+
 @app.route("/sell")
 def sell():
 
     return render_template("sell.html")
 
 
-# استقبال الإعلان الجديد
+# =========================
+# حفظ الإعلان الجديد
+# =========================
+
 @app.route("/sell", methods=["POST"])
 def create_listing():
 
@@ -89,18 +111,26 @@ def create_listing():
     city = request.form.get("city", "").strip()
     description = request.form.get("description", "").strip()
 
+
+    # التأكد من الحقول الأساسية
+
     if not title or not category or not price or not city:
 
         return "فضلاً عبّ جميع الحقول المطلوبة."
 
 
+    # تحويل السعر إلى رقم
+
     try:
+
         price = float(price)
 
     except ValueError:
 
         return "السعر يجب أن يكون رقمًا."
 
+
+    # إضافة الإعلان إلى قاعدة البيانات
 
     add_listing(
         title,
@@ -111,8 +141,48 @@ def create_listing():
     )
 
 
+    # العودة للرئيسية
+
     return redirect(url_for("home"))
 
 
+# =========================
+# صفحة تفاصيل الإعلان
+# =========================
+
+@app.route("/listing/<int:listing_id>")
+def listing_details(listing_id):
+
+    connection = get_db()
+
+    listing = connection.execute("""
+        SELECT *
+        FROM listings
+        WHERE id = ?
+    """, (listing_id,)).fetchone()
+
+    connection.close()
+
+
+    # إذا الإعلان غير موجود
+
+    if listing is None:
+
+        return "الإعلان غير موجود", 404
+
+
+    # فتح صفحة الإعلان
+
+    return render_template(
+        "listing.html",
+        listing=listing
+    )
+
+
+# =========================
+# تشغيل الموقع
+# =========================
+
 if __name__ == "__main__":
+
     app.run(debug=True)
