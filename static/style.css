@@ -1134,4 +1134,74 @@ footer strong {
         gap: 0;
     }
 
+}/* =========================
+   LAVREEN AI
+========================= */
+
+.ai-section {
+    min-height: 70vh;
+    padding: 80px 20px;
+}
+
+.ai-content {
+    max-width: 900px;
+    margin: auto;
+}
+
+.ai-content h1 {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+.ai-content h1 span {
+    display: block;
+}
+
+.ai-content textarea {
+    width: 100%;
+    min-height: 140px;
+    box-sizing: border-box;
+    resize: vertical;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid #ddd;
+    font-size: 18px;
+    font-family: inherit;
+    outline: none;
+}
+
+.ai-content textarea:focus {
+    border-color: #111;
+}
+
+.ai-chat {
+    margin-top: 30px;
+}
+
+.ai-chat .start-ai {
+    margin-top: 15px;
+}
+
+.ai-results {
+    margin-top: 50px;
+}
+
+.ai-results h2 {
+    margin-bottom: 25px;
+}
+
+.ai-results .product {
+    margin-bottom: 18px;
+}
+
+@media (max-width: 700px) {
+
+    .ai-content h1 {
+        font-size: 34px;
+    }
+
+    .ai-section {
+        padding: 50px 16px;
+    }
+
 }

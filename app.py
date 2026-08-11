@@ -1,6 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for
 
-from database import get_db, create_database, add_sample_listings, add_listing
+from database import (
+    get_db,
+    create_database,
+    add_sample_listings,
+    add_listing
+)
+
+from ai import ai_search
 
 
 app = Flask(__name__)
@@ -69,6 +76,40 @@ def search():
         "index.html",
         listings=listings,
         search_query=query
+    )
+
+
+# -------------------------
+# Lavreen AI
+# -------------------------
+
+@app.route("/ai", methods=["GET", "POST"])
+def ai():
+
+    query = ""
+    results = []
+
+    if request.method == "POST":
+
+        query = request.form.get("query", "").strip()
+
+        connection = get_db()
+
+        listings = connection.execute("""
+            SELECT *
+            FROM listings
+            ORDER BY id DESC
+        """).fetchall()
+
+        connection.close()
+
+        if query:
+            results = ai_search(query, listings)
+
+    return render_template(
+        "ai.html",
+        query=query,
+        results=results
     )
 
 

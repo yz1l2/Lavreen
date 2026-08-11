@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lavreen AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="brand">
+
+        <div class="logo-box">L</div>
+
+        <div>
+            <div class="logo-name">Lavreen</div>
+            <div class="logo-arabic">لافريين</div>
+        </div>
+
+    </div>
+
+    <nav class="nav-links">
+
+        <a href="/">الرئيسية</a>
+        <a href="/#trending">الرائج 🔥</a>
+        <a href="/#deals">أفضل الأسعار 💰</a>
+
+    </nav>
+
+    <div class="nav-buttons">
+
+        <a href="/sell" class="sell-button">
+            + بيع
+        </a>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="ai-section">
+
+    <div class="ai-content">
+
+        <small>
+            ✦ LAVREEN AI
+        </small>
+
+        <h1>
+            وش تدور عليه؟
+            <span>خل لافريين يدور معك.</span>
+        </h1>
+
+        <p>
+            اكتب طلبك بالتفصيل، ولـافريين يبحث لك
+            داخل الإعلانات ويرتب أفضل الخيارات.
+        </p>
+
+
+        <form method="POST" action="/ai">
+
+            <div class="ai-chat">
+
+                <textarea
+                    name="query"
+                    placeholder="مثال: أبي كامري 2022 بالرياض بأقل من 70 ألف..."
+                    required
+                >{{ query }}</textarea>
+
+                <button
+                    type="submit"
+                    class="start-ai">
+                    ✦ ابحث مع Lavreen AI
+                </button>
+
+            </div>
+
+        </form>
+
+
+        {% if query %}
+
+        <div class="ai-results">
+
+            <h2>
+                نتائج بحثك 🔎
+            </h2>
+
+            {% if results %}
+
+                {% for listing in results %}
+
+                <article class="product">
+
+                    <div class="product-image">
+
+                        {% if listing["category"] == "سيارات" %}
+                            🚗
+                        {% elif listing["category"] == "جوالات" %}
+                            📱
+                        {% elif listing["category"] == "كمبيوتر" %}
+                            💻
+                        {% elif listing["category"] == "ألعاب" %}
+                            🎮
+                        {% else %}
+                            📦
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="product-info">
+
+                        <small>
+                            {{ listing["category"] }}
+                        </small>
+
+                        <h3>
+                            {{ listing["title"] }}
+                        </h3>
+
+                        <p>
+                            {{ listing["description"] }}
+                            · {{ listing["city"] }}
+                        </p>
+
+                        <div class="product-bottom">
+
+                            <strong>
+                                {{ "{:,.0f}".format(listing["price"]) }}
+                                ريال
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="no-results">
+
+                    <div>🤖</div>
+
+                    <h3>
+                        ما لقيت إعلان مناسب
+                    </h3>
+
+                    <p>
+                        جرّب تغيّر الكلمات أو توسّع طلبك.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+    <strong>Lavreen</strong>
+
+    <span>
+        منصة البيع والشراء الذكية ©️ 2026
+    </span>
+
+</footer>
+
+</body>
+</html>
