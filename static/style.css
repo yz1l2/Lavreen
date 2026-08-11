@@ -28,7 +28,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
     font-family: inherit;
 }
 
@@ -808,104 +810,6 @@ footer strong {
 
 
 /* =========================
-   TABLET
-========================= */
-
-@media (max-width: 950px) {
-
-    .nav-links {
-        display: none;
-    }
-
-    .categories {
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
-
-    .products {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .deal {
-        flex-direction: column;
-
-        align-items: flex-start;
-    }
-
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 600px) {
-
-    .navbar {
-        padding: 0 15px;
-    }
-
-    .ai-button {
-        display: none;
-    }
-
-    .hero {
-        padding-top: 65px;
-    }
-
-    .hero h1 {
-        font-size: 42px;
-
-        letter-spacing: -2px;
-    }
-
-    .search-area {
-        flex-direction: column;
-    }
-
-    .ai-search {
-        padding: 14px;
-    }
-
-    .categories {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .products {
-        grid-template-columns: 1fr;
-    }
-
-    .section {
-        padding: 55px 15px;
-    }
-
-    .deal {
-        padding: 30px;
-    }
-
-    .price-card {
-        width: 175px;
-        height: 175px;
-    }
-
-    .ai-section {
-        margin: 25px 15px 55px;
-
-        padding: 40px 25px;
-    }
-
-    .ai-content h2 {
-        font-size: 36px;
-    }
-
-    footer {
-        flex-direction: column;
-
-        gap: 15px;
-    }
-}/* =========================
    SELL PAGE
 ========================= */
 
@@ -929,13 +833,13 @@ footer strong {
     margin: auto;
 }
 
-.sell-heading {
+.sell-header {
     text-align: center;
 
-    margin-bottom: 35px;
+    margin-bottom: 30px;
 }
 
-.sell-heading small {
+.sell-header > span {
     color: var(--purple);
 
     font-size: 12px;
@@ -943,15 +847,15 @@ footer strong {
     font-weight: bold;
 }
 
-.sell-heading h1 {
+.sell-header h1 {
     margin-top: 12px;
 
-    font-size: 42px;
+    font-size: 44px;
 
     letter-spacing: -1.5px;
 }
 
-.sell-heading p {
+.sell-header p {
     margin-top: 10px;
 
     color: var(--muted);
@@ -972,23 +876,23 @@ footer strong {
         0 20px 60px rgba(0, 0, 0, 0.07);
 }
 
-.form-group {
-    margin-bottom: 22px;
-}
-
-.form-group label {
+.sell-form label {
     display: block;
 
-    margin-bottom: 8px;
+    margin: 20px 0 8px;
 
     font-size: 13px;
 
     font-weight: bold;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.sell-form label:first-child {
+    margin-top: 0;
+}
+
+.sell-form input,
+.sell-form select,
+.sell-form textarea {
     width: 100%;
 
     border: 1px solid #dedfe5;
@@ -1005,16 +909,14 @@ footer strong {
 
     font-size: 14px;
 
+    font-family: inherit;
+
     transition: 0.2s;
 }
 
-.form-group textarea {
-    resize: vertical;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.sell-form input:focus,
+.sell-form select:focus,
+.sell-form textarea:focus {
     border-color: var(--purple);
 
     background: white;
@@ -1023,64 +925,34 @@ footer strong {
         0 0 0 4px rgba(109, 93, 252, 0.08);
 }
 
-.form-row {
-    display: grid;
+.sell-form textarea {
+    resize: vertical;
 
-    grid-template-columns: 1fr 1fr;
-
-    gap: 15px;
+    min-height: 130px;
 }
 
-.ai-notice {
-    display: flex;
-
-    align-items: center;
-
-    gap: 14px;
-
-    padding: 16px;
-
-    margin-top: 5px;
-
-    margin-bottom: 22px;
-
-    border-radius: 15px;
-
-    background: var(--purple-light);
-
-    color: #5147b9;
+.price-input {
+    position: relative;
 }
 
-.ai-notice > div:first-child {
-    width: 40px;
-    height: 40px;
-
-    display: grid;
-    place-items: center;
-
-    flex-shrink: 0;
-
-    border-radius: 12px;
-
-    background: white;
-
-    color: var(--purple);
-
-    font-size: 20px;
+.price-input input {
+    padding-left: 65px;
 }
 
-.ai-notice strong {
-    display: block;
+.price-input span {
+    position: absolute;
 
-    font-size: 13px;
-}
+    left: 15px;
 
-.ai-notice p {
-    margin-top: 4px;
+    top: 50%;
 
-    color: #77718e;
+    transform: translateY(-50%);
 
-    font-size: 11px;
+    color: var(--muted);
+
+    font-size: 12px;
+
+    pointer-events: none;
 }
 
 .publish-button {
@@ -1090,7 +962,9 @@ footer strong {
 
     border-radius: 13px;
 
-    padding: 15px;
+    padding: 16px;
+
+    margin-top: 25px;
 
     background: #111318;
 
@@ -1099,6 +973,8 @@ footer strong {
     font-size: 15px;
 
     font-weight: bold;
+
+    font-family: inherit;
 
     transition: 0.2s;
 }
@@ -1110,46 +986,44 @@ footer strong {
         0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
+.back-home {
+    display: block;
 
-/* SELL PAGE MOBILE */
+    width: fit-content;
 
-@media (max-width: 600px) {
+    margin: 22px auto 0;
 
-    .sell-page {
-        padding: 45px 15px;
-    }
+    color: var(--muted);
 
-    .sell-heading h1 {
-        font-size: 34px;
-    }
+    font-size: 13px;
 
-    .sell-form {
-        padding: 22px;
+    transition: 0.2s;
+}
 
-        border-radius: 18px;
-    }
+.back-home:hover {
+    color: var(--purple);
+}
 
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
 
-}/* =========================
-   LAVREEN AI
+/* =========================
+   LAVREEN AI PAGE
 ========================= */
 
 .ai-section {
     min-height: 70vh;
+
     padding: 80px 20px;
 }
 
 .ai-content {
     max-width: 900px;
+
     margin: auto;
 }
 
 .ai-content h1 {
     font-size: 48px;
+
     margin: 20px 0;
 }
 
@@ -1159,14 +1033,23 @@ footer strong {
 
 .ai-content textarea {
     width: 100%;
+
     min-height: 140px;
+
     box-sizing: border-box;
+
     resize: vertical;
+
     padding: 20px;
+
     border-radius: 18px;
+
     border: 1px solid #ddd;
+
     font-size: 18px;
+
     font-family: inherit;
+
     outline: none;
 }
 
@@ -1194,14 +1077,126 @@ footer strong {
     margin-bottom: 18px;
 }
 
-@media (max-width: 700px) {
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 950px) {
+
+    .nav-links {
+        display: none;
+    }
+
+    .categories {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .products {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .deal {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    .navbar {
+        height: 68px;
+
+        padding: 0 15px;
+    }
+
+    .ai-button {
+        display: none;
+    }
+
+    .hero {
+        padding-top: 65px;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+
+        letter-spacing: -2px;
+    }
+
+    .search-area {
+        flex-direction: column;
+    }
+
+    .ai-search {
+        padding: 14px;
+    }
+
+    .categories {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .products {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        padding: 55px 15px;
+    }
+
+    .deal {
+        padding: 30px;
+    }
+
+    .price-card {
+        width: 175px;
+
+        height: 175px;
+    }
+
+    .ai-section {
+        margin: 25px 15px 55px;
+
+        padding: 40px 25px;
+    }
 
     .ai-content h1 {
         font-size: 34px;
     }
 
-    .ai-section {
-        padding: 50px 16px;
+    .ai-content h2 {
+        font-size: 36px;
     }
 
+    .sell-page {
+        padding: 45px 15px;
+    }
+
+    .sell-header h1 {
+        font-size: 34px;
+    }
+
+    .sell-form {
+        padding: 22px;
+
+        border-radius: 18px;
+    }
+
+    .sell-form input,
+    .sell-form select,
+    .sell-form textarea {
+        font-size: 16px;
+    }
+
+    footer {
+        flex-direction: column;
+
+        gap: 15px;
+    }
 }

@@ -1,188 +1,228 @@
-from flask import Flask, render_template, request, redirect, url_for
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
-from database import (
-    get_db,
-    create_database,
-    add_sample_listings,
-    add_listing
-)
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>بيع على Lavreen</title>
 
-app = Flask(__name__)
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
 
+<body>
 
-# =========================
-# تجهيز قاعدة البيانات
-# =========================
+<header class="navbar">
 
-create_database()
-add_sample_listings()
+    <div class="brand">
+        <div class="logo-box">L</div>
 
+        <div>
+            <div class="logo-name">Lavreen</div>
+            <div class="logo-arabic">لافريين</div>
+        </div>
+    </div>
 
-# =========================
-# الصفحة الرئيسية
-# =========================
+    <nav class="nav-links">
+        <a href="/">الرئيسية</a>
+        <a href="/ai">Lavreen AI ✦</a>
+    </nav>
 
-@app.route("/")
-def home():
+    <div class="nav-buttons">
+        <a href="/sell" class="sell-button">بيع الآن</a>
+    </div>
 
-    connection = get_db()
+</header>
 
-    listings = connection.execute("""
-        SELECT *
-        FROM listings
-        ORDER BY id DESC
-    """).fetchall()
 
-    connection.close()
+<main class="sell-page">
 
-    return render_template(
-        "index.html",
-        listings=listings,
-        search_query=""
-    )
+    <div class="sell-container">
 
+        <div class="sell-heading">
 
-# =========================
-# البحث
-# =========================
+            <small>✦ LAVREEN</small>
 
-@app.route("/search")
-def search():
+            <h1>وش بتبيع؟</h1>
 
-    query = request.args.get("q", "").strip()
+            <p>
+                أضف إعلانك وخله يوصل للمشترين بسهولة.
+            </p>
 
-    connection = get_db()
+        </div>
 
-    if query:
 
-        listings = connection.execute("""
-            SELECT *
-            FROM listings
-            WHERE title LIKE ?
-               OR category LIKE ?
-               OR city LIKE ?
-               OR description LIKE ?
-            ORDER BY id DESC
-        """, (
-            f"%{query}%",
-            f"%{query}%",
-            f"%{query}%",
-            f"%{query}%"
-        )).fetchall()
+        <form action="{{ url_for('create_listing') }}"
+              method="POST"
+              class="sell-form">
 
-    else:
 
-        listings = connection.execute("""
-            SELECT *
-            FROM listings
-            ORDER BY id DESC
-        """).fetchall()
+            <div class="form-group">
 
-    connection.close()
+                <label for="title">
+                    عنوان الإعلان
+                </label>
 
-    return render_template(
-        "index.html",
-        listings=listings,
-        search_query=query
-    )
+                <input
+                    id="title"
+                    type="text"
+                    name="title"
+                    placeholder="مثال: Toyota Camry 2022"
+                    required
+                >
 
+            </div>
 
-# =========================
-# صفحة إضافة إعلان
-# =========================
 
-@app.route("/sell")
-def sell():
+            <div class="form-group">
 
-    return render_template("sell.html")
+                <label for="category">
+                    الفئة
+                </label>
 
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
 
-# =========================
-# حفظ الإعلان الجديد
-# =========================
+                    <option value="">
+                        اختر الفئة
+                    </option>
 
-@app.route("/sell", methods=["POST"])
-def create_listing():
+                    <option value="سيارات">
+                        🚗 سيارات
+                    </option>
 
-    title = request.form.get("title", "").strip()
-    category = request.form.get("category", "").strip()
-    price = request.form.get("price", "").strip()
-    city = request.form.get("city", "").strip()
-    description = request.form.get("description", "").strip()
+                    <option value="جوالات">
+                        📱 جوالات
+                    </option>
 
+                    <option value="كمبيوتر">
+                        💻 كمبيوتر
+                    </option>
 
-    # التأكد من الحقول الأساسية
+                    <option value="ألعاب">
+                        🎮 ألعاب
+                    </option>
 
-    if not title or not category or not price or not city:
+                    <option value="إلكترونيات">
+                        🔌 إلكترونيات
+                    </option>
 
-        return "فضلاً عبّ جميع الحقول المطلوبة."
+                    <option value="أخرى">
+                        📦 أخرى
+                    </option>
 
+                </select>
 
-    # تحويل السعر إلى رقم
+            </div>
 
-    try:
 
-        price = float(price)
+            <div class="form-row">
 
-    except ValueError:
+                <div class="form-group">
 
-        return "السعر يجب أن يكون رقمًا."
+                    <label for="price">
+                        السعر
+                    </label>
 
+                    <input
+                        id="price"
+                        type="number"
+                        name="price"
+                        placeholder="45000"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
 
-    # إضافة الإعلان إلى قاعدة البيانات
+                </div>
 
-    add_listing(
-        title,
-        category,
-        price,
-        city,
-        description
-    )
 
+                <div class="form-group">
 
-    # العودة للرئيسية
+                    <label for="city">
+                        المدينة
+                    </label>
 
-    return redirect(url_for("home"))
+                    <input
+                        id="city"
+                        type="text"
+                        name="city"
+                        placeholder="الرياض"
+                        required
+                    >
 
+                </div>
 
-# =========================
-# صفحة تفاصيل الإعلان
-# =========================
+            </div>
 
-@app.route("/listing/<int:listing_id>")
-def listing_details(listing_id):
 
-    connection = get_db()
+            <div class="ai-notice">
 
-    listing = connection.execute("""
-        SELECT *
-        FROM listings
-        WHERE id = ?
-    """, (listing_id,)).fetchone()
+                <div>✦</div>
 
-    connection.close()
+                <div>
 
+                    <strong>
+                        Lavreen AI
+                    </strong>
 
-    # إذا الإعلان غير موجود
+                    <p>
+                        قريبًا بيساعدك الذكاء الاصطناعي في تحسين إعلانك.
+                    </p>
 
-    if listing is None:
+                </div>
 
-        return "الإعلان غير موجود", 404
+            </div>
 
 
-    # فتح صفحة الإعلان
+            <div class="form-group">
 
-    return render_template(
-        "listing.html",
-        listing=listing
-    )
+                <label for="description">
+                    وصف الإعلان
+                </label>
 
+                <textarea
+                    id="description"
+                    name="description"
+                    placeholder="اكتب تفاصيل الإعلان، الحالة، الممشى، المواصفات..."
+                    rows="6"
+                ></textarea>
 
-# =========================
-# تشغيل الموقع
-# =========================
+            </div>
 
-if __name__ == "__main__":
 
-    app.run(debug=True)
+            <button
+                type="submit"
+                class="publish-button"
+            >
+                نشر الإعلان 🚀
+            </button>
+
+        </form>
+
+
+        <a href="/" class="back-home">
+            ← العودة للرئيسية
+        </a>
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <strong>Lavreen</strong>
+
+    <span>
+        منصة البيع والشراء الذكية © 2026
+    </span>
+
+</footer>
+
+</body>
+</html>
