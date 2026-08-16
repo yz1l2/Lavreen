@@ -30,18 +30,18 @@
     </nav>
 
     <div class="nav-buttons">
-        <a href="/sell" class="sell-button">بيع الآن</a>
+        <a href="/sell" class="sell-button">
+            بيع الآن
+        </a>
     </div>
 
 </header>
-
 
 <main class="sell-page">
 
     <div class="sell-container">
 
         <div class="sell-heading">
-
             <small>✦ LAVREEN</small>
 
             <h1>وش بتبيع؟</h1>
@@ -49,14 +49,13 @@
             <p>
                 أضف إعلانك وخله يوصل للمشترين بسهولة.
             </p>
-
         </div>
-
 
         <form action="{{ url_for('create_listing') }}"
               method="POST"
               class="sell-form">
 
+            <!-- العنوان -->
 
             <div class="form-group">
 
@@ -75,50 +74,81 @@
             </div>
 
 
+            <!-- التصنيف الرئيسي -->
+
             <div class="form-group">
 
-                <label for="category">
-                    الفئة
+                <label for="main-category">
+                    التصنيف
                 </label>
 
-                <select
-                    id="category"
-                    name="category"
-                    required
-                >
+                <select id="main-category" required>
 
                     <option value="">
-                        اختر الفئة
+                        اختر التصنيف
                     </option>
 
-                    <option value="سيارات">
-                        🚗 سيارات
-                    </option>
-
-                    <option value="جوالات">
-                        📱 جوالات
-                    </option>
-
-                    <option value="كمبيوتر">
-                        💻 كمبيوتر
-                    </option>
-
-                    <option value="ألعاب">
-                        🎮 ألعاب
-                    </option>
-
-                    <option value="إلكترونيات">
-                        🔌 إلكترونيات
-                    </option>
-
-                    <option value="أخرى">
-                        📦 أخرى
-                    </option>
+                    <option value="سيارات">🚗 سيارات</option>
+                    <option value="حيوانات">🐎 حيوانات</option>
+                    <option value="كمبيوتر">💻 كمبيوتر</option>
+                    <option value="إلكترونيات">🔌 إلكترونيات</option>
+                    <option value="جوالات">📱 جوالات</option>
+                    <option value="ألعاب">🎮 ألعاب</option>
+                    <option value="عقارات">🏠 عقارات</option>
+                    <option value="أثاث">🛋️ أثاث</option>
+                    <option value="ملابس">👕 ملابس</option>
+                    <option value="دراجات">🏍️ دراجات</option>
+                    <option value="معدات وأدوات">🛠️ معدات وأدوات</option>
+                    <option value="كتب">📚 كتب</option>
+                    <option value="أخرى">📦 أخرى</option>
 
                 </select>
 
             </div>
 
+
+            <!-- التصنيف الفرعي -->
+
+            <div class="form-group" id="sub-container" style="display:none;">
+
+                <label for="sub-category">
+                    القسم الفرعي
+                </label>
+
+                <select id="sub-category">
+                    <option value="">
+                        اختر القسم
+                    </option>
+                </select>
+
+            </div>
+
+
+            <!-- النوع -->
+
+            <div class="form-group" id="type-container" style="display:none;">
+
+                <label for="item-type">
+                    النوع / الشركة
+                </label>
+
+                <select id="item-type">
+                    <option value="">
+                        اختر النوع
+                    </option>
+                </select>
+
+            </div>
+
+
+            <!-- هذا هو التصنيف الذي سيرسله الموقع للـ Flask -->
+
+            <input type="hidden"
+                   id="category"
+                   name="category">
+
+
+            <!-- السعر والمدينة -->
 
             <div class="form-row">
 
@@ -140,7 +170,6 @@
 
                 </div>
 
-
                 <div class="form-group">
 
                     <label for="city">
@@ -160,24 +189,7 @@
             </div>
 
 
-            <div class="ai-notice">
-
-                <div>✦</div>
-
-                <div>
-
-                    <strong>
-                        Lavreen AI
-                    </strong>
-
-                    <p>
-                        قريبًا بيساعدك الذكاء الاصطناعي في تحسين إعلانك.
-                    </p>
-
-                </div>
-
-            </div>
-
+            <!-- الوصف -->
 
             <div class="form-group">
 
@@ -188,7 +200,7 @@
                 <textarea
                     id="description"
                     name="description"
-                    placeholder="اكتب تفاصيل الإعلان، الحالة، الممشى، المواصفات..."
+                    placeholder="اكتب تفاصيل الإعلان..."
                     rows="6"
                 ></textarea>
 
@@ -197,13 +209,11 @@
 
             <button
                 type="submit"
-                class="publish-button"
-            >
+                class="publish-button">
                 نشر الإعلان 🚀
             </button>
 
         </form>
-
 
         <a href="/" class="back-home">
             ← العودة للرئيسية
@@ -219,10 +229,660 @@
     <strong>Lavreen</strong>
 
     <span>
-        منصة البيع والشراء الذكية © 2026
+        منصة البيع والشراء الذكية ©️ 2026
     </span>
 
 </footer>
+
+
+<script>
+
+const data = {
+
+    "سيارات": {
+
+        "تويوتا": [
+            "كامري",
+            "كورولا",
+            "لاندكروزر",
+            "هايلاندر",
+            "راف فور",
+            "يارس",
+            "برادو",
+            "هايلوكس",
+            "أخرى"
+        ],
+
+        "لكزس": [
+            "ES",
+            "LS",
+            "LX",
+            "IS",
+            "RX",
+            "NX",
+            "GX",
+            "أخرى"
+        ],
+
+        "نيسان": [
+            "باترول",
+            "صني",
+            "ألتيما",
+            "كيكس",
+            "إكس تريل",
+            "أخرى"
+        ],
+
+        "هوندا": [
+            "أكورد",
+            "سيفيك",
+            "CR-V",
+            "بايلوت",
+            "أخرى"
+        ],
+
+        "هيونداي": [
+            "سوناتا",
+            "النترا",
+            "توسان",
+            "سنتافي",
+            "أكسنت",
+            "أخرى"
+        ],
+
+        "كيا": [
+            "K5",
+            "سبورتاج",
+            "سورينتو",
+            "كارنفال",
+            "أخرى"
+        ],
+
+        "فورد": [
+            "موستانج",
+            "تورس",
+            "إكسبلورر",
+            "إكسبيديشن",
+            "F-150",
+            "أخرى"
+        ],
+
+        "شيفروليه": [
+            "تاهو",
+            "سوبربان",
+            "كامارو",
+            "كورفيت",
+            "ماليبو",
+            "أخرى"
+        ],
+
+        "مرسيدس": [
+            "C-Class",
+            "E-Class",
+            "S-Class",
+            "G-Class",
+            "GLE",
+            "أخرى"
+        ],
+
+        "BMW": [
+            "الفئة الثالثة",
+            "الفئة الخامسة",
+            "الفئة السابعة",
+            "X5",
+            "X6",
+            "أخرى"
+        ],
+
+        "دودج": [
+            "تشارجر",
+            "تشالنجر",
+            "دورانجو",
+            "أخرى"
+        ],
+
+        "جيب": [
+            "رانجلر",
+            "جراند شيروكي",
+            "جلادياتور",
+            "أخرى"
+        ]
+
+    },
+
+
+    "حيوانات": {
+
+        "خيول": [
+            "عربي",
+            "مهجن",
+            "سباق",
+            "أخرى"
+        ],
+
+        "إبل": [
+            "وضح",
+            "شعل",
+            "صفر",
+            "مجاهيم",
+            "أخرى"
+        ],
+
+        "أغنام": [
+            "نعيمي",
+            "حري",
+            "نجدي",
+            "أخرى"
+        ],
+
+        "طيور": [
+            "حمام",
+            "صقور",
+            "ببغاوات",
+            "كناري",
+            "أخرى"
+        ],
+
+        "قطط": [
+            "شيرازي",
+            "سيامي",
+            "بريطاني",
+            "أخرى"
+        ],
+
+        "كلاب": [
+            "هاسكي",
+            "جيرمن",
+            "مالينوي",
+            "أخرى"
+        ],
+
+        "مواشي أخرى": [
+            "أبقار",
+            "ماعز",
+            "أخرى"
+        ]
+
+    },
+
+
+    "كمبيوتر": {
+
+        "أجهزة كمبيوتر": [
+            "PC Gaming",
+            "PC مكتبي",
+            "Workstation",
+            "أخرى"
+        ],
+
+        "لابتوبات": [
+            "Gaming",
+            "دراسي",
+            "أعمال",
+            "أخرى"
+        ],
+
+        "كروت شاشة": [
+            "NVIDIA",
+            "AMD",
+            "Intel",
+            "أخرى"
+        ],
+
+        "معالجات": [
+            "Intel",
+            "AMD",
+            "أخرى"
+        ],
+
+        "قطع كمبيوتر": [
+            "RAM",
+            "SSD",
+            "HDD",
+            "مذربورد",
+            "مزود طاقة",
+            "كيس",
+            "تبريد",
+            "أخرى"
+        ],
+
+        "شاشات": [
+            "Gaming",
+            "مكتبية",
+            "UltraWide",
+            "أخرى"
+        ],
+
+        "إكسسوارات": [
+            "كيبورد",
+            "ماوس",
+            "سماعة",
+            "مايك",
+            "كاميرا",
+            "أخرى"
+        ]
+
+    },
+
+
+    "إلكترونيات": {
+
+        "تلفزيونات": [
+            "Samsung",
+            "LG",
+            "Sony",
+            "TCL",
+            "Hisense",
+            "أخرى"
+        ],
+
+        "سماعات": [
+            "AirPods",
+            "Headphones",
+            "Speakers",
+            "أخرى"
+        ],
+
+        "كاميرات": [
+            "Canon",
+            "Sony",
+            "Nikon",
+            "GoPro",
+            "أخرى"
+        ],
+
+        "ساعات": [
+            "Apple Watch",
+            "Galaxy Watch",
+            "Garmin",
+            "أخرى"
+        ],
+
+        "أجهزة منزلية": [
+            "مكنسة",
+            "مكيف",
+            "ثلاجة",
+            "غسالة",
+            "أخرى"
+        ],
+
+        "أجهزة أخرى": [
+            "راوتر",
+            "جهاز عرض",
+            "إكسسوارات",
+            "أخرى"
+        ]
+
+    },
+
+
+    "جوالات": {
+
+        "Apple": [
+            "iPhone",
+            "iPad",
+            "أخرى"
+        ],
+
+        "Samsung": [
+            "Galaxy S",
+            "Galaxy Note",
+            "Galaxy A",
+            "Galaxy Z",
+            "أخرى"
+        ],
+
+        "Huawei": [
+            "Mate",
+            "P Series",
+            "Nova",
+            "أخرى"
+        ],
+
+        "Xiaomi": [
+            "Redmi",
+            "Xiaomi",
+            "POCO",
+            "أخرى"
+        ],
+
+        "جوالات أخرى": [
+            "OnePlus",
+            "Oppo",
+            "Google Pixel",
+            "Honor",
+            "أخرى"
+        ]
+
+    },
+
+
+    "ألعاب": {
+
+        "PlayStation": [
+            "PS5",
+            "PS4",
+            "ألعاب PS5",
+            "ألعاب PS4",
+            "يد تحكم",
+            "إكسسوارات"
+        ],
+
+        "Xbox": [
+            "Xbox Series X",
+            "Xbox Series S",
+            "Xbox One",
+            "ألعاب Xbox",
+            "يد تحكم",
+            "إكسسوارات"
+        ],
+
+        "PC": [
+            "ألعاب PC",
+            "Steam",
+            "كروت ألعاب",
+            "إكسسوارات"
+        ],
+
+        "Nintendo": [
+            "Switch",
+            "Switch OLED",
+            "ألعاب",
+            "يد تحكم",
+            "إكسسوارات"
+        ],
+
+        "أجهزة أخرى": [
+            "VR",
+            "أجهزة محمولة",
+            "أخرى"
+        ]
+
+    },
+
+
+    "عقارات": {
+
+        "بيع": [
+            "شقة",
+            "فيلا",
+            "أرض",
+            "عمارة",
+            "استراحة",
+            "مزرعة",
+            "مكتب",
+            "محل",
+            "أخرى"
+        ],
+
+        "إيجار": [
+            "شقة",
+            "فيلا",
+            "استراحة",
+            "مكتب",
+            "محل",
+            "أخرى"
+        ]
+
+    },
+
+
+    "أثاث": {
+
+        "غرف": [
+            "غرفة نوم",
+            "مجلس",
+            "غرفة أطفال",
+            "أخرى"
+        ],
+
+        "أثاث منزلي": [
+            "كنب",
+            "طاولات",
+            "كراسي",
+            "دواليب",
+            "أخرى"
+        ],
+
+        "أجهزة منزلية": [
+            "ثلاجات",
+            "غسالات",
+            "مكيفات",
+            "أخرى"
+        ]
+
+    },
+
+
+    "ملابس": {
+
+        "رجالية": [
+            "ثياب",
+            "شماغ",
+            "أحذية",
+            "ساعات",
+            "أخرى"
+        ],
+
+        "نسائية": [
+            "فساتين",
+            "عبايات",
+            "أحذية",
+            "شنط",
+            "أخرى"
+        ],
+
+        "أطفال": [
+            "ملابس",
+            "أحذية",
+            "أخرى"
+        ]
+
+    },
+
+
+    "دراجات": {
+
+        "دراجات نارية": [
+            "هوندا",
+            "ياماها",
+            "كاواساكي",
+            "سوزوكي",
+            "أخرى"
+        ],
+
+        "دراجات هوائية": [
+            "جبلية",
+            "طريق",
+            "كهربائية",
+            "أخرى"
+        ]
+
+    },
+
+
+    "معدات وأدوات": {
+
+        "معدات": [
+            "معدات بناء",
+            "معدات زراعية",
+            "معدات ورش",
+            "مولدات",
+            "أخرى"
+        ],
+
+        "أدوات": [
+            "عدد يدوية",
+            "عدد كهربائية",
+            "أدوات سيارات",
+            "أخرى"
+        ]
+
+    },
+
+
+    "كتب": {
+
+        "كتب": [
+            "دراسية",
+            "روايات",
+            "دينية",
+            "ثقافية",
+            "أخرى"
+        ],
+
+        "مراجع": [
+            "جامعية",
+            "اختبارات",
+            "أخرى"
+        ]
+
+    },
+
+
+    "أخرى": {
+
+        "أخرى": [
+            "منتج عام"
+        ]
+
+    }
+
+};
+
+
+const mainCategory =
+    document.getElementById("main-category");
+
+const subCategory =
+    document.getElementById("sub-category");
+
+const itemType =
+    document.getElementById("item-type");
+
+const subContainer =
+    document.getElementById("sub-container");
+
+const typeContainer =
+    document.getElementById("type-container");
+
+const hiddenCategory =
+    document.getElementById("category");
+
+
+function resetSelect(select, text) {
+
+    select.innerHTML =
+        '<option value="">' + text + '</option>';
+
+}
+
+
+mainCategory.addEventListener("change", function () {
+
+    resetSelect(subCategory, "اختر القسم");
+
+    resetSelect(itemType, "اختر النوع");
+
+    subContainer.style.display = "none";
+    typeContainer.style.display = "none";
+
+    hiddenCategory.value = this.value;
+
+    const selected = data[this.value];
+
+    if (!selected) {
+        return;
+    }
+
+    Object.keys(selected).forEach(function (name) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = name;
+        option.textContent = name;
+
+        subCategory.appendChild(option);
+
+    });
+
+    subContainer.style.display = "block";
+
+});
+
+
+subCategory.addEventListener("change", function () {
+
+    resetSelect(itemType, "اختر النوع");
+
+    typeContainer.style.display = "none";
+
+    const main =
+        mainCategory.value;
+
+    const sub =
+        this.value;
+
+    if (!data[main] || !data[main][sub]) {
+        hiddenCategory.value =
+            main + " / " + sub;
+
+        return;
+    }
+
+    hiddenCategory.value =
+        main + " / " + sub;
+
+    data[main][sub].forEach(function (name) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = name;
+        option.textContent = name;
+
+        itemType.appendChild(option);
+
+    });
+
+    typeContainer.style.display = "block";
+
+});
+
+
+itemType.addEventListener("change", function () {
+
+    const main =
+        mainCategory.value;
+
+    const sub =
+        subCategory.value;
+
+    const type =
+        this.value;
+
+    hiddenCategory.value =
+        main + " / " + sub + " / " + type;
+
+});
+
+
+document.querySelector(".sell-form").addEventListener("submit", function (event) {
+
+    if (!hiddenCategory.value) {
+
+        event.preventDefault();
+
+        alert("اختر التصنيف أولاً");
+
+        return;
+    }
+
+});
+
+
+</script>
 
 </body>
 </html>
