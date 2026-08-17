@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ listing.title }} - Lvreen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- شريط التنقل العلوي -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center h-20">
+          <div class="text-2xl font-bold text-blue-600">
+            <a href="/">Lvreen</a>
+          </div>
+          <div class="hidden md:flex items-center space-x-6 space-x-reverse">
+            <a href="/ai" class="flex items-center text-gray-700 hover:text-blue-600 transition font-medium">
+              <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold ml-2">AI</span>
+              Lvreen AI
+            </a>
+            <a href="/my-listings" class="text-gray-700 hover:text-blue-600 transition font-medium">إعلاناتي</a>
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition font-medium">الرئيسية</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي للإعلان -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      
+      <!-- كرت تفاصيل السلعة -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 mb-8">
+        
+        <!-- عنوان الإعلان والسعر -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-6 mb-6">
+          <div>
+            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold">{{ listing.category }} / {{ listing.sub_category }}</span>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{{ listing.title }}</h1>
+            <p class="text-sm text-gray-400 mt-1">المدينة: <span class="text-gray-700 font-semibold">{{ listing.city }}</span></p>
+          </div>
+          <div class="mt-4 md:mt-0 text-left">
+            <span class="text-3xl font-extrabold text-blue-600">{{ listing.price }}</span>
+            <span class="text-gray-500 font-medium mr-1">ر.س</span>
+          </div>
+        </div>
+
+        <!-- صور السلعة -->
+        <div class="mb-8">
+          <div class="bg-gray-100 rounded-2xl overflow-hidden h-72 md:h-96 flex items-center justify-center border">
+            {% if listing.image_filename %}
+              <img src="{{ url_for('static', filename='uploads/' + listing.image_filename) }}" alt="صورة الإعلان" class="w-full h-full object-cover">
+            {% else %}
+              <div class="text-gray-400 flex flex-col items-center">
+                <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>لا توجد صور مرفقة</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- وصف السلعة -->
+        <div>
+          <h3 class="text-lg font-bold text-gray-800 mb-3">تفاصيل السلعة</h3>
+          <p class="text-gray-600 leading-relaxed whitespace-pre-line bg-gray-50 p-4 rounded-xl border border-gray-100">{{ listing.description or 'لا يوجد وصف إضافي من البائع.' }}</p>
+        </div>
+
+      </div>
+
+      <!-- قسم الشات والمحادثة الفورية -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8">
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+          <h3 class="text-xl font-bold text-gray-800 flex items-center">
+            <svg class="w-6 h-6 text-blue-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            مراسلة صاحب الإعلان
+          </h3>
+          <span class="text-xs bg-green-100 text-green-700 font-semibold px-2.5 py-1 rounded-full">متصل الآن</span>
+        </div>
+
+        <div id="chatBox" class="h-64 overflow-y-auto bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 space-y-3">
+          <div class="text-center text-gray-400 text-xs my-2">ابدأ المحادثة بخصوص هذه السلعة...</div>
+          <div class="flex justify-start">
+            <div class="bg-white border text-gray-700 px-4 py-2.5 rounded-2xl rounded-tr-none text-sm max-w-xs shadow-sm">
+              أهلاً بك، هل السلعة ما زالت متوفرة؟
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="chatInput" placeholder="اكتب رسالتك هنا للبائع..." 
+                 class="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+          <button id="sendBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow transition duration-200 text-sm">
+            إرسال
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- كود تفاعل الشات -->
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function appendMessage(text, isSender = true) {
+            const div = document.createElement('div');
+            div.className = isSender ? "flex justify-end" : "flex justify-start";
+            div.innerHTML = `<div class="${isSender ? 'bg-blue-600 text-white rounded-tl-none' : 'bg-white border text-gray-700 rounded-tr-none'} px-4 py-2.5 rounded-2xl text-sm max-w-xs shadow-sm">${text}</div>`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', function() {
+            const text = chatInput.value.trim();
+            if (text) {
+                appendMessage(text, true);
+                chatInput.value = '';
+                setTimeout(() => {
+                    appendMessage("تم إرسال رسالتك للبائع بنجاح، سيتم الرد عليك قريباً.", false);
+                }, 1000);
+            }
+        });
+
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
