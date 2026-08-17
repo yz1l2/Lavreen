@@ -9,183 +9,279 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .ai-page {
+            max-width: 1000px;
+            margin: auto;
+            padding: 70px 20px;
+        }
+
+        .ai-hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            padding: 9px 15px;
+            border-radius: 30px;
+            background: white;
+            border: 1px solid #e5e5e9;
+            margin-bottom: 18px;
+        }
+
+        .ai-hero h1 {
+            font-size: 52px;
+            margin: 0 0 15px;
+        }
+
+        .ai-hero p {
+            color: #777;
+            font-size: 17px;
+        }
+
+        .ai-box {
+            background: white;
+            padding: 25px;
+            border-radius: 22px;
+            border: 1px solid #e7e7eb;
+            box-shadow: 0 15px 40px rgba(0,0,0,.06);
+        }
+
+        .ai-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-form input {
+            flex: 1;
+            padding: 17px;
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .ai-form button {
+            border: 0;
+            background: #111;
+            color: white;
+            border-radius: 14px;
+            padding: 0 28px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .ai-results {
+            margin-top: 35px;
+        }
+
+        .ai-result {
+            background: white;
+            border: 1px solid #e7e7eb;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        .ai-result h3 {
+            margin: 0 0 10px;
+        }
+
+        .ai-result p {
+            color: #777;
+            margin: 6px 0;
+        }
+
+        .ai-empty {
+            text-align: center;
+            color: #777;
+            padding: 35px;
+        }
+
+        @media (max-width: 600px) {
+
+            .ai-page {
+                padding: 45px 16px;
+            }
+
+            .ai-hero h1 {
+                font-size: 38px;
+            }
+
+            .ai-form {
+                flex-direction: column;
+            }
+
+            .ai-form button {
+                padding: 15px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
 
-<header class="navbar">
+<header class="main-header">
 
-    <div class="brand">
+    <div class="header-container">
 
-        <div class="logo-box">L</div>
-
-        <div>
-            <div class="logo-name">Lavreen</div>
-            <div class="logo-arabic">لافريين</div>
-        </div>
-
-    </div>
-
-    <nav class="nav-links">
-
-        <a href="/">الرئيسية</a>
-        <a href="/#trending">الرائج 🔥</a>
-        <a href="/#deals">أفضل الأسعار 💰</a>
-
-    </nav>
-
-    <div class="nav-buttons">
-
-        <a href="/sell" class="sell-button">
-            + بيع
+        <a href="/" class="logo">
+            لافريين
         </a>
+
+        <nav class="main-nav">
+
+            <a href="/">
+                الرئيسية
+            </a>
+
+            <a href="/my-listings">
+                إعلاناتي
+            </a>
+
+            <a href="/sell" class="header-sell">
+                + بيع الآن
+            </a>
+
+        </nav>
 
     </div>
 
 </header>
 
 
-<main>
+<main class="ai-page">
 
-<section class="ai-section">
+    <section class="ai-hero">
 
-    <div class="ai-content">
-
-        <small>
-            ✦ LAVREEN AI
-        </small>
+        <div class="ai-badge">
+            ✨ Lavreen AI
+        </div>
 
         <h1>
             وش تدور عليه؟
-            <span>خل لافريين يدور معك.</span>
         </h1>
 
         <p>
-            اكتب طلبك بالتفصيل، ولـافريين يبحث لك
-            داخل الإعلانات ويرتب أفضل الخيارات.
+            قل لنا وش تبي، وخلك على الباقي علينا.
         </p>
 
+    </section>
 
-        <form method="POST" action="/ai">
 
-            <div class="ai-chat">
+    <section class="ai-box">
 
-                <textarea
-                    name="query"
-                    placeholder="مثال: أبي كامري 2022 بالرياض بأقل من 70 ألف..."
-                    required
-                >{{ query }}</textarea>
+        <form
+            action="{{ url_for('ai') }}"
+            method="POST"
+            class="ai-form"
+        >
 
-                <button
-                    type="submit"
-                    class="start-ai">
-                    ✦ ابحث مع Lavreen AI
-                </button>
+            <input
+                type="text"
+                name="query"
+                value="{{ query }}"
+                placeholder="مثال: كامري 2022 بحدود 75 ألف"
+                required
+            >
 
-            </div>
+            <button type="submit">
+                ✨ ابحث بالذكاء
+            </button>
 
         </form>
 
-
-        {% if query %}
-
-        <div class="ai-results">
-
-            <h2>
-                نتائج بحثك 🔎
-            </h2>
-
-            {% if results %}
-
-                {% for listing in results %}
-
-                <article class="product">
-
-                    <div class="product-image">
-
-                        {% if listing["category"] == "سيارات" %}
-                            🚗
-                        {% elif listing["category"] == "جوالات" %}
-                            📱
-                        {% elif listing["category"] == "كمبيوتر" %}
-                            💻
-                        {% elif listing["category"] == "ألعاب" %}
-                            🎮
-                        {% else %}
-                            📦
-                        {% endif %}
-
-                    </div>
+    </section>
 
 
-                    <div class="product-info">
+    {% if query %}
 
-                        <small>
-                            {{ listing["category"] }}
-                        </small>
+    <section class="ai-results">
 
-                        <h3>
-                            {{ listing["title"] }}
-                        </h3>
+        <div class="section-title">
 
-                        <p>
-                            {{ listing["description"] }}
-                            · {{ listing["city"] }}
-                        </p>
+            <div>
 
-                        <div class="product-bottom">
+                <span class="section-label">
+                    نتائج البحث
+                </span>
 
-                            <strong>
-                                {{ "{:,.0f}".format(listing["price"]) }}
-                                ريال
-                            </strong>
+                <h2>
+                    أفضل الخيارات لك
+                </h2>
 
-                        </div>
+            </div>
 
-                    </div>
+        </div>
 
-                </article>
 
-                {% endfor %}
+        {% if results %}
 
-            {% else %}
+            {% for result in results %}
 
-                <div class="no-results">
-
-                    <div>🤖</div>
+                <div class="ai-result">
 
                     <h3>
-                        ما لقيت إعلان مناسب
+                        {{ result["title"] }}
                     </h3>
 
                     <p>
-                        جرّب تغيّر الكلمات أو توسّع طلبك.
+                        💰 {{ "{:,.0f}".format(result["price"]) }} ريال
+                    </p>
+
+                    <p>
+                        📍 {{ result["city"] }}
+                    </p>
+
+                    <p>
+                        {{ result["description"] }}
                     </p>
 
                 </div>
 
-            {% endif %}
+            {% endfor %}
 
-        </div>
+        {% else %}
+
+            <div class="ai-result ai-empty">
+
+                ما لقينا نتائج مطابقة حاليًا 🤷‍♂️
+
+            </div>
 
         {% endif %}
 
-    </div>
+    </section>
 
-</section>
+    {% endif %}
 
 </main>
+<!-- شريط التنقل السفلي الخاص بالجوالات -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2">
+    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span class="text-xs mt-1">الرئيسية</span>
+    </a>
+    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs mt-1">ذكاء اصطناعي</span>
+    </a>
+    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
+        <div class="bg-blue-600 text-white p-2 rounded-full -mt-5 shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <span class="text-xs mt-1">أضف إعلان</span>
+    </a>
+    <a href="/my-listings" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span class="text-xs mt-1">إعلاناتي</span>
+    </a>
+</div>
 
-
-<footer>
-
-    <strong>Lavreen</strong>
-
-    <span>
-        منصة البيع والشراء الذكية ©️ 2026
-    </span>
-
-</footer>
+<!-- مسافة سفلية عشان ما يغطي المحتوى الأخير بالجوال -->
+<div class="md:hidden h-16"></div>
 
 </body>
-</html>

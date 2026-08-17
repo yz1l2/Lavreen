@@ -1,449 +1,977 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lavreen | لافريين</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Cairo", sans-serif;
+            background: #f7f7f9;
+            color: #15151a;
+            direction: rtl;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* HEADER */
+
+        .header {
+            height: 76px;
+            background: rgba(255,255,255,.94);
+            border-bottom: 1px solid #e8e8ec;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(15px);
+        }
+
+        .header-inner {
+            width: min(1200px, calc(100% - 40px));
+            margin: auto;
+            display: flex;
+            align-items: center;
+            gap: 45px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: ltr;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .logo-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: #111;
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav a {
+            padding: 9px 14px;
+            border-radius: 9px;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .nav a:hover {
+            background: #f1f1f4;
+            color: #111;
+        }
+
+        .nav .ai {
+            color: #7155f5;
+        }
+
+        .header-spacer {
+            flex: 1;
+        }
+
+        .my-listings {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .sell {
+            background: #111;
+            color: #fff;
+            border-radius: 10px;
+            padding: 11px 18px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* HERO */
+
+        .hero {
+            min-height: 525px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 78% 15%, rgba(116,86,255,.18), transparent 28%),
+                radial-gradient(circle at 10% 85%, rgba(116,86,255,.09), transparent 30%),
+                #fafafd;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-inner {
+            width: min(1000px, calc(100% - 40px));
+            margin: auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 13px;
+            border: 1px solid #dedde5;
+            border-radius: 50px;
+            background: rgba(255,255,255,.75);
+            color: #666;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #7658ff;
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 6vw, 70px);
+            line-height: 1.2;
+            letter-spacing: -3px;
+            font-weight: 800;
+        }
+
+        .hero h1 span {
+            color: #7155f5;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 20px auto 30px;
+            color: #777780;
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        .search {
+            width: min(760px, 100%);
+            height: 68px;
+            background: #fff;
+            border: 1px solid #dddde4;
+            border-radius: 16px;
+            padding: 7px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 18px 45px rgba(20,20,30,.08);
+        }
+
+        .search-icon {
+            width: 50px;
+            font-size: 29px;
+            color: #999;
+        }
+
+        .search input {
+            flex: 1;
+            height: 100%;
+            border: 0;
+            outline: 0;
+            font-family: inherit;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .search button {
+            height: 54px;
+            padding: 0 25px;
+            border: 0;
+            border-radius: 11px;
+            background: #111;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .search button:hover {
+            background: #7155f5;
+        }
+
+        .popular {
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            color: #999;
+            font-size: 11px;
+        }
+
+        .popular a {
+            background: #fff;
+            border: 1px solid #e5e5e9;
+            border-radius: 30px;
+            padding: 5px 11px;
+            color: #666;
+        }
+
+        /* SECTIONS */
+
+        .section {
+            width: min(1200px, calc(100% - 40px));
+            margin: auto;
+            padding: 75px 0;
+        }
+
+        .heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .heading small {
+            display: block;
+            color: #7155f5;
+            font-weight: 800;
+            font-size: 11px;
+            margin-bottom: 3px;
+        }
+
+        .heading h2 {
+            font-size: 26px;
+        }
+
+        .all {
+            color: #666;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* CATEGORIES */
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .category {
+            background: #fff;
+            border: 1px solid #e6e6eb;
+            border-radius: 17px;
+            padding: 20px;
+            min-height: 150px;
+            position: relative;
+            transition: .25s;
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(20,20,30,.08);
+            border-color: #d8d1ff;
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            margin-bottom: 17px;
+        }
+
+        .c1 { background: #fff0ec; }
+        .c2 { background: #eaf7ef; }
+        .c3 { background: #edf1ff; }
+        .c4 { background: #f1edff; }
+        .c5 { background: #fff3dd; }
+
+        .category strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .category p {
+            color: #999;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .category-arrow {
+            position: absolute;
+            left: 16px;
+            bottom: 17px;
+            color: #aaa;
+        }
+
+        /* AI */
+
+        .ai-banner {
+            width: min(1200px, calc(100% - 40px));
+            margin: 0 auto;
+            border-radius: 22px;
+            min-height: 180px;
+            padding: 32px 38px;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(130,100,255,.35), transparent 30%),
+                linear-gradient(120deg,#17151f,#2a2440);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ai-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: rgba(255,255,255,.1);
+            display: grid;
+            place-items: center;
+            font-size: 27px;
+            color: #b8a9ff;
+        }
+
+        .ai-content small {
+            color: #aaa0ff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .ai-content h2 {
+            font-size: 21px;
+            margin: 3px 0;
+        }
+
+        .ai-content p {
+            color: #aaa6b6;
+            font-size: 11px;
+        }
+
+        .ai-button {
+            background: white;
+            color: #18151f;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* PRODUCTS */
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 17px;
+        }
+
+        .product {
+            background: #fff;
+            border: 1px solid #e5e5ea;
+            border-radius: 17px;
+            overflow: hidden;
+            transition: .25s;
+        }
+
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 17px 35px rgba(20,20,30,.08);
+        }
+
+        .product-image {
+            height: 210px;
+            background: #f0f0f3;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: .4s;
+        }
+
+        .product:hover img {
+            transform: scale(1.04);
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+            font-size: 35px;
+            color: #aaa;
+        }
+
+        .category-label {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            background: rgba(255,255,255,.92);
+            border-radius: 7px;
+            padding: 5px 9px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .heart {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            width: 33px;
+            height: 33px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,.92);
+            font-size: 19px;
+            cursor: pointer;
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .location {
+            color: #999;
+            font-size: 10px;
+            margin-bottom: 6px;
+        }
+
+        .product h3 {
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 13px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .price small {
+            font-size: 9px;
+            color: #777;
+        }
+
+        .arrow {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: #f4f4f6;
+            display: grid;
+            place-items: center;
+            color: #888;
+        }
+
+        /* EMPTY */
+
+        .empty {
+            background: #fff;
+            border: 1px dashed #ddd;
+            border-radius: 18px;
+            padding: 70px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .empty h3 {
+            font-size: 18px;
+        }
+
+        .empty p {
+            color: #888;
+            font-size: 12px;
+            margin: 5px 0 17px;
+        }
+
+        .empty a {
+            background: #111;
+            color: #fff;
+            border-radius: 9px;
+            padding: 10px 17px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #151515;
+            color: white;
+            margin-top: 30px;
+        }
+
+        .footer-inner {
+            width: min(1200px, calc(100% - 40px));
+            margin: auto;
+            padding: 45px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer-inner p {
+            color: #888;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            color: #aaa;
+            font-size: 11px;
+        }
+
+        .copyright {
+            border-top: 1px solid #292929;
+            text-align: center;
+            padding: 16px;
+            color: #666;
+            font-size: 9px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 950px) {
+            .nav {
+                display: none;
+            }
+
+            .categories {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .products {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header-inner,
+            .hero-inner,
+            .section,
+            .ai-banner,
+            .footer-inner {
+                width: calc(100% - 28px);
+            }
+
+            .header {
+                height: 65px;
+            }
+
+            .my-listings {
+                display: none;
+            }
+
+            .hero {
+                min-height: 500px;
+            }
+
+            .hero h1 {
+                font-size: 40px;
+                letter-spacing: -2px;
+            }
+
+            .hero p {
+                font-size: 12px;
+            }
+
+            .search {
+                height: 60px;
+            }
+
+            .search button {
+                height: 46px;
+                padding: 0 15px;
+                font-size: 11px;
+            }
+
+            .search input {
+                font-size: 11px;
+            }
+
+            .categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .products {
+                gap: 10px;
+            }
+
+            .product-image {
+                height: 155px;
+            }
+
+            .product-info {
+                padding: 12px;
+            }
+
+            .product h3 {
+                font-size: 12px;
+            }
+
+            .price {
+                font-size: 14px;
+            }
+
+            .ai-banner {
+                display: block;
+                padding: 25px 20px;
+            }
+
+            .ai-button {
+                display: inline-block;
+                margin-top: 20px;
+            }
+
+            .footer-inner {
+                display: block;
+            }
+
+            .footer-links {
+                margin-top: 25px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<header class="navbar">
+<header class="header">
+    <div class="header-inner">
 
-    <div class="brand">
-        <div class="logo-box">L</div>
+        <a href="/" class="logo">
+            <span class="logo-box">L</span>
+            <span>Lavreen</span>
+        </a>
 
-        <div>
-            <div class="logo-name">Lavreen</div>
-            <div class="logo-arabic">لافريين</div>
-        </div>
+        <nav class="nav">
+            <a href="/" >الرئيسية</a>
+            <a href="#categories">التصنيفات</a>
+            <a href="#listings">الإعلانات</a>
+            <a href="/ai" class="ai">✦ مساعد AI</a>
+        </nav>
+
+        <div class="header-spacer"></div>
+
+        <a href="/my-listings" class="my-listings">إعلاناتي</a>
+
+        <a href="/sell" class="sell">＋ أضف إعلان</a>
+
     </div>
-
-    <nav class="nav-links">
-        <a href="#trending">الرائج 🔥</a>
-        <a href="#deals">أفضل الأسعار 💰</a>
-        <a href="#categories">الأقسام</a>
-        <a href="#new">جديد ✨</a>
-    </nav>
-
-    <div class="nav-buttons">
-        <button class="ai-button">✦ مساعد AI</button>
-        <a href="/sell" class="sell-button">+ بيع</a>
-    </div>
-
 </header>
 
 
-<main>
+<section class="hero">
 
-    <!-- HERO -->
-
-    <section class="hero">
+    <div class="hero-inner">
 
         <div class="badge">
-            ✦ البيع والشراء صار أذكى
+            <span class="dot"></span>
+            السوق الذكي في السعودية
         </div>
 
         <h1>
-            وش تدور عليه؟
+            لا تدور كثير.<br>
             <span>لافريين يلقاه لك.</span>
         </h1>
 
         <p>
-            ابحث، قارن الأسعار، وخَل الذكاء الاصطناعي يساعدك
-            تختار أفضل خيار يناسبك.
+            ابحث عن السيارات، الأجهزة، العقارات وكل اللي تحتاجه
+            في مكان واحد، مع مساعد ذكي يساعدك تختار الأفضل.
         </p>
 
+        <form action="/search" method="GET" class="search">
 
-        <!-- البحث الحقيقي -->
+            <div class="search-icon">⌕</div>
 
-        <div class="search-area">
+            <input
+                type="text"
+                name="q"
+                placeholder="وش تدور عليه؟ مثال: كامري 2022"
+            >
 
-            <form class="search-box" action="/search" method="GET">
+            <button type="submit">بحث ←</button>
 
-                <span class="search-icon">⌕</span>
+        </form>
 
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="مثال: كامري 2022 بأقل من 75 ألف"
-                    value="{{ search_query or '' }}"
+        <div class="popular">
+            <span>الأكثر بحثًا</span>
+            <a href="/search?q=كامري">كامري</a>
+            <a href="/search?q=آيفون">آيفون</a>
+            <a href="/search?q=لابتوب">لابتوب</a>
+            <a href="/search?q=سيارات">سيارات</a>
+            <a href="/search?q=عقار">عقار</a>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section" id="categories">
+
+    <div class="heading">
+        <div>
+            <small>اكتشف السوق</small>
+            <h2>تصفح حسب التصنيف</h2>
+        </div>
+
+        <a href="/search" class="all">عرض الكل ←</a>
+    </div>
+
+    <div class="categories">
+
+        <a href="/search?q=سيارات" class="category">
+            <div class="category-icon c1">🚘</div>
+            <strong>سيارات</strong>
+            <p>بيع وشراء السيارات</p>
+            <span class="category-arrow">←</span>
+        </a>
+
+        <a href="/search?q=عقار" class="category">
+            <div class="category-icon c2">🏠</div>
+            <strong>عقار</strong>
+            <p>بيوت وشقق وأراضي</p>
+            <span class="category-arrow">←</span>
+        </a>
+
+        <a href="/search?q=جوالات" class="category">
+            <div class="category-icon c3">📱</div>
+            <strong>جوالات</strong>
+            <p>جوالات وإلكترونيات</p>
+            <span class="category-arrow">←</span>
+        </a>
+
+        <a href="/search?q=كمبيوتر" class="category">
+            <div class="category-icon c4">💻</div>
+            <strong>كمبيوتر</strong>
+            <p>PC وقطع وأجهزة</p>
+            <span class="category-arrow">←</span>
+        </a>
+
+        <a href="/search?q=ألعاب" class="category">
+            <div class="category-icon c5">🎮</div>
+            <strong>ألعاب</strong>
+            <p>ألعاب وكونسول</p>
+            <span class="category-arrow">←</span>
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="ai-banner">
+
+    <div class="ai-content">
+
+        <div class="ai-icon">✦</div>
+
+        <div>
+            <small>LAVREEN AI</small>
+            <h2>قل له وش تبي، وهو يدور لك.</h2>
+            <p>
+                مثال: "أبي كامري 2022 بميزانية 75 ألف"
+            </p>
+        </div>
+
+    </div>
+
+    <a href="/ai" class="ai-button">
+        جرّب المساعد ←
+    </a>
+
+</section>
+
+
+<section class="section" id="listings">
+
+    <div class="heading">
+        <div>
+            <small>جديد السوق</small>
+            <h2>أحدث الإعلانات</h2>
+        </div>
+
+        <a href="/search" class="all">مشاهدة الكل ←</a>
+    </div>
+
+
+    {% if listings %}
+
+    <div class="products">
+
+        {% for listing in listings %}
+
+        <a href="/listing/{{ listing['id'] }}" class="product">
+
+            <div class="product-image">
+
+                {% if listing['image_path'] %}
+
+                <img
+                    src="{{ url_for('static', filename=listing['image_path']) }}"
+                    alt="{{ listing['title'] }}"
                 >
 
-                <button class="search-button" type="submit">
-                    بحث
-                </button>
-
-            </form>
-
-            <a href="/ai" class="ai-search">
-    ✦ اسأل Lavreen AI
-</a>
-                
-        
-
-        </div>
-
-
-        <div class="search-tags">
-
-            <span>جرب:</span>
-
-            <button>كامري 2022</button>
-            <button>iPhone 15 Pro</button>
-            <button>RTX 4070</button>
-            <button>سيارات أقل من 70 ألف</button>
-
-        </div>
-
-    </section>
-
-
-    <!-- الأقسام -->
-
-    <section class="section" id="categories">
-
-        <div class="section-title">
-
-            <div>
-                <small>استكشف</small>
-                <h2>وش تبي تشتري؟</h2>
-            </div>
-
-            <a href="#">عرض الكل ←</a>
-
-        </div>
-
-
-        <div class="categories">
-
-            <div class="category">
-                <div class="category-icon">🚗</div>
-                <h3>سيارات</h3>
-                <p>سيارات جديدة ومستعملة</p>
-            </div>
-
-            <div class="category">
-                <div class="category-icon">📱</div>
-                <h3>جوالات</h3>
-                <p>أحدث الأجهزة</p>
-            </div>
-
-            <div class="category">
-                <div class="category-icon">💻</div>
-                <h3>كمبيوتر</h3>
-                <p>PC وقطع وإكسسوارات</p>
-            </div>
-
-            <div class="category">
-                <div class="category-icon">🎮</div>
-                <h3>ألعاب</h3>
-                <p>أجهزة وألعاب</p>
-            </div>
-
-            <div class="category">
-                <div class="category-icon">🏠</div>
-                <h3>عقارات</h3>
-                <p>بيع وإيجار</p>
-            </div>
-
-            <div class="category">
-                <div class="category-icon">✨</div>
-                <h3>المزيد</h3>
-                <p>جميع الأقسام</p>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- نتائج البحث / الرائج -->
-
-    <section class="section" id="trending">
-
-        <div class="section-title">
-
-            <div>
-                {% if search_query %}
-                    <small>نتائج البحث 🔎</small>
-                    <h2>نتائج البحث عن "{{ search_query }}"</h2>
                 {% else %}
-                    <small class="red">الرائج 🔥</small>
-                    <h2>الناس تدور عليها الآن</h2>
+
+                <div class="no-image">📦</div>
+
                 {% endif %}
-            </div>
 
-        </div>
-
-
-        <div class="products">
-
-            {% if listings %}
-
-                {% for listing in listings %}
-
-                <article class="product">
-
-                    <div class="product-image">
-
-                        {% if listing["category"] == "سيارات" %}
-                            🚗
-                        {% elif listing["category"] == "جوالات" %}
-                            📱
-                        {% elif listing["category"] == "كمبيوتر" %}
-                            💻
-                        {% elif listing["category"] == "ألعاب" %}
-                            🎮
-                        {% else %}
-                            📦
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="product-info">
-
-                        <small>
-                            {{ listing["category"] }}
-                        </small>
-
-                        <h3>
-                            {{ listing["title"] }}
-                        </h3>
-
-                        <p>
-                            {{ listing["description"] }}
-                            · {{ listing["city"] }}
-                        </p>
-
-                        <div class="product-bottom">
-
-                            <strong>
-                                {{ "{:,.0f}".format(listing["price"]) }} ريال
-                            </strong>
-
-                            <span>♡</span>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-                {% endfor %}
-
-            {% else %}
-
-                <div class="no-results">
-
-                    <div>🔎</div>
-
-                    <h3>ما لقينا نتائج</h3>
-
-                    <p>
-                        جرّب كلمة بحث مختلفة.
-                    </p>
-
+                <div class="category-label">
+                    {{ listing['category'] }}
                 </div>
 
-            {% endif %}
-
-        </div>
-
-    </section>
-
-
-    <!-- أفضل الأسعار -->
-
-    <section class="section" id="deals">
-
-        <div class="section-title">
-
-            <div>
-                <small class="green">أفضل الأسعار 💰</small>
-                <h2>صفقات تستاهل تشوفها</h2>
-            </div>
-
-        </div>
-
-
-        <div class="deal">
-
-            <div class="deal-text">
-
-                <span>
-                    تحليل الأسعار بالذكاء الاصطناعي
-                </span>
-
-                <h2>
-                    هل السعر يستاهل؟
-                </h2>
-
-                <p>
-                    لافريين يقارن الإعلان بالمنتجات المشابهة
-                    ويساعدك تعرف إذا السعر ممتاز أو مرتفع.
-                </p>
-
-                <button>
-                    جرّب AI ✦
+                <button
+                    class="heart"
+                    type="button"
+                    onclick="event.preventDefault(); event.stopPropagation();"
+                >
+                    ♡
                 </button>
 
             </div>
 
+            <div class="product-info">
 
-            <div class="price-card">
-
-                <small>السعر</small>
-
-                <strong>61,000</strong>
-
-                <span>ريال</span>
-
-                <b>
-                    ↓ أقل من متوسط السوق بـ 9%
-                </b>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- AI -->
-
-    <section class="ai-section">
-
-        <div class="ai-content">
-
-            <small>
-                ✦ LAVREEN AI
-            </small>
-
-            <h2>
-                لا تبحث لحالك.
-                <span>خل لافريين يبحث معك.</span>
-            </h2>
-
-            <p>
-                قل للذكاء الاصطناعي وش تبي،
-                وهو يبحث بين الإعلانات ويقارن الأسعار
-                ويطلع لك أفضل الخيارات حسب طلبك.
-            </p>
-
-
-            <div class="ai-chat">
-
-                <div class="user-message">
-                    أبي كامري 2022 أو أحدث،
-                    فل كامل، ممشى أقل من 100 ألف
-                    وميزانيتي 75 ألف.
+                <div class="location">
+                    📍 {{ listing['city'] }}
                 </div>
 
-                <div class="ai-message">
-                    ✦ لقيت لك 14 إعلانًا مناسبًا.
-                    هذه أفضل 3 خيارات بناءً على
-                    السعر والممشى والمواصفات.
+                <h3>{{ listing['title'] }}</h3>
+
+                <div class="price-row">
+
+                    <div class="price">
+                        {{ "{:,.0f}".format(listing['price']) }}
+                        <small>ريال</small>
+                    </div>
+
+                    <div class="arrow">←</div>
+
                 </div>
 
             </div>
 
+        </a>
 
-            <button class="start-ai">
-                ابدأ مع Lavreen AI ✦
-            </button>
+        {% endfor %}
 
-        </div>
+    </div>
 
-    </section>
+    {% else %}
 
+    <div class="empty">
+        <div class="empty-icon">📦</div>
+        <h3>ما فيه إعلانات حالياً</h3>
+        <p>كن أول شخص ينزل إعلان في لافريين.</p>
+        <a href="/sell">أضف إعلانك</a>
+    </div>
 
-    <!-- جديد -->
+    {% endif %}
 
-    <section class="section" id="new">
-
-        <div class="section-title">
-
-            <div>
-                <small>✨ جديد الآن</small>
-                <h2>وصل حديثًا</h2>
-            </div>
-
-            <a href="#">عرض الكل ←</a>
-
-        </div>
-
-
-        <div class="new-products">
-
-            <div class="new-product">
-
-                <span>🚗</span>
-
-                <div>
-                    <strong>Mustang GT 2021</strong>
-                    <small>الرياض · قبل 4 دقائق</small>
-                </div>
-
-                <b>
-                    145,000 ريال
-                </b>
-
-            </div>
-
-
-            <div class="new-product">
-
-                <span>📱</span>
-
-                <div>
-                    <strong>iPhone 16 Pro Max</strong>
-                    <small>الرياض · قبل 7 دقائق</small>
-                </div>
-
-                <b>
-                    4,100 ريال
-                </b>
-
-            </div>
-
-
-            <div class="new-product">
-
-                <span>💻</span>
-
-                <div>
-                    <strong>RTX 4080 Super</strong>
-                    <small>الرياض · قبل 11 دقيقة</small>
-                </div>
-
-                <b>
-                    3,900 ريال
-                </b>
-
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
+</section>
 
 
 <footer>
 
-    <strong>Lavreen</strong>
+    <div class="footer-inner">
 
-    <span>
-        منصة البيع والشراء الذكية © 2026
-    </span>
+        <div>
+            <div class="logo">
+                <span class="logo-box">L</span>
+                <span>Lavreen</span>
+            </div>
+
+            <p>سوقك الذكي. ابحث، قارن، وبع بسهولة.</p>
+        </div>
+
+        <div class="footer-links">
+            <a href="/">الرئيسية</a>
+            <a href="/sell">أضف إعلان</a>
+            <a href="/my-listings">إعلاناتي</a>
+            <a href="/ai">Lavreen AI</a>
+        </div>
+
+    </div>
+
+    <div class="copyright">
+        © 2026 Lavreen — جميع الحقوق محفوظة
+    </div>
 
 </footer>
+<!-- شريط التنقل السفلي الخاص بالجوالات -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2">
+    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span class="text-xs mt-1">الرئيسية</span>
+    </a>
+    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs mt-1">ذكاء اصطناعي</span>
+    </a>
+    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
+        <div class="bg-blue-600 text-white p-2 rounded-full -mt-5 shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <span class="text-xs mt-1">أضف إعلان</span>
+    </a>
+    <a href="/my-listings" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span class="text-xs mt-1">إعلاناتي</span>
+    </a>
+</div>
 
+<!-- مسافة سفلية عشان ما يغطي المحتوى الأخير بالجوال -->
+<div class="md:hidden h-16"></div>
 
 </body>
-</html>

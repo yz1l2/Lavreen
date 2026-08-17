@@ -5,190 +5,494 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>إعلاناتي - Lavreen</title>
+    <title>إعلاناتي | لافريين</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        .my-page {
+            max-width: 1150px;
+            margin: auto;
+            padding: 60px 20px;
+        }
+
+        .my-hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .my-hero h1 {
+            margin: 0 0 8px;
+            font-size: 42px;
+            letter-spacing: -1px;
+        }
+
+        .my-hero p {
+            margin: 0;
+            color: #777;
+        }
+
+        .my-stats {
+            display: flex;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: white;
+            border: 1px solid #e5e6eb;
+            border-radius: 16px;
+            padding: 15px 20px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-box strong {
+            display: block;
+            font-size: 22px;
+        }
+
+        .stat-box span {
+            color: #777;
+            font-size: 11px;
+        }
+
+        .my-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .my-ad {
+            background: white;
+            border: 1px solid #e5e6eb;
+            border-radius: 21px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: .25s;
+        }
+
+        .my-ad:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,.07);
+        }
+
+        .my-ad-image {
+            width: 145px;
+            height: 115px;
+            flex-shrink: 0;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f0f1f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .my-ad-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .my-ad-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .my-ad-category {
+            display: inline-block;
+            background: #f2f3f6;
+            padding: 6px 10px;
+            border-radius: 9px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .my-ad-info h2 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .my-ad-price {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .my-ad-meta {
+            margin-top: 8px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .my-ad-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .my-ad-actions a,
+        .my-ad-actions button {
+            min-width: 95px;
+            padding: 10px 13px;
+            border-radius: 11px;
+            border: 0;
+            text-align: center;
+            background: #111;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .my-ad-actions .delete-button {
+            background: #f1f2f4;
+            color: #222;
+        }
+
+        .my-empty {
+            background: white;
+            border: 1px solid #e5e6eb;
+            border-radius: 25px;
+            padding: 85px 20px;
+            text-align: center;
+        }
+
+        .my-empty-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .my-empty h2 {
+            margin: 0 0 8px;
+        }
+
+        .my-empty p {
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 700px) {
+
+            .my-page {
+                padding: 40px 15px;
+            }
+
+            .my-hero {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .my-hero h1 {
+                font-size: 34px;
+            }
+
+            .my-stats {
+                width: 100%;
+            }
+
+            .stat-box {
+                flex: 1;
+            }
+
+            .my-ad {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .my-ad-image {
+                width: 100%;
+                height: 210px;
+            }
+
+            .my-ad-info {
+                width: 100%;
+            }
+
+            .my-ad-actions {
+                width: 100%;
+                flex-direction: row;
+            }
+
+            .my-ad-actions a,
+            .my-ad-actions button {
+                flex: 1;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<header class="navbar">
 
-    <div class="brand">
+<header class="main-header">
 
-        <div class="logo-box">
-            L
-        </div>
+    <div class="header-container">
 
-        <div>
+        <a href="/" class="logo">
+            لافريين
+        </a>
 
-            <div class="logo-name">
-                Lavreen
-            </div>
 
-            <div class="logo-arabic">
-                لافريين
-            </div>
+        <nav class="main-nav">
 
-        </div>
+            <a href="/">
+                الرئيسية
+            </a>
+
+            <a href="/ai">
+                ✨ مساعد AI
+            </a>
+
+            <a href="/sell" class="header-sell">
+                + بيع الآن
+            </a>
+
+        </nav>
 
     </div>
-
-    <nav class="nav-links">
-
-        <a href="/">
-            الرئيسية
-        </a>
-
-        <a href="/ai">
-            Lavreen AI ✦
-        </a>
-
-        <a href="/sell">
-            بيع الآن
-        </a>
-
-    </nav>
 
 </header>
 
 
-<main class="sell-page">
 
-    <div class="sell-container">
+<main class="my-page">
 
-        <div class="sell-heading">
 
-            <small>
-                ✦ LAVREEN
-            </small>
+    <section class="my-hero">
+
+        <div>
 
             <h1>
                 إعلاناتي
             </h1>
 
             <p>
-                جميع الإعلانات المنشورة على Lavreen.
+                تحكم بإعلاناتك من مكان واحد.
             </p>
 
         </div>
 
 
-        {% if listings %}
+        <div class="my-stats">
 
-            {% for listing in listings %}
+            <div class="stat-box">
 
-                <div class="form-group"
-                     style="border:1px solid #ddd;
-                            border-radius:12px;
-                            padding:18px;
-                            margin-bottom:15px;">
+                <strong>
+                    {{ listings|length }}
+                </strong>
 
-                    <h2>
-                        {{ listing["title"] }}
-                    </h2>
+                <span>
+                    إعلان
+                </span>
 
-                    <p>
-                        {{ listing["category"] }}
-                    </p>
+            </div>
 
-                    <strong>
-                        {{ "{:,.0f}".format(listing["price"]) }}
-                        ريال
-                    </strong>
+        </div>
 
-                    <p>
-                        {{ listing["city"] }}
-                    </p>
+    </section>
 
 
-                    <div style="margin-top:15px;">
 
-                        <a href="{{ url_for(
-                            'listing',
-                            listing_id=listing['id']
-                        ) }}"
-                           class="sell-button">
-
-                            فتح الإعلان
-
-                        </a>
+    {% if listings %}
 
 
-                        <a href="{{ url_for(
-                            'edit_listing',
-                            listing_id=listing['id']
-                        ) }}"
-                           class="back-home">
-
-                            تعديل
-
-                        </a>
+    <section class="my-list">
 
 
-                        <form
-                            action="{{ url_for(
-                                'remove_listing',
-                                listing_id=listing['id']
-                            ) }}"
-                            method="POST"
-                            style="display:inline;"
-                            onsubmit="return confirm('هل أنت متأكد من حذف الإعلان؟');">
+        {% for item in listings %}
 
-                            <button
-                                type="submit"
-                                class="publish-button">
 
-                                حذف
+        <article class="my-ad">
 
-                            </button>
 
-                        </form>
+            <div class="my-ad-image">
 
-                    </div>
+                <div>
+                    📦
+                </div>
+
+            </div>
+
+
+
+            <div class="my-ad-info">
+
+
+                <span class="my-ad-category">
+                    {{ item["category"] }}
+                </span>
+
+
+                <h2>
+                    {{ item["title"] }}
+                </h2>
+
+
+                <div class="my-ad-price">
+
+                    {{ "{:,.0f}".format(item["price"]) }}
+
+                    ريال
 
                 </div>
 
-            {% endfor %}
 
-        {% else %}
+                <div class="my-ad-meta">
 
-            <p>
-                لا توجد إعلانات حاليًا.
-            </p>
+                    📍 {{ item["city"] }}
 
-        {% endif %}
+                </div>
 
 
-        <a href="/"
-           class="back-home">
+            </div>
 
-            ← العودة للرئيسية
 
+
+            <div class="my-ad-actions">
+
+
+                <a
+                    href="{{ url_for('listing', listing_id=item['id']) }}"
+                >
+                    عرض
+                </a>
+
+
+                <a
+                    href="{{ url_for('edit_listing', listing_id=item['id']) }}"
+                >
+                    تعديل
+                </a>
+
+
+                <form
+                    action="{{ url_for('remove_listing', listing_id=item['id']) }}"
+                    method="POST"
+                    onsubmit="return confirm('هل أنت متأكد من حذف الإعلان؟');"
+                >
+
+                    <button
+                        type="submit"
+                        class="delete-button"
+                    >
+                        حذف
+                    </button>
+
+                </form>
+
+
+            </div>
+
+
+        </article>
+
+
+        {% endfor %}
+
+
+    </section>
+
+
+    {% else %}
+
+
+    <section class="my-empty">
+
+
+        <div class="my-empty-icon">
+            📦
+        </div>
+
+
+        <h2>
+            ما عندك إعلانات للحين
+        </h2>
+
+
+        <p>
+            انشر أول إعلان لك وابدأ البيع في لافريين.
+        </p>
+
+
+        <a
+            href="/sell"
+            class="sell-button"
+        >
+            🚀 بيع الآن
         </a>
 
-    </div>
+
+    </section>
+
+
+    {% endif %}
+
 
 </main>
 
 
-<footer>
 
-    <strong>
-        Lavreen
-    </strong>
+<footer class="main-footer">
 
-    <span>
-        منصة البيع والشراء الذكية ©️ 2026
-    </span>
+
+    <div>
+
+        <strong>
+            لافريين
+        </strong>
+
+        <span>
+            السوق الذكي 🚀
+        </span>
+
+    </div>
+
+
+    <p>
+        جميع الحقوق محفوظة © لافريين
+    </p>
+
 
 </footer>
 
-</body>
+<!-- شريط التنقل السفلي الخاص بالجوالات -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2">
+    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span class="text-xs mt-1">الرئيسية</span>
+    </a>
+    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs mt-1">ذكاء اصطناعي</span>
+    </a>
+    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
+        <div class="bg-blue-600 text-white p-2 rounded-full -mt-5 shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <span class="text-xs mt-1">أضف إعلان</span>
+    </a>
+    <a href="/my-listings" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span class="text-xs mt-1">إعلاناتي</span>
+    </a>
+</div>
 
-</html>
+<!-- مسافة سفلية عشان ما يغطي المحتوى الأخير بالجوال -->
+<div class="md:hidden h-16"></div>
+
+</body>

@@ -1,1756 +1,303 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بيع على Lavreen</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>إضافة إعلان جديد - Lvreen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gray-50 font-sans">
 
-<body>
-
-<header class="navbar">
-
-    <div class="brand">
-        <div class="logo-box">L</div>
-
-        <div>
-            <div class="logo-name">Lavreen</div>
-            <div class="logo-arabic">لافريين</div>
+    <!-- شريط التنقل العلوي -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center h-20">
+          <div class="text-2xl font-bold text-blue-600">
+            <a href="/">Lvreen</a>
+          </div>
+          <div class="hidden md:flex items-center space-x-6 space-x-reverse">
+            <a href="/ai" class="flex items-center text-gray-700 hover:text-blue-600 transition font-medium">
+              <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold ml-2">AI</span>
+              Lvreen AI
+            </a>
+            <a href="/my-listings" class="text-gray-700 hover:text-blue-600 transition font-medium">إعلاناتي</a>
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition font-medium">الرئيسية</a>
+          </div>
         </div>
-    </div>
-
-    <nav class="nav-links">
-        <a href="/">الرئيسية</a>
-        <a href="/ai">Lavreen AI ✦</a>
+      </div>
     </nav>
 
-    <div class="nav-buttons">
-        <a href="/sell" class="sell-button">بيع الآن</a>
-    </div>
+    <!-- نموذج إضافة الإعلان -->
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-100 my-8">
+      
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-6 p-4 rounded-xl text-sm font-semibold {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-</header>
+      <div class="mb-8 border-b pb-4">
+        <h2 class="text-2xl font-bold text-gray-800">أضف إعلانك الذكي</h2>
+        <p class="text-sm text-gray-500 mt-1">اختر التصنيفات لتظهر لك الخيارات المخصصة تدريجياً</p>
+      </div>
 
-
-<main class="sell-page">
-
-    <div class="sell-container">
-
-        <div class="sell-heading">
-            <small>✦ LAVREEN</small>
-            <h1>وش بتبيع؟</h1>
-            <p>أضف إعلانك وخله يوصل للمشترين بسهولة.</p>
+      <form action="/sell" method="POST" enctype="multipart/form-data" class="space-y-6">
+        
+        <!-- عنوان الإعلان -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">عنوان الإعلان <span class="text-red-500">*</span></label>
+          <input type="text" name="title" placeholder="مثال: تويوتا كامري موديل 2023 نظيفة جداً" 
+                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
         </div>
 
+        <!-- 1. التصنيف الرئيسي (شامل لكل الأقسام) -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">التصنيف الرئيسي <span class="text-red-500">*</span></label>
+          <select id="mainCategory" name="category" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white" required>
+            <option value="">اختر التصنيف الرئيسي...</option>
+            <option value="سيارات">سيارات</option>
+            <option value="عقار">عقار</option>
+            <option value="جوالات">جوالات</option>
+            <option value="كمبيوتر">كمبيوتر</option>
+            <option value="ألعاب">ألعاب</option>
+            <option value="إلكترونيات">إلكترونيات</option>
+            <option value="أثاث">أثاث</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
 
-        <form action="{{ url_for('create_listing') }}"
-              method="POST"
-              class="sell-form">
+        <!-- 2. الشركة أو القسم الفرعي -->
+        <div id="subCategoryContainer" class="hidden">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">الشركة أو القسم الفرعي <span class="text-red-500">*</span></label>
+          <select id="subCategory" name="sub_category" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="">اختر الشركة أو القسم...</option>
+          </select>
+        </div>
 
-            <div class="form-group">
+        <!-- 3. الموديل أو الفئة -->
+        <div id="modelContainer" class="hidden">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">الموديل أو الفئة <span class="text-red-500">*</span></label>
+          <select id="modelSelect" name="model" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="">اختر الموديل...</option>
+          </select>
+        </div>
 
-                <label for="title">
-                    عنوان الإعلان
-                </label>
-
-                <input
-                    id="title"
-                    type="text"
-                    name="title"
-                    placeholder="مثال: Toyota Camry 2022"
-                    required
-                >
-
+        <!-- السعر والمدينة -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">السعر (ريال سعودي) <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input type="number" name="price" placeholder="0.00" step="any"
+                     class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none pl-16" required>
+              <span class="absolute left-4 top-3 text-gray-400 font-medium">ر.س</span>
             </div>
+          </div>
 
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">المدينة <span class="text-red-500">*</span></label>
+            <input type="text" name="city" placeholder="مثال: الرياض، جدة..." 
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" required>
+          </div>
+        </div>
 
-            <div class="form-group">
+        <!-- وصف الإعلان -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">تفاصيل ووصف الإعلان</label>
+          <textarea name="description" rows="5" placeholder="اكتب تفاصيل السلعة..." 
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+        </div>
 
-                <label for="main-category">
-                    التصنيف
-                </label>
+        <!-- رفع الصور -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">صور الإعلان</label>
+          <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center bg-gray-50">
+            <input type="file" name="images" multiple class="text-sm text-gray-500">
+          </div>
+        </div>
 
-                <select id="main-category" required>
+        <!-- زر الإرسال -->
+        <div class="pt-4">
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200">
+            نشر الإعلان الآن
+          </button>
+        </div>
 
-                    <option value="">
-                        اختر التصنيف
-                    </option>
-
-                    <option value="سيارات">🚗 سيارات</option>
-                    <option value="حيوانات">🐎 حيوانات</option>
-                    <option value="إلكترونيات">🔌 إلكترونيات</option>
-                    <option value="ألعاب">🎮 ألعاب</option>
-                    <option value="عقارات">🏠 عقارات</option>
-                    <option value="أثاث">🛋️ أثاث</option>
-                    <option value="دراجات">🏍️ دراجات</option>
-                    <option value="معدات وأدوات">🛠️ معدات وأدوات</option>
-                    <option value="كتب">📚 كتب</option>
-                    <option value="مقتنيات وهوايات">🏆 مقتنيات وهوايات</option>
-                    <option value="خدمات">🧰 خدمات</option>
-                    <option value="أخرى">📦 أخرى</option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group" id="sub-container" style="display:none;">
-
-                <label for="sub-category">
-                    القسم الفرعي
-                </label>
-
-                <select id="sub-category">
-                    <option value="">
-                        اختر القسم
-                    </option>
-                </select>
-
-            </div>
-
-
-            <div class="form-group" id="type-container" style="display:none;">
-
-                <label for="item-type">
-                    النوع / الشركة
-                </label>
-
-                <select id="item-type">
-                    <option value="">
-                        اختر النوع
-                    </option>
-                </select>
-
-            </div>
-
-
-            <input
-                type="hidden"
-                id="category"
-                name="category"
-            >
-
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="price">
-                        السعر
-                    </label>
-
-                    <input
-                        id="price"
-                        type="number"
-                        name="price"
-                        placeholder="45000"
-                        min="0"
-                        step="0.01"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="city">
-                        المدينة
-                    </label>
-
-                    <input
-                        id="city"
-                        type="text"
-                        name="city"
-                        placeholder="الرياض"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="description">
-                    وصف الإعلان
-                </label>
-
-                <textarea
-                    id="description"
-                    name="description"
-                    placeholder="اكتب تفاصيل الإعلان..."
-                    rows="6"
-                ></textarea>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="publish-button">
-                نشر الإعلان 🚀
-            </button>
-
-        </form>
-
-
-        <a href="/" class="back-home">
-            ← العودة للرئيسية
-        </a>
-
+      </form>
     </div>
 
-</main>
-
-
-<footer>
-
-    <strong>Lavreen</strong>
-
-    <span>
-        منصة البيع والشراء الذكية ©️ 2026
-    </span>
-
-</footer>
-
-
-<script>
-
-const data = {
-
-
-/* =========================================================
-   السيارات
-========================================================= */
-
-"سيارات": {
-
-    "تويوتا": [
-        "كامري",
-        "كورولا",
-        "يارس",
-        "يارس سيدان",
-        "رايز",
-        "أفالون",
-        "كراون",
-        "بريوس",
-        "سوبرا",
-        "86",
-        "GR يارس",
-        "GR كورولا",
-        "راف فور",
-        "هايلاندر",
-        "فورتشنر",
-        "لاندكروزر",
-        "لاندكروزر 70",
-        "لاندكروزر 300",
-        "برادو",
-        "سيكويا",
-        "تندرا",
-        "تاكوما",
-        "هايلوكس",
-        "إنوفا",
-        "أوربان كروزر",
-        "أخرى"
-    ],
-
-    "هيونداي": [
-        "أكسنت",
-        "النترا",
-        "سوناتا",
-        "أزيرا",
-        "كريتا",
-        "كونا",
-        "توسان",
-        "سنتافي",
-        "باليسيد",
-        "فينيو",
-        "ستاريا",
-        "H-1",
-        "Ioniq 5",
-        "Ioniq 6",
-        "Ioniq 9",
-        "كاسبر",
-        "أخرى"
-    ],
-
-    "كيا": [
-        "بيجاس",
-        "ريو",
-        "سيراتو",
-        "K5",
-        "K8",
-        "K9",
-        "سول",
-        "سيلتوس",
-        "سبورتاج",
-        "سورينتو",
-        "تيلورايد",
-        "كارنفال",
-        "سونيت",
-        "EV6",
-        "EV9",
-        "أخرى"
-    ],
-
-    "نيسان": [
-        "صني",
-        "سنترا",
-        "ألتيما",
-        "ماكسيما",
-        "كيكس",
-        "قشقاي",
-        "إكس تريل",
-        "باثفايندر",
-        "باترول",
-        "أرمادا",
-        "نافارا",
-        "Z",
-        "GT-R",
-        "أخرى"
-    ],
-
-    "فورد": [
-        "تورس",
-        "موستانج",
-        "إيدج",
-        "إكسبلورر",
-        "إكسبيديشن",
-        "برونكو",
-        "برونكو سبورت",
-        "إيفرست",
-        "F-150",
-        "رينجر",
-        "مافريك",
-        "ترانزيت",
-        "أخرى"
-    ],
-
-    "شيفروليه": [
-        "سبارك",
-        "أفيو",
-        "كروز",
-        "ماليبو",
-        "إمبالا",
-        "كامارو",
-        "كورفيت",
-        "تراكس",
-        "إكوينوكس",
-        "بليزر",
-        "ترافيرس",
-        "تاهو",
-        "سوبربان",
-        "سيلفرادو",
-        "كولورادو",
-        "أخرى"
-    ],
-
-    "GMC": [
-        "تيرين",
-        "أكاديا",
-        "يوكن",
-        "يوكن XL",
-        "سييرا",
-        "Hummer EV",
-        "أخرى"
-    ],
-
-    "إيسوزو": [
-        "D-Max",
-        "MU-X",
-        "N-Series",
-        "F-Series",
-        "Dyna",
-        "أخرى"
-    ],
-
-    "سوزوكي": [
-        "سويفت",
-        "ديزاير",
-        "بالينو",
-        "فرونكس",
-        "فيتارا",
-        "جراند فيتارا",
-        "جيمني",
-        "إرتيجا",
-        "أكروس",
-        "أخرى"
-    ],
-
-    "مازدا": [
-        "Mazda2",
-        "Mazda3",
-        "Mazda6",
-        "CX-3",
-        "CX-30",
-        "CX-5",
-        "CX-60",
-        "CX-90",
-        "MX-5",
-        "BT-50",
-        "أخرى"
-    ],
-
-    "ميتسوبيشي": [
-        "أتراج",
-        "ميراج",
-        "ASX",
-        "Eclipse Cross",
-        "أوتلاندر",
-        "باجيرو",
-        "L200",
-        "مونتيرو سبورت",
-        "أخرى"
-    ],
-
-    "هوندا": [
-        "سيتي",
-        "سيفيك",
-        "أكورد",
-        "HR-V",
-        "CR-V",
-        "ZR-V",
-        "بايلوت",
-        "أوديسي",
-        "Type R",
-        "أخرى"
-    ],
-
-    "لكزس": [
-        "IS",
-        "ES",
-        "LS",
-        "LC",
-        "RC",
-        "UX",
-        "NX",
-        "RX",
-        "GX",
-        "LX",
-        "LM",
-        "RZ",
-        "أخرى"
-    ],
-
-    "مرسيدس بنز": [
-        "A-Class",
-        "B-Class",
-        "C-Class",
-        "E-Class",
-        "S-Class",
-        "CLA",
-        "CLS",
-        "GLA",
-        "GLB",
-        "GLC",
-        "GLE",
-        "GLS",
-        "G-Class",
-        "AMG GT",
-        "SL",
-        "أخرى"
-    ],
-
-    "BMW": [
-        "الفئة الأولى",
-        "الفئة الثانية",
-        "الفئة الثالثة",
-        "الفئة الرابعة",
-        "الفئة الخامسة",
-        "الفئة السادسة",
-        "الفئة السابعة",
-        "الفئة الثامنة",
-        "X1",
-        "X2",
-        "X3",
-        "X4",
-        "X5",
-        "X6",
-        "X7",
-        "XM",
-        "Z4",
-        "i4",
-        "i5",
-        "i7",
-        "iX",
-        "أخرى"
-    ],
-
-    "أودي": [
-        "A1",
-        "A3",
-        "A4",
-        "A5",
-        "A6",
-        "A7",
-        "A8",
-        "Q2",
-        "Q3",
-        "Q4",
-        "Q5",
-        "Q7",
-        "Q8",
-        "e-tron",
-        "RS",
-        "أخرى"
-    ],
-
-    "فولكس واجن": [
-        "Polo",
-        "Jetta",
-        "Golf",
-        "Tiguan",
-        "Touareg",
-        "Teramont",
-        "Atlas",
-        "T-Roc",
-        "ID.4",
-        "ID.6",
-        "أخرى"
-    ],
-
-    "بورشه": [
-        "718",
-        "911",
-        "Taycan",
-        "Macan",
-        "Cayenne",
-        "Panamera",
-        "أخرى"
-    ],
-
-    "لاند روفر": [
-        "Defender",
-        "Discovery",
-        "Discovery Sport",
-        "Range Rover",
-        "Range Rover Sport",
-        "Range Rover Velar",
-        "Range Rover Evoque",
-        "أخرى"
-    ],
-
-    "جاكوار": [
-        "XE",
-        "XF",
-        "XJ",
-        "F-Pace",
-        "E-Pace",
-        "F-Type",
-        "I-Pace",
-        "أخرى"
-    ],
-
-    "فولفو": [
-        "S60",
-        "S90",
-        "V60",
-        "V90",
-        "XC40",
-        "XC60",
-        "XC90",
-        "EX30",
-        "EX40",
-        "EX90",
-        "أخرى"
-    ],
-
-    "جينيسس": [
-        "G70",
-        "G80",
-        "G90",
-        "GV60",
-        "GV70",
-        "GV80",
-        "أخرى"
-    ],
-
-    "كاديلاك": [
-        "CT4",
-        "CT5",
-        "CT6",
-        "XT4",
-        "XT5",
-        "XT6",
-        "Escalade",
-        "Lyriq",
-        "أخرى"
-    ],
-
-    "لينكولن": [
-        "Corsair",
-        "Nautilus",
-        "Aviator",
-        "Continental",
-        "أخرى"
-    ],
-
-    "دودج": [
-        "تشارجر",
-        "تشالنجر",
-        "دورانجو",
-        "هورنت",
-        "أخرى"
-    ],
-
-    "جيب": [
-        "رانجلر",
-        "جراند شيروكي",
-        "جراند واجونير",
-        "واجونير",
-        "كومباس",
-        "رينجيد",
-        "جلادياتور",
-        "أخرى"
-    ],
-
-    "رام": [
-        "1500",
-        "2500",
-        "3500",
-        "TRX",
-        "ProMaster",
-        "أخرى"
-    ],
-
-    "كرايسلر": [
-        "300",
-        "Pacifica",
-        "Voyager",
-        "أخرى"
-    ],
-
-    "تسلا": [
-        "Model 3",
-        "Model Y",
-        "Model S",
-        "Model X",
-        "Cybertruck",
-        "أخرى"
-    ],
-
-    "BYD": [
-        "Atto 3",
-        "Dolphin",
-        "Seal",
-        "Seal 5",
-        "Seal 7",
-        "Han",
-        "Tang",
-        "Song Plus",
-        "Qin Plus",
-        "Destroyer 05",
-        "أخرى"
-    ],
-
-    "MG": [
-        "MG3",
-        "MG4",
-        "MG5",
-        "MG6",
-        "MG GT",
-        "MG ZS",
-        "MG ZS EV",
-        "MG HS",
-        "MG RX5",
-        "MG RX8",
-        "MG Whale",
-        "أخرى"
-    ],
-
-    "جيلي": [
-        "إمجراند",
-        "كولراي",
-        "مونجارو",
-        "توجيلا",
-        "ستارراي",
-        "أوكافانجو",
-        "Geometry C",
-        "EX5",
-        "أخرى"
-    ],
-
-    "شانجان": [
-        "السفن",
-        "إيدو بلس",
-        "CS35",
-        "CS55",
-        "CS75",
-        "CS85",
-        "CS95",
-        "UNI-T",
-        "UNI-K",
-        "UNI-V",
-        "Hunter",
-        "أخرى"
-    ],
-
-    "هافال": [
-        "H2",
-        "H6",
-        "H6 GT",
-        "H9",
-        "Jolion",
-        "Jolion Pro",
-        "Dargo",
-        "Dargo X",
-        "أخرى"
-    ],
-
-    "جيتور": [
-        "X70",
-        "X70 Plus",
-        "X90 Plus",
-        "X50",
-        "Dashing",
-        "T2",
-        "T2 i-DM",
-        "X90",
-        "G700",
-        "أخرى"
-    ],
-
-    "GAC": [
-        "GA4",
-        "GA6",
-        "GA8",
-        "GS3",
-        "GS4",
-        "GS5",
-        "GS8",
-        "M8",
-        "EMPOW",
-        "أخرى"
-    ],
-
-    "شيري": [
-        "Arrizo 3",
-        "Arrizo 5",
-        "Arrizo 6",
-        "Tiggo 4",
-        "Tiggo 7",
-        "Tiggo 8",
-        "Tiggo 8 Pro",
-        "Tiggo 9",
-        "أخرى"
-    ],
-
-    "إكسيد": [
-        "LX",
-        "TXL",
-        "VX",
-        "RX",
-        "ES",
-        "أخرى"
-    ],
-
-    "جاك": [
-        "JS3",
-        "JS4",
-        "JS6",
-        "JS7",
-        "T8",
-        "T9",
-        "M4",
-        "أخرى"
-    ],
-
-    "هونغتشي": [
-        "H5",
-        "H6",
-        "H7",
-        "H9",
-        "HS3",
-        "HS5",
-        "HS7",
-        "E-HS9",
-        "أخرى"
-    ],
-
-    "زيكر": [
-        "001",
-        "007",
-        "X",
-        "009",
-        "7X",
-        "MIX",
-        "أخرى"
-    ],
-
-    "أومودا": [
-        "C5",
-        "C7",
-        "E5",
-        "أخرى"
-    ],
-
-    "جايكو": [
-        "J5",
-        "J7",
-        "J8",
-        "أخرى"
-    ],
-
-    "ديبال": [
-        "S05",
-        "S07",
-        "S09",
-        "G318",
-        "SL03",
-        "أخرى"
-    ],
-
-    "جريت وول": [
-        "Wingle 5",
-        "Wingle 7",
-        "Poer",
-        "Tank 300",
-        "Tank 500",
-        "Tank 700",
-        "أخرى"
-    ],
-
-    "فورثينج": [
-        "T5 EVO",
-        "T5",
-        "T5 HEV",
-        "M4",
-        "U-Tour",
-        "أخرى"
-    ],
-
-    "بيستون": [
-        "B70",
-        "B70S",
-        "T77",
-        "T90",
-        "T99",
-        "B30",
-        "أخرى"
-    ],
-
-    "دونغفنغ": [
-        "AX7",
-        "Shine",
-        "Aeolus",
-        "M-Hero 1",
-        "M-Hero 917",
-        "T5 EVO",
-        "أخرى"
-    ],
-
-    "بايك": [
-        "X25",
-        "X35",
-        "X55",
-        "X7",
-        "BJ40",
-        "BJ60",
-        "BJ80",
-        "أخرى"
-    ],
-
-    "JMC": [
-        "Vigus",
-        "Grand Avenue",
-        "Baodian",
-        "Teshun",
-        "أخرى"
-    ],
-
-    "ماكسوس": [
-        "D60",
-        "D90",
-        "G50",
-        "G70",
-        "T60",
-        "T90",
-        "Deliver 9",
-        "أخرى"
-    ],
-
-    "بيجو": [
-        "208",
-        "2008",
-        "308",
-        "3008",
-        "408",
-        "508",
-        "5008",
-        "Partner",
-        "أخرى"
-    ],
-
-    "رينو": [
-        "Symbol",
-        "Clio",
-        "Megane",
-        "Talisman",
-        "Duster",
-        "Captur",
-        "Koleos",
-        "Arkana",
-        "Master",
-        "أخرى"
-    ],
-
-    "سيتروين": [
-        "C3",
-        "C4",
-        "C5 Aircross",
-        "C5 X",
-        "Berlingo",
-        "أخرى"
-    ],
-
-    "سوبارو": [
-        "Impreza",
-        "Legacy",
-        "Outback",
-        "Forester",
-        "Crosstrek",
-        "WRX",
-        "BRZ",
-        "Solterra",
-        "أخرى"
-    ],
-
-    "سكودا": [
-        "Fabia",
-        "Scala",
-        "Octavia",
-        "Superb",
-        "Kamiq",
-        "Karoq",
-        "Kodiaq",
-        "Enyaq",
-        "أخرى"
-    ],
-
-    "لوسيد": [
-        "Air",
-        "Air Pure",
-        "Air Touring",
-        "Air Grand Touring",
-        "Gravity",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   الحيوانات
-========================================================= */
-
-"حيوانات": {
-
-    "إبل": [
-        "وضح",
-        "شعل",
-        "صفر",
-        "مجاهيم",
-        "شقح",
-        "حمر",
-        "ملح",
-        "أخرى"
-    ],
-
-    "خيول": [
-        "عربي أصيل",
-        "مهجن",
-        "سباق",
-        "قفز",
-        "أخرى"
-    ],
-
-    "أغنام": [
-        "نعيمي",
-        "حري",
-        "نجدي",
-        "سواكني",
-        "روماني",
-        "أخرى"
-    ],
-
-    "ماعز": [
-        "عارضي",
-        "شامي",
-        "مواشي",
-        "أخرى"
-    ],
-
-    "أبقار": [
-        "هولشتاين",
-        "فريزيان",
-        "محلي",
-        "أخرى"
-    ],
-
-    "طيور زينة": [
-        "ببغاء",
-        "كناري",
-        "كوكتيل",
-        "روز",
-        "بادجي",
-        "طيور حب",
-        "أخرى"
-    ],
-
-    "صقور": [
-        "حر",
-        "شاهين",
-        "وكري",
-        "قرموشة",
-        "أخرى"
-    ],
-
-    "حمام": [
-        "زاجل",
-        "بلدي",
-        "حمام زينة",
-        "أخرى"
-    ],
-
-    "دواجن": [
-        "دجاج",
-        "بط",
-        "أوز",
-        "رومي",
-        "أخرى"
-    ],
-
-    "قطط": [
-        "شيرازي",
-        "سيامي",
-        "بريطاني",
-        "سكوتش",
-        "بنغالي",
-        "أخرى"
-    ],
-
-    "كلاب": [
-        "هاسكي",
-        "جيرمن",
-        "مالينوي",
-        "جولدن",
-        "لابرادور",
-        "أخرى"
-    ],
-
-    "أرانب": [
-        "زينة",
-        "تربية",
-        "أخرى"
-    ],
-
-    "أسماك": [
-        "زينة",
-        "كوبي",
-        "جولد فيش",
-        "بيتا",
-        "أخرى"
-    ],
-
-    "زواحف": [
-        "سلاحف",
-        "سحالي",
-        "ثعابين",
-        "أخرى"
-    ],
-
-    "حيوانات أخرى": [
-        "سناجب",
-        "هامستر",
-        "فئران زينة",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   الإلكترونيات
-========================================================= */
-
-"إلكترونيات": {
-
-    "أجهزة الألعاب": [
-        "PlayStation 5",
-        "PlayStation 5 Slim",
-        "PlayStation 5 Pro",
-        "PlayStation 4",
-        "PlayStation 4 Pro",
-        "Xbox Series X",
-        "Xbox Series S",
-        "Xbox One",
-        "Nintendo Switch",
-        "Nintendo Switch OLED",
-        "Nintendo Switch 2",
-        "Steam Deck",
-        "ROG Ally",
-        "Lenovo Legion Go",
-        "Meta Quest",
-        "أخرى"
-    ],
-
-    "أجهزة الكمبيوتر": [
-        "PC Gaming",
-        "PC مكتبي",
-        "Workstation",
-        "Mini PC",
-        "Mac",
-        "MacBook",
-        "iMac",
-        "Mac Mini",
-        "Laptop Gaming",
-        "Laptop أعمال",
-        "Laptop دراسي",
-        "أخرى"
-    ],
-
-    "جوالات": [
-        "iPhone",
-        "Samsung Galaxy",
-        "Google Pixel",
-        "Huawei",
-        "Xiaomi",
-        "Redmi",
-        "POCO",
-        "OnePlus",
-        "Oppo",
-        "Honor",
-        "Realme",
-        "أخرى"
-    ],
-
-    "أجهزة لوحية": [
-        "iPad",
-        "Galaxy Tab",
-        "Huawei MatePad",
-        "Xiaomi Pad",
-        "Lenovo Tab",
-        "أخرى"
-    ],
-
-    "شاشات": [
-        "Gaming",
-        "مكتبية",
-        "UltraWide",
-        "4K",
-        "OLED",
-        "أخرى"
-    ],
-
-    "تلفزيونات": [
-        "Samsung",
-        "LG",
-        "Sony",
-        "TCL",
-        "Hisense",
-        "Philips",
-        "أخرى"
-    ],
-
-    "كاميرات": [
-        "Canon",
-        "Sony",
-        "Nikon",
-        "Fujifilm",
-        "GoPro",
-        "DJI",
-        "أخرى"
-    ],
-
-    "سماعات": [
-        "AirPods",
-        "Headphones",
-        "Earbuds",
-        "Speakers",
-        "Soundbar",
-        "أخرى"
-    ],
-
-    "ساعات ذكية": [
-        "Apple Watch",
-        "Galaxy Watch",
-        "Garmin",
-        "Huawei Watch",
-        "Amazfit",
-        "أخرى"
-    ],
-
-    "طابعات": [
-        "HP",
-        "Canon",
-        "Epson",
-        "Brother",
-        "3D Printer",
-        "أخرى"
-    ],
-
-    "شبكات واتصالات": [
-        "راوتر",
-        "Mesh",
-        "مقوي شبكة",
-        "Switch",
-        "Access Point",
-        "أخرى"
-    ],
-
-    "أجهزة منزلية إلكترونية": [
-        "مكنسة",
-        "مكيف",
-        "ثلاجة",
-        "غسالة",
-        "فرن",
-        "قلاية هوائية",
-        "أخرى"
-    ],
-
-    "إكسسوارات إلكترونية": [
-        "شاحن",
-        "كيبل",
-        "باور بنك",
-        "محول",
-        "USB",
-        "إكسسوارات جوال",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   الألعاب
-========================================================= */
-
-"ألعاب": {
-
-    "ألعاب رقمية": [
-        "Steam",
-        "PlayStation Store",
-        "Xbox Store",
-        "Nintendo eShop",
-        "EA App",
-        "Epic Games",
-        "Ubisoft Connect",
-        "Battle.net",
-        "Rockstar",
-        "مفتاح لعبة",
-        "حساب لعبة",
-        "أخرى"
-    ],
-
-    "ألعاب يدوية": [
-        "ألعاب PS5",
-        "ألعاب PS4",
-        "ألعاب Xbox Series X/S",
-        "ألعاب Xbox One",
-        "ألعاب Nintendo Switch",
-        "ألعاب Nintendo Switch 2",
-        "ألعاب PC DVD",
-        "ألعاب مستعملة",
-        "أخرى"
-    ],
-
-    "ألعاب أطفال": [
-        "سيارات أطفال",
-        "ليغو",
-        "ألعاب تركيب",
-        "ألعاب تعليمية",
-        "ألعاب جماعية",
-        "دمى",
-        "أخرى"
-    ],
-
-    "إكسسوارات ألعاب": [
-        "يد تحكم",
-        "كيبورد Gaming",
-        "ماوس Gaming",
-        "سماعة Gaming",
-        "مايك Gaming",
-        "كرسي Gaming",
-        "عجلة قيادة",
-        "شاشة Gaming",
-        "قاعدة شحن",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   العقارات
-========================================================= */
-
-"عقارات": {
-
-    "بيع": [
-        "شقة",
-        "فيلا",
-        "أرض",
-        "عمارة",
-        "استراحة",
-        "مزرعة",
-        "مكتب",
-        "محل",
-        "مستودع",
-        "مخيم",
-        "أخرى"
-    ],
-
-    "إيجار": [
-        "شقة",
-        "فيلا",
-        "استراحة",
-        "مكتب",
-        "محل",
-        "مستودع",
-        "مخيم",
-        "أخرى"
-    ],
-
-    "عقارات تجارية": [
-        "مكتب",
-        "محل",
-        "معرض",
-        "مستودع",
-        "مبنى تجاري",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   الأثاث
-========================================================= */
-
-"أثاث": {
-
-    "غرف": [
-        "غرفة نوم",
-        "مجلس",
-        "غرفة أطفال",
-        "غرفة معيشة",
-        "أخرى"
-    ],
-
-    "أثاث منزلي": [
-        "كنب",
-        "طاولات",
-        "كراسي",
-        "دواليب",
-        "مكاتب",
-        "أرفف",
-        "سرير",
-        "مراتب",
-        "أخرى"
-    ],
-
-    "مطبخ": [
-        "طاولة طعام",
-        "كراسي طعام",
-        "دواليب مطبخ",
-        "عربة مطبخ",
-        "أخرى"
-    ],
-
-    "أجهزة منزلية": [
-        "ثلاجات",
-        "غسالات",
-        "مكيفات",
-        "أفران",
-        "نشافات",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   الدراجات
-========================================================= */
-
-"دراجات": {
-
-    "دراجات نارية": [
-        "هوندا",
-        "ياماها",
-        "كاواساكي",
-        "سوزوكي",
-        "دوكاتي",
-        "هارلي ديفيدسون",
-        "BMW Motorrad",
-        "KTM",
-        "أخرى"
-    ],
-
-    "دراجات هوائية": [
-        "جبلية",
-        "طريق",
-        "كهربائية",
-        "BMX",
-        "أخرى"
-    ],
-
-    "سكوترات": [
-        "كهربائي",
-        "عادي",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   المعدات والأدوات
-========================================================= */
-
-"معدات وأدوات": {
-
-    "معدات بناء": [
-        "شيول",
-        "بوكلين",
-        "حفار",
-        "رافعة",
-        "قلّاب",
-        "معدات خرسانة",
-        "أخرى"
-    ],
-
-    "معدات زراعية": [
-        "جرار",
-        "حراثة",
-        "مضخة",
-        "رشاش",
-        "معدات ري",
-        "أخرى"
-    ],
-
-    "معدات ورش": [
-        "كمبروسر",
-        "رافعة سيارات",
-        "مخرطة",
-        "لحام",
-        "مولد",
-        "أخرى"
-    ],
-
-    "أدوات يدوية": [
-        "عدة يدوية",
-        "مفكات",
-        "مفاتيح",
-        "كماشات",
-        "أخرى"
-    ],
-
-    "أدوات كهربائية": [
-        "دريل",
-        "صاروخ",
-        "منشار",
-        "مطرقة كهربائية",
-        "أخرى"
-    ],
-
-    "أدوات سيارات": [
-        "عدة سيارات",
-        "جهاز فحص",
-        "رافعة",
-        "شاحن بطارية",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   الكتب
-========================================================= */
-
-"كتب": {
-
-    "كتب دراسية": [
-        "ابتدائي",
-        "متوسط",
-        "ثانوي",
-        "جامعي",
-        "أخرى"
-    ],
-
-    "روايات": [
-        "روايات عربية",
-        "روايات عالمية",
-        "خيال",
-        "رعب",
-        "أخرى"
-    ],
-
-    "كتب ثقافية": [
-        "تاريخ",
-        "علوم",
-        "اقتصاد",
-        "تطوير ذات",
-        "تقنية",
-        "أخرى"
-    ],
-
-    "مراجع واختبارات": [
-        "قدرات",
-        "تحصيلي",
-        "STEP",
-        "IELTS",
-        "جامعية",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   مقتنيات وهوايات
-========================================================= */
-
-"مقتنيات وهوايات": {
-
-    "تحف ومقتنيات": [
-        "عملات",
-        "طوابع",
-        "ساعات قديمة",
-        "تحف",
-        "مقتنيات نادرة",
-        "أخرى"
-    ],
-
-    "هوايات": [
-        "مجسمات",
-        "ألعاب تجميع",
-        "كروت",
-        "مقتنيات رياضية",
-        "مقتنيات سيارات",
-        "أخرى"
-    ],
-
-    "آلات موسيقية": [
-        "عود",
-        "جيتار",
-        "بيانو",
-        "كمان",
-        "درامز",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   خدمات
-========================================================= */
-
-"خدمات": {
-
-    "سيارات": [
-        "صيانة",
-        "تلميع",
-        "تعديل",
-        "برمجة",
-        "نقل سيارات",
-        "أخرى"
-    ],
-
-    "تقنية": [
-        "برمجة",
-        "تصميم مواقع",
-        "تصميم جرافيك",
-        "صيانة كمبيوتر",
-        "شبكات",
-        "أخرى"
-    ],
-
-    "منزلية": [
-        "تنظيف",
-        "نقل أثاث",
-        "صيانة مكيفات",
-        "سباكة",
-        "كهرباء",
-        "دهان",
-        "أخرى"
-    ],
-
-    "تعليم": [
-        "دروس خصوصية",
-        "لغة إنجليزية",
-        "رياضيات",
-        "قدرات",
-        "تحصيلي",
-        "أخرى"
-    ]
-
-},
-
-
-/* =========================================================
-   أخرى
-========================================================= */
-
-"أخرى": {
-
-    "أخرى": [
-        "منتج عام",
-        "مستعمل",
-        "جديد",
-        "أخرى"
-    ]
-
-}
-
-};
-
-
-/* =========================================================
-   التحكم بالقوائم
-========================================================= */
-
-const mainCategory =
-    document.getElementById("main-category");
-
-const subCategory =
-    document.getElementById("sub-category");
-
-const itemType =
-    document.getElementById("item-type");
-
-const subContainer =
-    document.getElementById("sub-container");
-
-const typeContainer =
-    document.getElementById("type-container");
-
-const hiddenCategory =
-    document.getElementById("category");
-
-
-function resetSelect(select, text) {
-
-    select.innerHTML =
-        '<option value="">' + text + '</option>';
-
-}
-
-
-mainCategory.addEventListener("change", function () {
-
-    resetSelect(subCategory, "اختر القسم");
-    resetSelect(itemType, "اختر النوع");
-
-    subContainer.style.display = "none";
-    typeContainer.style.display = "none";
-
-    hiddenCategory.value = this.value;
-
-    const selected =
-        data[this.value];
-
-    if (!selected) {
-        return;
-    }
-
-    Object.keys(selected).forEach(function (name) {
-
-        const option =
-            document.createElement("option");
-
-        option.value = name;
-        option.textContent = name;
-
-        subCategory.appendChild(option);
-
-    });
-
-    subContainer.style.display = "block";
-
-});
-
-
-subCategory.addEventListener("change", function () {
-
-    resetSelect(itemType, "اختر النوع");
-
-    typeContainer.style.display = "none";
-
-    const main =
-        mainCategory.value;
-
-    const sub =
-        this.value;
-
-    if (!data[main] || !data[main][sub]) {
-
-        hiddenCategory.value =
-            main + " / " + sub;
-
-        return;
-    }
-
-    hiddenCategory.value =
-        main + " / " + sub;
-
-    data[main][sub].forEach(function (name) {
-
-        const option =
-            document.createElement("option");
-
-        option.value = name;
-        option.textContent = name;
-
-        itemType.appendChild(option);
-
-    });
-
-    typeContainer.style.display = "block";
-
-});
-
-
-itemType.addEventListener("change", function () {
-
-    const main =
-        mainCategory.value;
-
-    const sub =
-        subCategory.value;
-
-    const type =
-        this.value;
-
-    hiddenCategory.value =
-        main + " / " + sub + " / " + type;
-
-});
-
-
-document
-    .querySelector(".sell-form")
-    .addEventListener("submit", function (event) {
-
-        if (!hiddenCategory.value) {
-
-            event.preventDefault();
-
-            alert("اختر التصنيف أولاً");
-
-            return;
-        }
-
-    });
-
-</script>
+    <!-- كود الجافاسكريبت الموسع والشامل -->
+    <script>
+        const hierarchyData = {
+            "سيارات": {
+                // ياباني
+                "تويوتا": ["كامري", "أفالون", "كورولا", "يارس", "أوريون", "لاندكروزر", "راوفور", "فورتشنر", "برادو", "سكويا", "رايز", "هايلكس", "تندرا", "هايلاندر", "سيينا"],
+                "نيسان": ["التيما", "ماكسيما", "صني", "سنترا", "باترول", "إكس تريل", "باثفايندر", "كيكس", "نافارا", "الجراند", "ارماذا"],
+                "هوندا": ["أكورد", "سيفيك", "سيتي", "CR-V", "Pilot", "HR-V", "زيت"],
+                "مازدا": ["مازدا 6", "مازدا 3", "CX-3", "CX-5", "CX-9", "CX-30", "CX-90"],
+                "ميتسوبيشي": ["لانسر", "باجيرو", "مونتيرو", "إكسباندر", "إل 200"],
+                "سوبارو": ["إمبريزا", "ليجاسي", "فورستر", "أوتباك", "بي آر زد"],
+                "إيسوزو": ["ديماكس", "تراجر"],
+                // كوري
+                "هيونداي": ["سوناتا", "النترا", "أكسنت", "ازيرا", "توسان", "سنتافي", "كونا", "كريتا", "باليسايد", "ستاريا"],
+                "كيا": ["كادينزا", "أوبتيما", "سيراتو", "ريو", "K5", "K8", "سبورتاج", "سورينتو", "تلورايد", "سيلتوس", "كارنيفال", "بيجاس"],
+                "جينيسيس": ["G70", "G80", "G90", "GV70", "GV80"],
+                // أمريكي
+                "شيفروليه": ["ماليبو", "كابريس", "إمبالا", "كروز", "تاهو", "سوبربان", "ترافرس", "بليزر", "تراكس", "سلفرادو", "كولورادو"],
+                "جمس (GMC)": ["يوكن", "يوكن دينالي", "ترين", "أكاديا", "سييرا", "سافانا"],
+                "فورد": ["تورس", "فيوجن", "موستانج", "اكسبلورر", "إكسبيديشن", "إيدج", "ترتري", "رنجر", "فورد F-150"],
+                "دودج": ["تشارجر", "تشالنجر", "دورانجو", "هورنت"],
+                "رام": ["رام 1500", "رام 2500"],
+                "كرايسلر": ["كريسيلر 300"],
+                "جيب": ["رانجلر", "جراند شيروكي", "رينيجيد", "كمباس"],
+                "لينكون": ["نافيجーター", "كورسير", "نوتيلوس", "أفياتور"],
+                "كاديلاك": ["اسكاليد", "اتس", "كتس", "XT4", "XT5", "XT6", "ليريك"],
+                // أوروبي (ألماني وإنجليزي وإيطالي وففرنسي)
+                "مرسيدس": ["الفئة C", "الفئة E", "الفئة S", "G-Class", "GLE", "GLC", "GLS", "A-Class"],
+                "بي إم دبليو (BMW)": ["الفئة الثالثة", "الفئة الخامسة", "الفئة السابعة", "X3", "X5", "X6", "X7", "M Series"],
+                "أودي": ["A3", "A4", "A6", "A8", "Q3", "Q5", "Q7", "Q8"],
+                "فولكس واجن": ["جيتا", "باسات", "تيغوان", "طوارق", "جولف"],
+                "بورشه": ["كايين", "ماكان", "باناميرا", "911", "تايكان"],
+                "رينج روفر (لاند روفر)": ["رينج روفر", "سبورت", "فيلار", "إيفوك", "ديفندر", "ديسكفري"],
+                "بيجو": ["3008", "5008", "2008", "508"],
+                "رينو": ["داستر", "سيمبول", "كوليوس", "ميجان"],
+                "فيات": ["500", "دوبلو"],
+                "ألفا روميو": ["جوليا", "ستيلفيو"],
+                // صيني
+                "هافال": ["H6", "H9", "جوليان", "دارجو"],
+                "جريت وول (GWM)": ["بوير", "وينجل"],
+                "شانجان": ["الترس", "CS35", "CS75", "يدو", "UNI-T", "UNI-K", "UNI-V"],
+                "جيلي": ["مونجارو", "أوكاانجو", "كولراي", "إمجراند", "ستاري"],
+                "شيري": ["تيجو 2", "تيجو 4", "تيجو 7", "تيجو 8", "أريزو 6"],
+                "إم جي (MG)": ["MG 5", "MG 6", "MG ZS", "MG RX5", "MG Whale", "MG HS"],
+                "بايك": ["BJ40", "X3", "X5", "X7"],
+                "فاو": ["T77", "X40"],
+                "بيستون": ["T77", "T55", "B70"],
+                "جاك": ["JS3", "JS4", "J7"],
+                "جريت توك / كايي": ["اكس 3", "يوان"],
+                "بي واي دي (BYD)": ["سون", "هان", "تاتغ"],
+                "تيسلا": ["موديل 3", "موديل Y", "موديل S", "موديل X"],
+                "نيو": ["ET7", "ES6"],
+                "لي إكسهينغ": ["L7", "L9"],
+                "زييكر": ["001", "X", "009"],
+                "اكسابينغ": ["P7", "G9"],
+                "هونشي": ["H9", "HS5", "E-HS9"],
+                "اتشك": ["سولاريس"]
+            },
+            "عقار": {
+                "شقق": ["إيجار سنوي", "إيجار شهري", "تمليك"],
+                "أراضي": ["سكني", "تجاري", "زراعي", "صناعي"],
+                "فلل": ["درج صالة", "مفصوله", "قصر", "توبريكس"],
+                "بيوت شعبية": ["للبيع", "للايجار"],
+                "استراحات وشاليهات": ["يومي", "سنوي"],
+                "مخازن ومحلات تجارية": ["معارض", "مستودعات", "محل تجاري"]
+            },
+            "جوالات": {
+                "آبل (آيفون)": ["آيفون 15 بروماكس", "آيفون 15", "آيفون 14 بروماكس", "آيفون 14", "آيفون 13", "آيفون 12", "آيفون SE"],
+                "سامسونج": ["جالاكسي S24 Ultra", "جالاكسي S24+", "جالاكسي S24", "جالاكسي S23", "جالاكسي A54", "جالاكسي A34", "جالاكسي Z Fold", "جالاكسي Z Flip"],
+                "هواوي": ["Pura 70", "Mate 60", "Nova 11", "Nova 12"],
+                "شاومي": ["Xiaomi 14", "Redmi Note 13", "POCO X6"],
+                "أونر": ["Honor Magic 6", "Honor 90", "Honor X9b"]
+            },
+            "كمبيوتر": {
+                "أجهزة لابتوب": ["ماك بوك آير", "ماك بوك برو", "لابتوب ألعاب (Gaming)", "لابتوب مكتبي عادي"],
+                "قطع تجميعات PC": ["معالجات (CPU)", "كرت شاشة (GPU)", "لوحة أم (Motherboard)", "رامات (RAM)", "تخزين (SSD/HDD)"],
+                "شاشات كمبيوتر": ["شاشات ألعاب 144Hz+", "شاشات عمل وعرض عادي"]
+            },
+            "ألعاب": {
+                "بلايستيشن (PlayStation)": ["بلايستيشن 5", "بلايستيشن 4", "ألعاب PS5", "ألعاب PS4"],
+                "إكس بوكس (Xbox)": ["إكس بوكس سيريس إكس", "إكس بوكس سيريس إس"],
+                "نينتندو (Nintendo)": ["نينتندو سويتش"],
+                "ألعاب إلكترونية أخرى": ["حسابات ألعاب", "بطاقات شحن ورصيد"]
+            },
+            "إلكترونيات": {
+                "شاشات منزلية": ["شاشات ذكية 4K", "شاشات ليد عادية"],
+                "أجهزة صوتية": ["سماعات بلوتوث", "مسرح منزلي", "سماعات ألعاب رأسية"],
+                "كاميرات": ["كاميرات مراقبة", "كاميرات احترافية"]
+            },
+            "أثاث": {
+                "غرف نوم": ["رئيسية", "أطفال", "فرود مفردة"],
+                "مجالس وتفصيل": ["كنب متصل", "مجالس عربي", "طاولات طعام"],
+                "أجهزة منزلية": ["مكيفات", "ثلاجات", "غسالات ومجففات"]
+            },
+            "أخرى": {
+                "مستلزمات شخصية": ["عطور", "ساعات", "ملابس"],
+                "أعلاف ومواشي": ["إبل", "غنم", "أعلاف"],
+                "خدمات": ["مقاولات وتصميم", "نقل وتوصيل", "برمجة وتصميم مواقع"]
+            }
+        };
+
+        const mainCategory = document.getElementById('mainCategory');
+        const subCategoryContainer = document.getElementById('subCategoryContainer');
+        const subCategory = document.getElementById('subCategory');
+        const modelContainer = document.getElementById('modelContainer');
+        const modelSelect = document.getElementById('modelSelect');
+
+        mainCategory.addEventListener('change', function() {
+            const selectedMain = this.value;
+            subCategory.innerHTML = '<option value="">اختر الشركة أو القسم الفرعي...</option>';
+            modelSelect.innerHTML = '<option value="">اختر الموديل...</option>';
+            modelContainer.classList.add('hidden');
+
+            if (selectedMain && hierarchyData[selectedMain]) {
+                const subs = Object.keys(hierarchyData[selectedMain]);
+                subs.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    subCategory.appendChild(opt);
+                });
+                subCategoryContainer.classList.remove('hidden');
+            } else {
+                subCategoryContainer.classList.add('hidden');
+            }
+        });
+
+        subCategory.addEventListener('change', function() {
+            const selectedMain = mainCategory.value;
+            const selectedSub = this.value;
+            modelSelect.innerHTML = '<option value="">اختر الموديل...</option>';
+
+            if (selectedMain && selectedSub && hierarchyData[selectedMain][selectedSub]) {
+                const models = hierarchyData[selectedMain][selectedSub];
+                models.forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model;
+                    opt.textContent = model;
+                    modelSelect.appendChild(opt);
+                });
+                modelContainer.classList.remove('hidden');
+            } else {
+                modelContainer.classList.add('hidden');
+            }
+        });
+    </script>
+<!-- شريط التنقل السفلي الخاص بالجوالات -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2">
+    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span class="text-xs mt-1">الرئيسية</span>
+    </a>
+    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs mt-1">ذكاء اصطناعي</span>
+    </a>
+    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
+        <div class="bg-blue-600 text-white p-2 rounded-full -mt-5 shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <span class="text-xs mt-1">أضف إعلان</span>
+    </a>
+    <a href="/my-listings" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span class="text-xs mt-1">إعلاناتي</span>
+    </a>
+</div>
+
+<!-- مسافة سفلية عشان ما يغطي المحتوى الأخير بالجوال -->
+<div class="md:hidden h-16"></div>
 
 </body>
-</html>

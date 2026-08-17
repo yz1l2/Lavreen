@@ -2,134 +2,38 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>تعديل الإعلان - Lavreen</title>
+    <title>تعديل الإعلان - لافريين</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
-
 </head>
 
 <body>
 
-<header class="navbar">
+<main class="listing-page">
 
-    <div class="brand">
+    <div class="listing-container">
 
-        <div class="logo-box">
-            L
-        </div>
+        <div class="listing-card">
 
-        <div>
-
-            <div class="logo-name">
-                Lavreen
-            </div>
-
-            <div class="logo-arabic">
-                لافريين
-            </div>
-
-        </div>
-
-    </div>
-
-    <nav class="nav-links">
-
-        <a href="/">
-            الرئيسية
-        </a>
-
-        <a href="/ai">
-            Lavreen AI ✦
-        </a>
-
-        <a href="/sell">
-            بيع الآن
-        </a>
-
-    </nav>
-
-</header>
-
-
-<main class="sell-page">
-
-    <div class="sell-container">
-
-        <div class="sell-heading">
-
-            <small>
-                ✦ LAVREEN
-            </small>
-
-            <h1>
+            <h1 class="listing-title">
                 تعديل الإعلان
             </h1>
 
-        </div>
-
-
-        <form
-            action="{{ url_for(
-                'edit_listing',
-                listing_id=listing['id']
-            ) }}"
-            method="POST"
-            class="sell-form">
-
-
-            <div class="form-group">
-
-                <label>
-                    عنوان الإعلان
-                </label>
-
-                <input
-                    type="text"
-                    name="title"
-                    value="{{ listing['title'] }}"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    التصنيف
-                </label>
-
-                <input
-                    type="text"
-                    name="category"
-                    value="{{ listing['category'] }}"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-row">
+            <form method="POST"
+                  enctype="multipart/form-data">
 
                 <div class="form-group">
 
-                    <label>
-                        السعر
-                    </label>
+                    <label>عنوان الإعلان</label>
 
                     <input
-                        type="number"
-                        name="price"
-                        value="{{ listing['price'] }}"
-                        min="0"
-                        step="0.01"
+                        type="text"
+                        name="title"
+                        value="{{ listing['title'] }}"
                         required
                     >
 
@@ -138,9 +42,35 @@
 
                 <div class="form-group">
 
-                    <label>
-                        المدينة
-                    </label>
+                    <label>القسم</label>
+
+                    <input
+                        type="text"
+                        name="category"
+                        value="{{ listing['category'] }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>السعر</label>
+
+                    <input
+                        type="number"
+                        name="price"
+                        value="{{ listing['price'] }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>المدينة</label>
 
                     <input
                         type="text"
@@ -151,61 +81,92 @@
 
                 </div>
 
-            </div>
+
+                <div class="form-group">
+
+                    <label>الوصف</label>
+
+                    <textarea
+                        name="description"
+                        rows="6"
+                    >{{ listing['description'] or '' }}</textarea>
+
+                </div>
 
 
-            <div class="form-group">
+                <div class="form-group">
 
-                <label>
-                    الوصف
-                </label>
+                    <label>إضافة صور جديدة</label>
 
-                <textarea
-                    name="description"
-                    rows="7"
-                >{{ listing['description'] or '' }}</textarea>
+                    <input
+                        type="file"
+                        name="images"
+                        accept="image/*"
+                        multiple
+                    >
 
-            </div>
+                    <small>
+                        يمكنك إضافة حتى 30 صورة.
+                    </small>
 
-
-            <button
-                type="submit"
-                class="publish-button">
-
-                حفظ التعديلات 💾
-
-            </button>
-
-        </form>
+                </div>
 
 
-        <a href="{{ url_for(
-            'listing',
-            listing_id=listing['id']
-        ) }}"
-           class="back-home">
+                <div class="form-group">
 
-            ← إلغاء
+                    <label>إضافة فيديوهات جديدة</label>
 
-        </a>
+                    <input
+                        type="file"
+                        name="videos"
+                        accept="video/*"
+                        multiple
+                    >
+
+                    <small>
+                        يمكنك إضافة حتى 5 فيديوهات.
+                    </small>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="sell-button"
+                >
+                    حفظ التعديلات
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 
 </main>
+<!-- شريط التنقل السفلي الخاص بالجوالات -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2">
+    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span class="text-xs mt-1">الرئيسية</span>
+    </a>
+    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs mt-1">ذكاء اصطناعي</span>
+    </a>
+    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
+        <div class="bg-blue-600 text-white p-2 rounded-full -mt-5 shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <span class="text-xs mt-1">أضف إعلان</span>
+    </a>
+    <a href="/my-listings" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span class="text-xs mt-1">إعلاناتي</span>
+    </a>
+</div>
 
-
-<footer>
-
-    <strong>
-        Lavreen
-    </strong>
-
-    <span>
-        منصة البيع والشراء الذكية ©️ 2026
-    </span>
-
-</footer>
+<!-- مسافة سفلية عشان ما يغطي المحتوى الأخير بالجوال -->
+<div class="md:hidden h-16"></div>
 
 </body>
-
-</html>

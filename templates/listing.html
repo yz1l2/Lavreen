@@ -2,92 +2,569 @@
 <html lang="ar" dir="rtl">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ listing["title"] }} | Lavreen</title>
+    <title>
+        {{ listing["title"] }} - لافريين
+    </title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        .listing-media-section {
+            margin-bottom: 35px;
+        }
+
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .media-item {
+            position: relative;
+            overflow: hidden;
+            background: #f0f1f5;
+            border-radius: 18px;
+            min-height: 220px;
+        }
+
+        .media-item:first-child {
+            grid-column: span 2;
+            min-height: 480px;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            min-height: 220px;
+            display: block;
+            object-fit: cover;
+        }
+
+        .media-item:first-child img,
+        .media-item:first-child video {
+            min-height: 480px;
+        }
+
+        .media-item img {
+            cursor: zoom-in;
+            transition: transform .35s ease;
+        }
+
+        .media-item:hover img {
+            transform: scale(1.025);
+        }
+
+        .media-count {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+
+            background: rgba(0,0,0,.72);
+            color: white;
+
+            padding: 8px 12px;
+            border-radius: 10px;
+
+            font-size: 12px;
+            font-weight: bold;
+
+            backdrop-filter: blur(8px);
+        }
+
+        .listing-heading-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .listing-main-info {
+            flex: 1;
+        }
+
+        .listing-price-box {
+            min-width: 180px;
+            padding: 18px;
+
+            background: #f6f7f9;
+            border: 1px solid #eceef2;
+
+            border-radius: 17px;
+
+            text-align: center;
+        }
+
+        .listing-price-box span {
+            display: block;
+            color: #777;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .listing-price-box strong {
+            font-size: 25px;
+        }
+
+        .seller-box {
+            margin-top: 30px;
+
+            padding: 20px;
+
+            background: #f7f8fa;
+
+            border: 1px solid #eceff2;
+
+            border-radius: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+        }
+
+        .seller-info {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .seller-avatar {
+            width: 48px;
+            height: 48px;
+
+            border-radius: 50%;
+
+            background: #111;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+        .seller-info strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .seller-info span {
+            color: #777;
+            font-size: 12px;
+        }
+
+        .contact-button {
+            border: 0;
+
+            background: #111;
+            color: white;
+
+            padding: 12px 18px;
+
+            border-radius: 12px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+
+            z-index: 9999;
+
+            background: rgba(0,0,0,.92);
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 25px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 95vw;
+            max-height: 90vh;
+
+            object-fit: contain;
+
+            border-radius: 12px;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+
+            width: 45px;
+            height: 45px;
+
+            border: 0;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,.15);
+            color: white;
+
+            font-size: 24px;
+
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+
+            .media-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .media-item:first-child {
+                grid-column: span 1;
+                min-height: 300px;
+            }
+
+            .media-item:first-child img,
+            .media-item:first-child video {
+                min-height: 300px;
+            }
+
+            .media-item {
+                min-height: 220px;
+            }
+
+            .listing-heading-row {
+                flex-direction: column;
+            }
+
+            .listing-price-box {
+                width: 100%;
+            }
+
+            .seller-box {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .contact-button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-<header class="navbar">
 
-    <div class="brand">
-        <div class="logo-box">L</div>
+<header class="main-header">
 
-        <div>
-            <div class="logo-name">Lavreen</div>
-            <div class="logo-arabic">لافريين</div>
-        </div>
+    <div class="header-container">
+
+        <a href="/" class="logo">
+            لافريين
+        </a>
+
+        <nav class="main-nav">
+
+            <a href="/">
+                الرئيسية
+            </a>
+
+            <a href="/ai">
+                ✨ مساعد AI
+            </a>
+
+            <a href="/my-listings">
+                إعلاناتي
+            </a>
+
+            <a href="/sell" class="header-sell">
+                + بيع الآن
+            </a>
+
+        </nav>
+
     </div>
 
-    <a href="/" class="sell-button">
-        الرئيسية
-    </a>
-
 </header>
+
 
 
 <main class="listing-page">
 
     <div class="listing-container">
 
-        <div class="listing-image">
-            🚗
-        </div>
+        <div class="listing-card">
 
 
-        <div class="listing-info">
+            {% if media %}
 
-            <span class="listing-category">
-                {{ listing["category"] }}
-            </span>
+            <section class="listing-media-section">
 
-            <h1>
-                {{ listing["title"] }}
-            </h1>
+                <div class="media-gallery">
 
-            <div class="listing-price">
-                {{ "{:,.0f}".format(listing["price"]) }} ريال
+
+                    {% for item in media %}
+
+                    <div class="media-item">
+
+
+                        {% if item["media_type"] == "image" %}
+
+                        <img
+                            src="{{ url_for('static', filename=item['file_path']) }}"
+                            alt="{{ listing['title'] }}"
+                            onclick="openLightbox(this.src)"
+                        >
+
+                        {% elif item["media_type"] == "video" %}
+
+                        <video controls>
+
+                            <source
+                                src="{{ url_for('static', filename=item['file_path']) }}"
+                            >
+
+                        </video>
+
+                        {% endif %}
+
+
+                        {% if loop.first and media|length > 1 %}
+
+                        <div class="media-count">
+
+                            📸 {{ media|length }} ملفات
+
+                        </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                    {% endfor %}
+
+
+                </div>
+
+            </section>
+
+            {% endif %}
+
+
+
+            <div class="listing-top">
+
+                <span class="listing-category">
+                    {{ listing["category"] }}
+                </span>
+
+                <span class="listing-location">
+                    📍 {{ listing["city"] }}
+                </span>
+
             </div>
 
-            <div class="listing-city">
-                📍 {{ listing["city"] }}
+
+
+            <div class="listing-heading-row">
+
+
+                <div class="listing-main-info">
+
+                    <h1 class="listing-title">
+                        {{ listing["title"] }}
+                    </h1>
+
+                </div>
+
+
+                <div class="listing-price-box">
+
+                    <span>
+                        السعر
+                    </span>
+
+                    <strong>
+
+                        {{ "{:,.0f}".format(listing["price"]) }}
+
+                        ريال
+
+                    </strong>
+
+                </div>
+
+
             </div>
 
-            <div class="listing-description">
 
-                <h3>الوصف</h3>
 
-                <p>
-                    {{ listing["description"] or "لا يوجد وصف لهذا الإعلان." }}
+            <div class="listing-divider"></div>
+
+
+
+            <section class="listing-section">
+
+                <h2>
+                    وصف الإعلان
+                </h2>
+
+                <p class="listing-description">
+
+                    {{ listing["description"] or "لا يوجد وصف للإعلان." }}
+
                 </p>
 
-            </div>
+            </section>
 
 
-            <div class="ai-card">
 
-                <div class="ai-icon">
-                    ✦
+            <div class="listing-divider"></div>
+
+
+
+            <section class="listing-section">
+
+                <h2>
+                    تفاصيل الإعلان
+                </h2>
+
+
+                <div class="listing-details">
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            القسم
+                        </span>
+
+                        <strong>
+                            {{ listing["category"] }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            المدينة
+                        </span>
+
+                        <strong>
+                            {{ listing["city"] }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            السعر
+                        </span>
+
+                        <strong>
+                            {{ "{:,.0f}".format(listing["price"]) }} ريال
+                        </strong>
+
+                    </div>
+
+
                 </div>
 
-                <div>
-                    <strong>Lavreen AI</strong>
+            </section>
 
-                    <p>
-                        قريبًا سيحلل لك السعر ويخبرك هل الإعلان يستاهل.
-                    </p>
+
+
+            <section class="seller-box">
+
+
+                <div class="seller-info">
+
+                    <div class="seller-avatar">
+                        ل
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            صاحب الإعلان
+                        </strong>
+
+                        <span>
+                            عضو في لافريين
+                        </span>
+
+                    </div>
+
                 </div>
+
+
+                <button
+                    class="contact-button"
+                    onclick="alert('ميزة التواصل مع البائع قادمة قريبًا 🚀')"
+                >
+                    💬 تواصل مع البائع
+                </button>
+
+
+            </section>
+
+
+
+            <div class="listing-actions">
+
+
+                <a
+                    href="{{ url_for('edit_listing', listing_id=listing['id']) }}"
+                    class="sell-button"
+                >
+                    تعديل الإعلان
+                </a>
+
+
+                <a
+                    href="{{ url_for('my_listings') }}"
+                    class="sell-button"
+                >
+                    إعلاناتي
+                </a>
+
+
+                <a
+                    href="/"
+                    class="sell-button"
+                >
+                    ← العودة للسوق
+                </a>
+
 
             </div>
 
-
-            <button class="contact-button">
-                💬 تواصل مع البائع
-            </button>
 
         </div>
 
@@ -95,5 +572,94 @@
 
 </main>
 
+
+
+<div
+    class="lightbox"
+    id="lightbox"
+    onclick="closeLightbox()"
+>
+
+    <button
+        class="lightbox-close"
+        onclick="closeLightbox()"
+    >
+        ×
+    </button>
+
+
+    <img
+        id="lightbox-image"
+        src=""
+        alt="صورة الإعلان"
+        onclick="event.stopPropagation()"
+    >
+
+</div>
+
+
+
+<script>
+
+function openLightbox(src) {
+
+    document
+        .getElementById("lightbox-image")
+        .src = src;
+
+    document
+        .getElementById("lightbox")
+        .classList.add("active");
+
+}
+
+
+function closeLightbox() {
+
+    document
+        .getElementById("lightbox")
+        .classList.remove("active");
+
+}
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+
+            closeLightbox();
+
+        }
+
+    }
+);
+
+</script>
+<!-- شريط التنقل السفلي الخاص بالجوالات -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2">
+    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span class="text-xs mt-1">الرئيسية</span>
+    </a>
+    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs mt-1">ذكاء اصطناعي</span>
+    </a>
+    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
+        <div class="bg-blue-600 text-white p-2 rounded-full -mt-5 shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <span class="text-xs mt-1">أضف إعلان</span>
+    </a>
+    <a href="/my-listings" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span class="text-xs mt-1">إعلاناتي</span>
+    </a>
+</div>
+
+<!-- مسافة سفلية عشان ما يغطي المحتوى الأخير بالجوال -->
+<div class="md:hidden h-16"></div>
+
 </body>
-</html>
