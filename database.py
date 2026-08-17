@@ -1,15 +1,20 @@
 import sqlite3
 
+
 DATABASE = "lavreen.db"
 
 
 def get_db():
+
     connection = sqlite3.connect(DATABASE)
+
     connection.row_factory = sqlite3.Row
+
     return connection
 
 
 def create_database():
+
     connection = get_db()
 
     connection.execute("""
@@ -24,13 +29,16 @@ def create_database():
     """)
 
     connection.commit()
+
     connection.close()
 
 
 def add_sample_listings():
+
     connection = get_db()
 
     listings = [
+
         (
             "Toyota Camry 2022",
             "سيارات",
@@ -38,6 +46,7 @@ def add_sample_listings():
             "الرياض",
             "GLE، ممشى 87,000 كم"
         ),
+
         (
             "iPhone 15 Pro",
             "جوالات",
@@ -45,6 +54,7 @@ def add_sample_listings():
             "الرياض",
             "256GB، حالة ممتازة"
         ),
+
         (
             "Gaming PC RTX 4070",
             "كمبيوتر",
@@ -52,6 +62,7 @@ def add_sample_listings():
             "الرياض",
             "Ryzen 7، 32GB RAM"
         ),
+
         (
             "PlayStation 5",
             "ألعاب",
@@ -59,6 +70,7 @@ def add_sample_listings():
             "الرياض",
             "نسخة Disc، نظيف جدًا"
         )
+
     ]
 
     for listing in listings:
@@ -66,24 +78,43 @@ def add_sample_listings():
         connection.execute("""
             INSERT INTO listings
             (title, category, price, city, description)
+
             SELECT ?, ?, ?, ?, ?
+
             WHERE NOT EXISTS (
+
                 SELECT 1
                 FROM listings
                 WHERE title = ?
+
             )
         """, (*listing, listing[0]))
 
     connection.commit()
+
     connection.close()
 
 
-def add_listing(title, category, price, city, description):
+def add_listing(
+    title,
+    category,
+    price,
+    city,
+    description
+):
+
     connection = get_db()
 
     connection.execute("""
         INSERT INTO listings
-        (title, category, price, city, description)
+        (
+            title,
+            category,
+            price,
+            city,
+            description
+        )
+
         VALUES (?, ?, ?, ?, ?)
     """, (
         title,
@@ -94,4 +125,55 @@ def add_listing(title, category, price, city, description):
     ))
 
     connection.commit()
+
+    connection.close()
+
+
+def update_listing(
+    listing_id,
+    title,
+    category,
+    price,
+    city,
+    description
+):
+
+    connection = get_db()
+
+    connection.execute("""
+        UPDATE listings
+
+        SET
+            title = ?,
+            category = ?,
+            price = ?,
+            city = ?,
+            description = ?
+
+        WHERE id = ?
+    """, (
+        title,
+        category,
+        price,
+        city,
+        description,
+        listing_id
+    ))
+
+    connection.commit()
+
+    connection.close()
+
+
+def delete_listing(listing_id):
+
+    connection = get_db()
+
+    connection.execute("""
+        DELETE FROM listings
+        WHERE id = ?
+    """, (listing_id,))
+
+    connection.commit()
+
     connection.close()

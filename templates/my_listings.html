@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>إعلاناتي - Lavreen</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="brand">
+
+        <div class="logo-box">
+            L
+        </div>
+
+        <div>
+
+            <div class="logo-name">
+                Lavreen
+            </div>
+
+            <div class="logo-arabic">
+                لافريين
+            </div>
+
+        </div>
+
+    </div>
+
+    <nav class="nav-links">
+
+        <a href="/">
+            الرئيسية
+        </a>
+
+        <a href="/ai">
+            Lavreen AI ✦
+        </a>
+
+        <a href="/sell">
+            بيع الآن
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="sell-page">
+
+    <div class="sell-container">
+
+        <div class="sell-heading">
+
+            <small>
+                ✦ LAVREEN
+            </small>
+
+            <h1>
+                إعلاناتي
+            </h1>
+
+            <p>
+                جميع الإعلانات المنشورة على Lavreen.
+            </p>
+
+        </div>
+
+
+        {% if listings %}
+
+            {% for listing in listings %}
+
+                <div class="form-group"
+                     style="border:1px solid #ddd;
+                            border-radius:12px;
+                            padding:18px;
+                            margin-bottom:15px;">
+
+                    <h2>
+                        {{ listing["title"] }}
+                    </h2>
+
+                    <p>
+                        {{ listing["category"] }}
+                    </p>
+
+                    <strong>
+                        {{ "{:,.0f}".format(listing["price"]) }}
+                        ريال
+                    </strong>
+
+                    <p>
+                        {{ listing["city"] }}
+                    </p>
+
+
+                    <div style="margin-top:15px;">
+
+                        <a href="{{ url_for(
+                            'listing',
+                            listing_id=listing['id']
+                        ) }}"
+                           class="sell-button">
+
+                            فتح الإعلان
+
+                        </a>
+
+
+                        <a href="{{ url_for(
+                            'edit_listing',
+                            listing_id=listing['id']
+                        ) }}"
+                           class="back-home">
+
+                            تعديل
+
+                        </a>
+
+
+                        <form
+                            action="{{ url_for(
+                                'remove_listing',
+                                listing_id=listing['id']
+                            ) }}"
+                            method="POST"
+                            style="display:inline;"
+                            onsubmit="return confirm('هل أنت متأكد من حذف الإعلان؟');">
+
+                            <button
+                                type="submit"
+                                class="publish-button">
+
+                                حذف
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+                لا توجد إعلانات حاليًا.
+            </p>
+
+        {% endif %}
+
+
+        <a href="/"
+           class="back-home">
+
+            ← العودة للرئيسية
+
+        </a>
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <strong>
+        Lavreen
+    </strong>
+
+    <span>
+        منصة البيع والشراء الذكية ©️ 2026
+    </span>
+
+</footer>
+
+</body>
+
+</html>

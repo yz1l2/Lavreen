@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>تعديل الإعلان - Lavreen</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="brand">
+
+        <div class="logo-box">
+            L
+        </div>
+
+        <div>
+
+            <div class="logo-name">
+                Lavreen
+            </div>
+
+            <div class="logo-arabic">
+                لافريين
+            </div>
+
+        </div>
+
+    </div>
+
+    <nav class="nav-links">
+
+        <a href="/">
+            الرئيسية
+        </a>
+
+        <a href="/ai">
+            Lavreen AI ✦
+        </a>
+
+        <a href="/sell">
+            بيع الآن
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="sell-page">
+
+    <div class="sell-container">
+
+        <div class="sell-heading">
+
+            <small>
+                ✦ LAVREEN
+            </small>
+
+            <h1>
+                تعديل الإعلان
+            </h1>
+
+        </div>
+
+
+        <form
+            action="{{ url_for(
+                'edit_listing',
+                listing_id=listing['id']
+            ) }}"
+            method="POST"
+            class="sell-form">
+
+
+            <div class="form-group">
+
+                <label>
+                    عنوان الإعلان
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    value="{{ listing['title'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    التصنيف
+                </label>
+
+                <input
+                    type="text"
+                    name="category"
+                    value="{{ listing['category'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>
+                        السعر
+                    </label>
+
+                    <input
+                        type="number"
+                        name="price"
+                        value="{{ listing['price'] }}"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        المدينة
+                    </label>
+
+                    <input
+                        type="text"
+                        name="city"
+                        value="{{ listing['city'] }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    الوصف
+                </label>
+
+                <textarea
+                    name="description"
+                    rows="7"
+                >{{ listing['description'] or '' }}</textarea>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="publish-button">
+
+                حفظ التعديلات 💾
+
+            </button>
+
+        </form>
+
+
+        <a href="{{ url_for(
+            'listing',
+            listing_id=listing['id']
+        ) }}"
+           class="back-home">
+
+            ← إلغاء
+
+        </a>
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <strong>
+        Lavreen
+    </strong>
+
+    <span>
+        منصة البيع والشراء الذكية ©️ 2026
+    </span>
+
+</footer>
+
+</body>
+
+</html>
