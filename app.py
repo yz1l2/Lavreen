@@ -4,12 +4,10 @@ import os
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
-# مجلد حفظ الصور للإعلانات
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# قائمة مؤقتة لتخزين الإعلانات (أو قاعدة البيانات الخاصة بك)
-# تأكد من ربطها بقاعدة البيانات الحقيقية لديك إذا كنت تستخدم SQLAlchemy
+# قائمة تخزين الإعلانات مؤقتاً
 listings = []
 
 @app.route('/')
@@ -27,7 +25,6 @@ def sell():
         city = request.form.get('city')
         description = request.form.get('description')
         
-        # معالجة رفع الصور
         image_filename = ''
         if 'images' in request.files:
             file = request.files['images']
@@ -36,7 +33,6 @@ def sell():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
                 image_filename = file.filename
 
-        # حفظ الإعلان (كمثال في القائمة المؤقتة مع إضافة ID رقمي)
         new_listing = {
             'id': len(listings) + 1,
             'title': title,
@@ -55,14 +51,12 @@ def sell():
         
     return render_template('sell.html')
 
-# ⚠️ هذا هو المسار الجديد الخاص بفتح تفاصيل الإعلان والشات
+# مسار تفاصيل الإعلان الفردي
 @app.route('/item/<int:item_id>')
 def view_item(item_id):
-    # البحث عن الإعلان بواسطة الـ id الخاص به
     listing = next((item for item in listings if item['id'] == item_id), None)
     
     if not listing:
-        # إذا لم يتم العثور على الإعلان (مثال تجريبي)
         listing = {
             'id': item_id,
             'title': 'إعلان تجريبي',
@@ -71,7 +65,7 @@ def view_item(item_id):
             'model': 'كامري',
             'price': '50,000',
             'city': 'الرياض',
-            'description': 'هذا إعلان تجريبي للتأكد من عمل الصفحة والشات.',
+            'description': 'هذا إعلان تجريبي للتأكد من عمل الصفحة.',
             'image_filename': ''
         }
         
