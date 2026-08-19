@@ -36,12 +36,12 @@ def register():
             user_id = cursor.lastrowid
             conn.close()
             
-            # تسجيل الجلسة تلقائياً بعد التسجيل
             session['user_id'] = user_id
             session['user_name'] = name
             return redirect(url_for('index'))
         except Exception as e:
-            return render_template('register.html', error="البريد الإلكتروني مستخدم مسبقاً أو حدث خطأ.")
+            print("REGISTER ERROR:", str(e))
+            return render_template('register.html', error=f"خطأ في التسجيل: {str(e)}")
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -117,7 +117,6 @@ def send_message():
     
     receiver_id = request.form.get('receiver_id')
     if not receiver_id:
-        # جلب صاحب الإعلان كمستلم افتراضي للرسالة الخاصة
         listing = database.get_listing(listing_id)
         receiver_id = listing['owner_id'] if listing else 1
     
@@ -133,7 +132,6 @@ def messages_inbox():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # يجلب فقط الرسائل الخاصة الموجهة للمستخدم الحالي المسجل دخول
     messages = database.get_private_messages_for_user(session['user_id'])
     return render_template('messages.html', messages=messages)
 
