@@ -96,9 +96,26 @@ def search():
         filtered = listings
     return render_template('index.html', listings=filtered)
 
-@app.route('/ai')
-def ai_page():
-    return render_template('ai.html')
+# مسار الـ AI المحدث (يدعم GET و POST لمنع خطأ 500)
+@app.route('/ai', methods=['GET', 'POST'])
+def ai():
+    query = ""
+    results = []
+    if request.method == 'POST':
+        query = request.form.get('query', '')
+        listings = load_listings()
+        if query:
+            q_lower = query.lower()
+            results = [
+                item for item in listings 
+                if q_lower in item.get('title', '').lower() or 
+                   q_lower in item.get('description', '').lower() or 
+                   q_lower in item.get('category', '').lower()
+            ]
+        else:
+            results = listings
+            
+    return render_template('ai.html', query=query, results=results)
 
 @app.route('/my-listings')
 def my_listings():
