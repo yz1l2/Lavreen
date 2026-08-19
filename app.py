@@ -115,6 +115,31 @@ def my_listings():
     connection.close()
     return render_template('my_listings.html', listings=listings)
 
+# مسار الملف الشخصي للمتجر
+@app.route('/profile')
+def profile():
+    connection = database.get_db()
+    user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
+    connection.close()
+    
+    if not user:
+        return redirect(url_for('index'))
+        
+    return render_template('profile.html', user=user)
+
+# مسار تحديث بيانات الملف الشخصي (رقم الهاتف والبايو)
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    phone = request.form.get('phone', '')
+    bio = request.form.get('bio', '')
+    
+    connection = database.get_db()
+    connection.execute("UPDATE users SET phone = ?, bio = ? WHERE id = 1", (phone, bio))
+    connection.commit()
+    connection.close()
+    
+    return redirect(url_for('profile'))
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
