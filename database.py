@@ -14,15 +14,30 @@ def get_db():
 def create_database():
     connection = get_db()
 
+    # إنشاء جدول المستخدمين مع إضافة أعمدة phone و bio لضمان عدم ظهور أخطاء
     connection.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
+            phone TEXT,
+            bio TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # التحقق من وجود أعمدة الهاتف والبايو في حال كان الجدول قديم وموجود مسبقاً
+    user_columns = connection.execute(
+        "PRAGMA table_info(users)"
+    ).fetchall()
+    user_column_names = [column["name"] for column in user_columns]
+
+    if "phone" not in user_column_names:
+        connection.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+
+    if "bio" not in user_column_names:
+        connection.execute("ALTER TABLE users ADD COLUMN bio TEXT")
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS listings (
