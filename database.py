@@ -14,7 +14,7 @@ def get_db():
 def create_database():
     connection = get_db()
 
-    # إنشاء جدول المستخدمين مع إضافة أعمدة phone و bio لضمان عدم ظهور أخطاء
+    # إنشاء جدول المستخدمين مع دعم الهاتف والبايو
     connection.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +27,7 @@ def create_database():
         )
     """)
 
-    # التحقق من وجود أعمدة الهاتف والبايو في حال كان الجدول قديم وموجود مسبقاً
+    # التحقق من وجود أعمدة الهاتف والبايو في الجداول القديمة
     user_columns = connection.execute(
         "PRAGMA table_info(users)"
     ).fetchall()

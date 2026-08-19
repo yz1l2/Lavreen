@@ -15,13 +15,11 @@ database.add_sample_listings()
 
 @app.route('/')
 def index():
-    # جلب جميع الإعلانات مباشرة من قاعدة البيانات
     connection = database.get_db()
     listings = connection.execute("SELECT * FROM listings ORDER BY id DESC").fetchall()
     connection.close()
     return render_template('index.html', listings=listings)
 
-# مسار استقبال وتخزين الإعلانات في قاعدة البيانات
 @app.route('/sell', methods=['GET', 'POST'])
 def sell():
     if request.method == 'POST':
@@ -32,7 +30,6 @@ def sell():
             city = request.form.get('city', 'غير محدد')
             description = request.form.get('description', '')
             
-            # إضافة الإعلان لقاعدة البيانات
             listing_id = database.add_listing(
                 title=title,
                 category=category,
@@ -42,7 +39,6 @@ def sell():
                 owner_id=None
             )
             
-            # معالجة رفع الصورة إن وجدت
             if 'images' in request.files:
                 file = request.files['images']
                 if file and file.filename != '':
@@ -58,7 +54,6 @@ def sell():
         
     return render_template('sell.html')
 
-# مسار عرض تفاصيل الإعلان
 @app.route('/listing/<int:item_id>')
 def view_item(item_id):
     listing = database.get_listing(item_id)
@@ -68,7 +63,6 @@ def view_item(item_id):
     media = database.get_listing_media(item_id)
     return render_template('item.html', listing=listing, media=media)
 
-# مسار البحث العام
 @app.route('/search')
 def search():
     query = request.args.get('q', '').lower()
@@ -83,7 +77,6 @@ def search():
     connection.close()
     return render_template('index.html', listings=listings)
 
-# مسار البحث الذكي (AI)
 @app.route('/ai', methods=['GET', 'POST'])
 def ai():
     query = ""
@@ -115,7 +108,6 @@ def my_listings():
     connection.close()
     return render_template('my_listings.html', listings=listings)
 
-# مسار الملف الشخصي للمتجر
 @app.route('/profile')
 def profile():
     connection = database.get_db()
@@ -137,14 +129,14 @@ def profile():
         
     return render_template('profile.html', user=user)
 
-# مسار تحديث بيانات الملف الشخصي (رقم الهاتف والبايو)
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
+    name = request.form.get('name', '')
     phone = request.form.get('phone', '')
     bio = request.form.get('bio', '')
     
     connection = database.get_db()
-    connection.execute("UPDATE users SET phone = ?, bio = ? WHERE id = 1", (phone, bio))
+    connection.execute("UPDATE users SET name = ?, phone = ?, bio = ? WHERE id = 1", (name, phone, bio))
     connection.commit()
     connection.close()
     
