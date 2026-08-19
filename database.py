@@ -136,7 +136,6 @@ def get_listing_media(listing_id):
 
 def get_all_listings_with_first_media():
     conn = get_db()
-    # جلب الإعلانات مع أول صورة رئيسية لها لتظهر في الواجهة الرئيسية
     query = """
         SELECT listings.*, 
                (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
@@ -146,3 +145,36 @@ def get_all_listings_with_first_media():
     listings = conn.execute(query).fetchall()
     conn.close()
     return listings
+
+# دوال الرسائل والدردشة (التي كانت ناقصة وتسبب خطأ 500)
+def add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO messages (listing_id, sender_id, sender_name, receiver_id, message, is_private)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (listing_id, sender_id, sender_name, receiver_id, message, is_private))
+    conn.commit()
+    conn.close()
+
+def get_messages_for_listing(listing_id):
+    conn = get_db()
+    messages = conn.execute("""
+        SELECT * FROM messages 
+        WHERE listing_id = ? AND is_private = 0 
+        ORDER BY id ASC
+    """, (listing_id,)).fetchall()
+    conn.close()
+    return messages
+
+def get_private_messages_for_user(user_id):
+    conn = get_db()
+    messages = conn.execute("""
+        SELECT messages.*, listings.title as listing_title 
+        FROM messages 
+        LEFT JOIN listings ON messages.listing_id = listings.id
+        WHERE (messages.receiver_id = ? OR messages.sender_id = ?) AND messages.is_private = 1
+        ORDER BY messages.id DESC
+    """, (user_id, user_id)).fetchall()
+    conn.close()
+    return messages
