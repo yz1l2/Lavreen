@@ -92,7 +92,8 @@ def sell():
                     database.add_listing_media(listing_id, 'image', f'uploads/{filename}')
             return redirect(url_for('index'))
         except Exception as e:
-            return redirect(url_for('sell'))
+            print("SELL ERROR:", str(e))
+            return f"حدث خطأ أثناء نشر الإعلان: {str(e)}"
     return render_template('sell.html')
 
 @app.route('/listing/<int:item_id>')
