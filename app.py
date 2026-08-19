@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import database
 
 app = Flask(__name__)
-app.secret_key = 'lvreen_secure_key_2026'
+app.secret_key = 'lvreen_secure_key_2026_real'
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -19,8 +19,59 @@ def index():
     connection.close()
     return render_template('index.html', listings=listings)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        phone = request.form.get('phone', '')
+        
+        try:
+            conn = database.get_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO users (name, email, password_hash, phone) VALUES (?, ?, ?, ?)", 
+                           (name, email, password, phone))
+            conn.commit()
+            user_id = cursor.lastrowid
+            conn.close()
+            
+            # تسجيل الجلسة تلقائياً بعد التسجيل
+            session['user_id'] = user_id
+            session['user_name'] = name
+            return redirect(url_for('index'))
+        except Exception as e:
+            return render_template('register.html', error="البريد الإلكتروني مستخدم مسبقاً أو حدث خطأ.")
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        conn = database.get_db()
+        user = conn.execute("SELECT * FROM users WHERE email = ? AND password_hash = ?", (email, password)).fetchone()
+        conn.close()
+        
+        if user:
+            session['user_id'] = user['id']
+            session['user_name'] = user['name']
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error="البريد الإلكتروني أو كلمة المرور غير صحيحة.")
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
 @app.route('/sell', methods=['GET', 'POST'])
 def sell():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
     if request.method == 'POST':
         try:
             title = request.form.get('title', 'بدون عنوان')
@@ -28,10 +79,7 @@ def sell():
             price = request.form.get('price', '0')
             city = request.form.get('city', 'غير محدد')
             description = request.form.get('description', '')
-            
-            # جلب صاحب الإعلان من الجلسة أو افتراضي
-            user = database.get_db().execute("SELECT * FROM users LIMIT 1").fetchone()
-            owner_id = user['id'] if user else None
+            owner_id = session['user_id']
 
             listing_id = database.add_listing(title, category, float(price) if price else 0.0, city, description, owner_id)
             
@@ -44,7 +92,6 @@ def sell():
                     database.add_listing_media(listing_id, 'image', f'uploads/{filename}')
             return redirect(url_for('index'))
         except Exception as e:
-            print(f"Error: {e}")
             return redirect(url_for('sell'))
     return render_template('sell.html')
 
@@ -59,21 +106,23 @@ def view_item(item_id):
 
 @app.route('/send-message', methods=['POST'])
 def send_message():
-    connection = database.get_db()
-    user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
-    connection.close()
-    
-    if not user:
-        return redirect(url_for('profile'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
         
     listing_id = request.form.get('listing_id')
-    sender = user['name'] # استخدام اسم المستخدم المسجل تلقائياً
-    receiver = request.form.get('receiver_name', 'المعلن')
+    sender_id = session['user_id']
+    sender_name = session['user_name']
     message = request.form.get('message')
     is_private = int(request.form.get('is_private', 0))
     
+    receiver_id = request.form.get('receiver_id')
+    if not receiver_id:
+        # جلب صاحب الإعلان كمستلم افتراضي للرسالة الخاصة
+        listing = database.get_listing(listing_id)
+        receiver_id = listing['owner_id'] if listing else 1
+    
     if message:
-        database.add_message(listing_id, sender, receiver, message, is_private)
+        database.add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private)
         
     if is_private == 1:
         return redirect(url_for('messages_inbox'))
@@ -81,7 +130,11 @@ def send_message():
 
 @app.route('/messages')
 def messages_inbox():
-    messages = database.get_private_messages()
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # يجلب فقط الرسائل الخاصة الموجهة للمستخدم الحالي المسجل دخول
+    messages = database.get_private_messages_for_user(session['user_id'])
     return render_template('messages.html', messages=messages)
 
 @app.route('/search')
@@ -114,35 +167,34 @@ def ai():
 
 @app.route('/my-listings')
 def my_listings():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     connection = database.get_db()
-    listings = connection.execute("SELECT * FROM listings ORDER BY id DESC").fetchall()
+    listings = connection.execute("SELECT * FROM listings WHERE owner_id = ? ORDER BY id DESC", (session['user_id'],)).fetchall()
     connection.close()
     return render_template('my_listings.html', listings=listings)
 
 @app.route('/profile')
 def profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     connection = database.get_db()
-    user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
+    user = connection.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
     connection.close()
-    if not user:
-        connection = database.get_db()
-        connection.execute("INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio) VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')")
-        connection.commit()
-        connection.close()
-        connection = database.get_db()
-        user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
-        connection.close()
     return render_template('profile.html', user=user)
 
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     name = request.form.get('name', '')
     phone = request.form.get('phone', '')
     bio = request.form.get('bio', '')
     connection = database.get_db()
-    connection.execute("UPDATE users SET name = ?, phone = ?, bio = ? WHERE id = 1", (name, phone, bio))
+    connection.execute("UPDATE users SET name = ?, phone = ?, bio = ? WHERE id = ?", (name, phone, bio, session['user_id']))
     connection.commit()
     connection.close()
+    session['user_name'] = name
     return redirect(url_for('profile'))
 
 if __name__ == '__main__':

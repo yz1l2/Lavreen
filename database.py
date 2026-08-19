@@ -11,7 +11,7 @@ def create_database():
     conn = get_db()
     cursor = conn.cursor()
     
-    # جدول المستخدمين
+    # جدول المستخدمين الحقيقي
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +23,7 @@ def create_database():
         )
     """)
     
-    # جدول الإعلانات
+    # جدول الإعلانات مربوط بـ owner_id
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,17 +48,20 @@ def create_database():
         )
     """)
 
-    # جدول الرسائل والتعليقات العامة والخاصة
+    # جدول الرسائل والتعليقات (مع تحديد receiver_id للرسائل الخاصة)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             listing_id INTEGER,
+            sender_id INTEGER,
             sender_name TEXT NOT NULL,
-            receiver_name TEXT NOT NULL,
+            receiver_id INTEGER,
             message TEXT NOT NULL,
             is_private INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (listing_id) REFERENCES listings (id)
+            FOREIGN KEY (listing_id) REFERENCES listings (id),
+            FOREIGN KEY (sender_id) REFERENCES users (id),
+            FOREIGN KEY (receiver_id) REFERENCES users (id)
         )
     """)
     
@@ -72,7 +75,7 @@ def add_sample_listings():
     count = cursor.fetchone()[0]
     
     if count == 0:
-        # إضافة مستخدم افتراضي
+        # إضافة مستخدم تجريبي افتراضي
         cursor.execute("""
             INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio)
             VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')
@@ -116,7 +119,7 @@ def add_listing_media(listing_id, media_type, file_path):
 
 def get_listing(listing_id):
     conn = get_db()
-    listing = conn.execute("SELECT * FROM listings WHERE id = ?", (listing_id,)).fetchone()
+    listing = conn.execute("SELECT listings.*, users.name as owner_name FROM listings LEFT JOIN users ON listings.owner_id = users.id WHERE listings.id = ?", (listing_id,)).fetchone()
     conn.close()
     return listing
 
@@ -126,13 +129,13 @@ def get_listing_media(listing_id):
     conn.close()
     return media
 
-def add_message(listing_id, sender_name, receiver_name, message, is_private=0):
+def add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private=0):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO messages (listing_id, sender_name, receiver_name, message, is_private)
-        VALUES (?, ?, ?, ?, ?)
-    """, (listing_id, sender_name, receiver_name, message, is_private))
+        INSERT INTO messages (listing_id, sender_id, sender_name, receiver_id, message, is_private)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (listing_id, sender_id, sender_name, receiver_id, message, is_private))
     conn.commit()
     conn.close()
 
@@ -146,12 +149,14 @@ def get_messages_for_listing(listing_id):
     conn.close()
     return messages
 
-def get_private_messages():
+def get_private_messages_for_user(user_id):
     conn = get_db()
+    # تجلب الرسائل الخاصة التي أُرسلت للمستخدم الحالي فقط
     messages = conn.execute("""
-        SELECT * FROM messages 
-        WHERE is_private = 1 
-        ORDER BY id DESC
-    """).fetchall()
+        SELECT messages.*, listings.title as listing_title FROM messages 
+        LEFT JOIN listings ON messages.listing_id = listings.id
+        WHERE messages.is_private = 1 AND messages.receiver_id = ? 
+        ORDER BY messages.id DESC
+    """, (user_id,)).fetchall()
     conn.close()
     return messages

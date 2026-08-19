@@ -12,7 +12,7 @@
         body { font-family: "Cairo", sans-serif; background: #f7f7f9; color: #15151a; direction: rtl; }
         a { text-decoration: none; color: inherit; }
         .header { height: 76px; background: rgba(255,255,255,.94); border-bottom: 1px solid #e8e8ec; display: flex; align-items: center; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(15px); }
-        .header-inner { width: min(1200px, calc(100% - 40px)); margin: auto; display: flex; align-items: center; gap: 25px; }
+        .header-inner { width: min(1200px, calc(100% - 40px)); margin: auto; display: flex; align-items: center; gap: 20px; }
         .logo { display: flex; align-items: center; gap: 10px; direction: ltr; font-size: 23px; font-weight: 800; }
         .logo-box { width: 38px; height: 38px; border-radius: 11px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 800; }
         .nav { display: flex; gap: 8px; align-items: center; }
@@ -85,27 +85,6 @@
         .footer-links { display: flex; gap: 25px; color: #aaa; font-size: 11px; }
         .copyright { border-top: 1px solid #292929; text-align: center; padding: 16px; color: #666; font-size: 9px; }
         @media (max-width: 950px) { .nav { display: none; } .categories { grid-template-columns: repeat(3, 1fr); } .products { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) {
-            .header-inner, .hero-inner, .section, .ai-banner, .footer-inner { width: calc(100% - 28px); }
-            .header { height: 65px; }
-            .my-listings { display: none; }
-            .hero { min-height: 500px; }
-            .hero h1 { font-size: 40px; letter-spacing: -2px; }
-            .hero p { font-size: 12px; }
-            .search { height: 60px; }
-            .search button { height: 46px; padding: 0 15px; font-size: 11px; }
-            .search input { font-size: 11px; }
-            .categories { grid-template-columns: repeat(2, 1fr); }
-            .products { gap: 10px; }
-            .product-image { height: 155px; }
-            .product-info { padding: 12px; }
-            .product h3 { font-size: 12px; }
-            .price { font-size: 14px; }
-            .ai-banner { display: block; padding: 25px 20px; }
-            .ai-button { display: inline-block; margin-top: 20px; }
-            .footer-inner { display: block; }
-            .footer-links { margin-top: 25px; flex-wrap: wrap; }
-        }
     </style>
 </head>
 <body>
@@ -123,19 +102,24 @@
             <a href="/ai" class="ai">✦ مساعد AI</a>
         </nav>
         <div class="header-spacer"></div>
-        <a href="/messages" class="my-listings font-bold text-blue-600">💬 الرسائل</a>
-        <a href="/my-listings" class="my-listings">إعلاناتي</a>
-        <a href="/profile" class="profile-btn">👤 ملفي الشخصي</a>
+        
+        {% if session.get('user_id') %}
+            <a href="/messages" class="my-listings font-bold text-blue-600">💬 الرسائل</a>
+            <a href="/my-listings" class="my-listings">إعلاناتي</a>
+            <a href="/profile" class="profile-btn">👤 {{ session.get('user_name') }}</a>
+            <a href="/logout" class="text-red-500 text-xs font-bold px-3 py-2 bg-red-50 rounded-lg">خروج</a>
+        {% else %}
+            <a href="/login" class="profile-btn">تسجيل الدخول</a>
+            <a href="/register" class="sell">حساب جديد</a>
+        {% endif %}
+        
         <a href="/sell" class="sell">＋ أضف إعلان</a>
     </div>
 </header>
 
 <section class="hero">
     <div class="hero-inner">
-        <div class="badge">
-            <span class="dot"></span>
-            السوق الذكي في السعودية
-        </div>
+        <div class="badge"><span class="dot"></span> السوق الذكي في السعودية</div>
         <h1>لا تدور كثير.<br><span>لافريين يلقاه لك.</span></h1>
         <p>ابحث عن السيارات، الأجهزة، العقارات وكل اللي تحتاجه في مكان واحد، مع مساعد ذكي يساعدك تختار الأفضل.</p>
         <form action="/search" method="GET" class="search">
@@ -143,77 +127,12 @@
             <input type="text" name="q" placeholder="وش تدور عليه؟ مثال: كامري 2022">
             <button type="submit">بحث ←</button>
         </form>
-        <div class="popular">
-            <span>الأكثر بحثًا</span>
-            <a href="/search?q=كامري">كامري</a>
-            <a href="/search?q=آيفون">آيفون</a>
-            <a href="/search?q=لابتوب">لابتوب</a>
-            <a href="/search?q=سيارات">سيارات</a>
-            <a href="/search?q=عقار">عقار</a>
-        </div>
     </div>
-</section>
-
-<section class="section" id="categories">
-    <div class="heading">
-        <div>
-            <small>اكتشف السوق</small>
-            <h2>تصفح حسب التصنيف</h2>
-        </div>
-        <a href="/search" class="all">عرض الكل ←</a>
-    </div>
-    <div class="categories">
-        <a href="/search?q=سيارات" class="category">
-            <div class="category-icon c1">🚘</div>
-            <strong>سيارات</strong>
-            <p>بيع وشراء السيارات</p>
-            <span class="category-arrow">←</span>
-        </a>
-        <a href="/search?q=عقار" class="category">
-            <div class="category-icon c2">🏠</div>
-            <strong>عقار</strong>
-            <p>بيوت وشقق وأراضي</p>
-            <span class="category-arrow">←</span>
-        </a>
-        <a href="/search?q=جوالات" class="category">
-            <div class="category-icon c3">📱</div>
-            <strong>جوالات</strong>
-            <p>جوالات وإلكترونيات</p>
-            <span class="category-arrow">←</span>
-        </a>
-        <a href="/search?q=كمبيوتر" class="category">
-            <div class="category-icon c4">💻</div>
-            <strong>كمبيوتر</strong>
-            <p>PC وقطع وأجهزة</p>
-            <span class="category-arrow">←</span>
-        </a>
-        <a href="/search?q=ألعاب" class="category">
-            <div class="category-icon c5">🎮</div>
-            <strong>ألعاب</strong>
-            <p>ألعاب وكونسول</p>
-            <span class="category-arrow">←</span>
-        </a>
-    </div>
-</section>
-
-<section class="ai-banner">
-    <div class="ai-content">
-        <div class="ai-icon">✦</div>
-        <div>
-            <small>LAVREEN AI</small>
-            <h2>قل له وش تبي، وهو يدور لك.</h2>
-            <p>مثال: "أبي كامري 2022 بميزانية 75 ألف"</p>
-        </div>
-    </div>
-    <a href="/ai" class="ai-button">جرّب المساعد ←</a>
 </section>
 
 <section class="section" id="listings">
     <div class="heading">
-        <div>
-            <small>جديد السوق</small>
-            <h2>أحدث الإعلانات</h2>
-        </div>
+        <div><small>جديد السوق</small><h2>أحدث الإعلانات</h2></div>
         <a href="/search" class="all">مشاهدة الكل ←</a>
     </div>
     {% if listings %}
@@ -227,7 +146,6 @@
                 <div class="no-image">📦</div>
                 {% endif %}
                 <div class="category-label">{{ listing['category'] }}</div>
-                <button class="heart" type="button" onclick="event.preventDefault(); event.stopPropagation();">♡</button>
             </div>
             <div class="product-info">
                 <div class="location">📍 {{ listing['city'] }}</div>
@@ -253,10 +171,7 @@
 <footer>
     <div class="footer-inner">
         <div>
-            <div class="logo">
-                <span class="logo-box">L</span>
-                <span>Lavreen</span>
-            </div>
+            <div class="logo"><span class="logo-box">L</span><span>Lavreen</span></div>
             <p>سوقك الذكي. ابحث، قارن، وبع بسهولة.</p>
         </div>
         <div class="footer-links">
@@ -265,7 +180,6 @@
             <a href="/sell">أضف إعلان</a>
             <a href="/my-listings">إعلاناتي</a>
             <a href="/profile">ملفي الشخصي</a>
-            <a href="/ai">Lavreen AI</a>
         </div>
     </div>
     <div class="copyright">©️ 2026 Lavreen — جميع الحقوق محفوظة</div>
