@@ -23,10 +23,31 @@
     <div class="max-w-4xl mx-auto px-4 py-8">
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-6">
             
-            <!-- صورة أو وسائط الإعلان -->
+            <!-- معرض الصور والفيديوهات مع الأسهم والترقيم -->
             <div class="mb-6">
                 {% if media and media|length > 0 %}
-                    <img src="{{ url_for('static', filename=media[0]['file_path']) }}" alt="الإعلان" class="w-full h-80 object-cover rounded-xl">
+                    <div class="relative w-full h-80 bg-black rounded-xl overflow-hidden flex items-center justify-center">
+                        {% for m in media %}
+                            <div class="slide-item absolute inset-0 transition-opacity duration-300 {% if not loop.first %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}" data-index="{{ loop.index0 }}">
+                                {% if m.media_type == 'video' %}
+                                    <video src="{{ url_for('static', filename=m.file_path) }}" controls class="w-full h-full object-contain"></video>
+                                {% else %}
+                                    <img src="{{ url_for('static', filename=m.file_path) }}" alt="الإعلان" class="w-full h-full object-contain">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- أزرار الأسهم تظهر فقط لو فيه أكثر من وسائط -->
+                        {% if media|length > 1 %}
+                            <button onclick="prevSlide()" class="absolute left-3 bg-black/60 hover:bg-black text-white p-3 rounded-full transition shadow-md">❮</button>
+                            <button onclick="nextSlide()" class="absolute right-3 bg-black/60 hover:bg-black text-white p-3 rounded-full transition shadow-md">❯</button>
+                            
+                            <!-- عداد أرقام الصور (مثلاً 1 من 5) -->
+                            <div class="absolute bottom-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                                <span id="current-slide-num">1</span> من {{ media|length }}
+                            </div>
+                        {% endif %}
+                    </div>
                 {% else %}
                     <div class="w-full h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">لا توجد صورة متاحة</div>
                 {% endif %}
@@ -66,7 +87,7 @@
                 </form>
             </div>
 
-            <!-- الشات العام أسفل الإعلان (كما هو بدون لمس تصميمه الأساسي، لكن مرتبط بقاعدة البيانات ومستخدم النظام) -->
+            <!-- الشات العام أسفل الإعلان -->
             <div>
                 <h3 class="font-bold text-lg mb-4">التعليقات والمحادثة العامة</h3>
                 
@@ -96,5 +117,39 @@
         </div>
     </div>
 
+    <!-- سكربت التنقل بين الصور والوسائط -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-item');
+        const totalSlides = slides.length;
+        const counterNum = document.getElementById('current-slide-num');
+
+        function updateSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.remove('opacity-0', 'pointer-events-none');
+                    slide.classList.add('opacity-100');
+                } else {
+                    slide.classList.remove('opacity-100');
+                    slide.classList.add('opacity-0', 'pointer-events-none');
+                }
+            });
+            if (counterNum) {
+                counterNum.textContent = index + 1;
+            }
+        }
+
+        function nextSlide() {
+            if (totalSlides === 0) return;
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            if (totalSlides === 0) return;
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlide(currentSlide);
+        }
+    </script>
 </body>
 </html>

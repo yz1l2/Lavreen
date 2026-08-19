@@ -14,9 +14,7 @@ database.add_sample_listings()
 
 @app.route('/')
 def index():
-    connection = database.get_db()
-    listings = connection.execute("SELECT * FROM listings ORDER BY id DESC").fetchall()
-    connection.close()
+    listings = database.get_all_listings_with_first_media()
     return render_template('index.html', listings=listings)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -83,15 +81,22 @@ def sell():
 
             listing_id = database.add_listing(title, category, float(price) if price else 0.0, city, description, owner_id)
             
-            if 'images' in request.files:
-                file = request.files['images']
+            # استقبال حتى 30 صورة و 5 فيديوهات دفعة وحدة
+            upload_path = os.path.join(app.root_path, 'static', 'uploads')
+            os.makedirs(upload_path, exist_ok=True)
+            
+            files = request.files.getlist('images')
+            for file in files:
                 if file and file.filename != '':
                     filename = secure_filename(file.filename)
-                    upload_path = os.path.join(app.root_path, 'static', 'uploads')
-                    os.makedirs(upload_path, exist_ok=True)
                     file_path = os.path.join(upload_path, filename)
                     file.save(file_path)
-                    database.add_listing_media(listing_id, 'image', f'uploads/{filename}')
+                    
+                    # تحديد نوع الوسائط (صورة أو فيديو بناء على الامتداد)
+                    ext = filename.lower().split('.')[-1]
+                    media_type = 'video' if ext in ['mp4', 'mov', 'avi', 'mkv', 'webm'] else 'image'
+                    
+                    database.add_listing_media(listing_id, media_type, f'uploads/{filename}')
                     
             return redirect(url_for('index'))
         except Exception as e:
@@ -144,9 +149,14 @@ def search():
     query = request.args.get('q', '').lower()
     connection = database.get_db()
     if query:
-        listings = connection.execute("SELECT * FROM listings WHERE lower(title) LIKE ? OR lower(category) LIKE ? OR lower(city) LIKE ?", (f'%{query}%', f'%{query}%', f'%{query}%')).fetchall()
+        listings = connection.execute("""
+            SELECT listings.*, 
+                   (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
+            FROM listings 
+            WHERE lower(title) LIKE ? OR lower(category) LIKE ? OR lower(city) LIKE ?
+        """, (f'%{query}%', f'%{query}%', f'%{query}%')).fetchall()
     else:
-        listings = connection.execute("SELECT * FROM listings").fetchall()
+        listings = database.get_all_listings_with_first_media()
     connection.close()
     return render_template('index.html', listings=listings)
 
@@ -154,17 +164,22 @@ def search():
 def ai():
     query = ""
     results = []
+    connection = database.get_db()
     if request.method == 'POST':
         query = request.form.get('query', '')
         if query:
             q_lower = f"%{query.lower()}%"
-            connection = database.get_db()
-            results = connection.execute("SELECT * FROM listings WHERE lower(title) LIKE ? OR lower(description) LIKE ? OR lower(category) LIKE ? OR lower(city) LIKE ?", (q_lower, q_lower, q_lower, q_lower)).fetchall()
-            connection.close()
+            results = connection.execute("""
+                SELECT listings.*, 
+                       (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
+                FROM listings 
+                WHERE lower(title) LIKE ? OR lower(description) LIKE ? OR lower(category) LIKE ? OR lower(city) LIKE ?
+            """, (q_lower, q_lower, q_lower, q_lower)).fetchall()
         else:
-            connection = database.get_db()
-            results = connection.execute("SELECT * FROM listings").fetchall()
-            connection.close()
+            results = database.get_all_listings_with_first_media()
+    else:
+        results = database.get_all_listings_with_first_media()
+    connection.close()
     return render_template('ai.html', query=query, results=results)
 
 @app.route('/my-listings')
@@ -172,7 +187,13 @@ def my_listings():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     connection = database.get_db()
-    listings = connection.execute("SELECT * FROM listings WHERE owner_id = ? ORDER BY id DESC", (session['user_id'],)).fetchall()
+    listings = connection.execute("""
+        SELECT listings.*, 
+               (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
+        FROM listings 
+        WHERE owner_id = ? 
+        ORDER BY id DESC
+    """, (session['user_id'],)).fetchall()
     connection.close()
     return render_template('my_listings.html', listings=listings)
 

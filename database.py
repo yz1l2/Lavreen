@@ -22,7 +22,6 @@ def create_database():
         )
     """)
     
-    # إضافة الأعمدة تلقائياً إذا كانت غير موجودة في قاعدة البيانات القديمة
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN phone TEXT")
     except sqlite3.OperationalError:
@@ -85,7 +84,7 @@ def add_sample_listings():
         cursor.execute("""
             INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio)
             VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')
-        """)
+        """ )
         
         sample_listings = [
             ("تويوتا كامري 2022 نظيفة جداً", "سيارات", 75000.0, "الرياض", "بنزين، قير أوتوماتيك، الموتر شرط الفحص والممشى معقول.", 1),
@@ -135,33 +134,15 @@ def get_listing_media(listing_id):
     conn.close()
     return media
 
-def add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private=0):
+def get_all_listings_with_first_media():
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO messages (listing_id, sender_id, sender_name, receiver_id, message, is_private)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (listing_id, sender_id, sender_name, receiver_id, message, is_private))
-    conn.commit()
+    # جلب الإعلانات مع أول صورة رئيسية لها لتظهر في الواجهة الرئيسية
+    query = """
+        SELECT listings.*, 
+               (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
+        FROM listings 
+        ORDER BY listings.id DESC
+    """
+    listings = conn.execute(query).fetchall()
     conn.close()
-
-def get_messages_for_listing(listing_id):
-    conn = get_db()
-    messages = conn.execute("""
-        SELECT * FROM messages 
-        WHERE listing_id = ? AND is_private = 0 
-        ORDER BY id ASC
-    """, (listing_id,)).fetchall()
-    conn.close()
-    return messages
-
-def get_private_messages_for_user(user_id):
-    conn = get_db()
-    messages = conn.execute("""
-        SELECT messages.*, listings.title as listing_title FROM messages 
-        LEFT JOIN listings ON messages.listing_id = listings.id
-        WHERE messages.is_private = 1 AND messages.receiver_id = ? 
-        ORDER BY messages.id DESC
-    """, (user_id,)).fetchall()
-    conn.close()
-    return messages
+    return listings
