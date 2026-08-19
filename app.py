@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
 from werkzeug.utils import secure_filename
 import database
@@ -29,7 +29,11 @@ def sell():
             city = request.form.get('city', 'غير محدد')
             description = request.form.get('description', '')
             
-            listing_id = database.add_listing(title, category, float(price), city, description, owner_id=None)
+            # جلب صاحب الإعلان من الجلسة أو افتراضي
+            user = database.get_db().execute("SELECT * FROM users LIMIT 1").fetchone()
+            owner_id = user['id'] if user else None
+
+            listing_id = database.add_listing(title, category, float(price) if price else 0.0, city, description, owner_id)
             
             if 'images' in request.files:
                 file = request.files['images']
@@ -40,23 +44,30 @@ def sell():
                     database.add_listing_media(listing_id, 'image', f'uploads/{filename}')
             return redirect(url_for('index'))
         except Exception as e:
+            print(f"Error: {e}")
             return redirect(url_for('sell'))
     return render_template('sell.html')
 
 @app.route('/listing/<int:item_id>')
 def view_item(item_id):
     listing = database.get_listing(item_id)
-    if not listing: return "الإعلان غير موجود", 404
+    if not listing: 
+        return "الإعلان غير موجود", 404
     media = database.get_listing_media(item_id)
-    # جلب الرسائل العامة لهذا الإعلان
     messages = database.get_messages_for_listing(item_id)
     return render_template('item.html', listing=listing, media=media, messages=messages)
 
-# مسارات الرسائل الجديدة
 @app.route('/send-message', methods=['POST'])
 def send_message():
+    connection = database.get_db()
+    user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
+    connection.close()
+    
+    if not user:
+        return redirect(url_for('profile'))
+        
     listing_id = request.form.get('listing_id')
-    sender = request.form.get('sender_name', 'مستخدم')
+    sender = user['name'] # استخدام اسم المستخدم المسجل تلقائياً
     receiver = request.form.get('receiver_name', 'المعلن')
     message = request.form.get('message')
     is_private = int(request.form.get('is_private', 0))

@@ -4,757 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lavreen | لافريين</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Cairo", sans-serif;
-            background: #f7f7f9;
-            color: #15151a;
-            direction: rtl;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* HEADER */
-
-        .header {
-            height: 76px;
-            background: rgba(255,255,255,.94);
-            border-bottom: 1px solid #e8e8ec;
-            display: flex;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            backdrop-filter: blur(15px);
-        }
-
-        .header-inner {
-            width: min(1200px, calc(100% - 40px));
-            margin: auto;
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            direction: ltr;
-            font-size: 23px;
-            font-weight: 800;
-        }
-
-        .logo-box {
-            width: 38px;
-            height: 38px;
-            border-radius: 11px;
-            background: #111;
-            color: #fff;
-            display: grid;
-            place-items: center;
-            font-weight: 800;
-        }
-
-        .nav {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .nav a {
-            padding: 9px 14px;
-            border-radius: 9px;
-            color: #666;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .nav a:hover {
-            background: #f1f1f4;
-            color: #111;
-        }
-
-        .nav .ai {
-            color: #7155f5;
-        }
-
-        .header-spacer {
-            flex: 1;
-        }
-
-        .my-listings {
-            color: #666;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .profile-btn {
-            background: #f3f3f6;
-            color: #111;
-            border-radius: 10px;
-            padding: 11px 16px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .profile-btn:hover {
-            background: #e5e5ea;
-        }
-
-        .sell {
-            background: #111;
-            color: #fff;
-            border-radius: 10px;
-            padding: 11px 18px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        /* HERO */
-
-        .hero {
-            min-height: 525px;
-            position: relative;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at 78% 15%, rgba(116,86,255,.18), transparent 28%),
-                radial-gradient(circle at 10% 85%, rgba(116,86,255,.09), transparent 30%),
-                #fafafd;
-            display: flex;
-            align-items: center;
-        }
-
-        .hero-inner {
-            width: min(1000px, calc(100% - 40px));
-            margin: auto;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 13px;
-            border: 1px solid #dedde5;
-            border-radius: 50px;
-            background: rgba(255,255,255,.75);
-            color: #666;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 22px;
-        }
-
-        .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #7658ff;
-        }
-
-        .hero h1 {
-            font-size: clamp(42px, 6vw, 70px);
-            line-height: 1.2;
-            letter-spacing: -3px;
-            font-weight: 800;
-        }
-
-        .hero h1 span {
-            color: #7155f5;
-        }
-
-        .hero p {
-            max-width: 600px;
-            margin: 20px auto 30px;
-            color: #777780;
-            font-size: 15px;
-            line-height: 2;
-        }
-
-        .search {
-            width: min(760px, 100%);
-            height: 68px;
-            background: #fff;
-            border: 1px solid #dddde4;
-            border-radius: 16px;
-            padding: 7px;
-            margin: auto;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 18px 45px rgba(20,20,30,.08);
-        }
-
-        .search-icon {
-            width: 50px;
-            font-size: 29px;
-            color: #999;
-        }
-
-        .search input {
-            flex: 1;
-            height: 100%;
-            border: 0;
-            outline: 0;
-            font-family: inherit;
-            font-size: 14px;
-            background: transparent;
-        }
-
-        .search button {
-            height: 54px;
-            padding: 0 25px;
-            border: 0;
-            border-radius: 11px;
-            background: #111;
-            color: #fff;
-            font-family: inherit;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .search button:hover {
-            background: #7155f5;
-        }
-
-        .popular {
-            margin-top: 16px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            color: #999;
-            font-size: 11px;
-        }
-
-        .popular a {
-            background: #fff;
-            border: 1px solid #e5e5e9;
-            border-radius: 30px;
-            padding: 5px 11px;
-            color: #666;
-        }
-
-        /* SECTIONS */
-
-        .section {
-            width: min(1200px, calc(100% - 40px));
-            margin: auto;
-            padding: 75px 0;
-        }
-
-        .heading {
-            display: flex;
-            align-items: end;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
-
-        .heading small {
-            display: block;
-            color: #7155f5;
-            font-weight: 800;
-            font-size: 11px;
-            margin-bottom: 3px;
-        }
-
-        .heading h2 {
-            font-size: 26px;
-        }
-
-        .all {
-            color: #666;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        /* CATEGORIES */
-
-        .categories {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
-        }
-
-        .category {
-            background: #fff;
-            border: 1px solid #e6e6eb;
-            border-radius: 17px;
-            padding: 20px;
-            min-height: 150px;
-            position: relative;
-            transition: .25s;
-        }
-
-        .category:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(20,20,30,.08);
-            border-color: #d8d1ff;
-        }
-
-        .category-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: grid;
-            place-items: center;
-            font-size: 22px;
-            margin-bottom: 17px;
-        }
-
-        .c1 { background: #fff0ec; }
-        .c2 { background: #eaf7ef; }
-        .c3 { background: #edf1ff; }
-        .c4 { background: #f1edff; }
-        .c5 { background: #fff3dd; }
-
-        .category strong {
-            display: block;
-            font-size: 14px;
-        }
-
-        .category p {
-            color: #999;
-            font-size: 10px;
-            margin-top: 2px;
-        }
-
-        .category-arrow {
-            position: absolute;
-            left: 16px;
-            bottom: 17px;
-            color: #aaa;
-        }
-
-        /* AI */
-
-        .ai-banner {
-            width: min(1200px, calc(100% - 40px));
-            margin: 0 auto;
-            border-radius: 22px;
-            min-height: 180px;
-            padding: 32px 38px;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(130,100,255,.35), transparent 30%),
-                linear-gradient(120deg,#17151f,#2a2440);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .ai-content {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .ai-icon {
-            width: 58px;
-            height: 58px;
-            border-radius: 16px;
-            background: rgba(255,255,255,.1);
-            display: grid;
-            place-items: center;
-            font-size: 27px;
-            color: #b8a9ff;
-        }
-
-        .ai-content small {
-            color: #aaa0ff;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 2px;
-        }
-
-        .ai-content h2 {
-            font-size: 21px;
-            margin: 3px 0;
-        }
-
-        .ai-content p {
-            color: #aaa6b6;
-            font-size: 11px;
-        }
-
-        .ai-button {
-            background: white;
-            color: #18151f;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        /* PRODUCTS */
-
-        .products {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 17px;
-        }
-
-        .product {
-            background: #fff;
-            border: 1px solid #e5e5ea;
-            border-radius: 17px;
-            overflow: hidden;
-            transition: .25s;
-        }
-
-        .product:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 17px 35px rgba(20,20,30,.08);
-        }
-
-        .product-image {
-            height: 210px;
-            background: #f0f0f3;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: .4s;
-        }
-
-        .product:hover img {
-            transform: scale(1.04);
-        }
-
-        .no-image {
-            width: 100%;
-            height: 100%;
-            display: grid;
-            place-items: center;
-            font-size: 35px;
-            color: #aaa;
-        }
-
-        .category-label {
-            position: absolute;
-            right: 12px;
-            top: 12px;
-            background: rgba(255,255,255,.92);
-            border-radius: 7px;
-            padding: 5px 9px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .heart {
-            position: absolute;
-            left: 12px;
-            top: 12px;
-            width: 33px;
-            height: 33px;
-            border: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,.92);
-            font-size: 19px;
-            cursor: pointer;
-        }
-
-        .product-info {
-            padding: 16px;
-        }
-
-        .location {
-            color: #999;
-            font-size: 10px;
-            margin-bottom: 6px;
-        }
-
-        .product h3 {
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 13px;
-        }
-
-        .price-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .price {
-            font-size: 17px;
-            font-weight: 800;
-        }
-
-        .price small {
-            font-size: 9px;
-            color: #777;
-        }
-
-        .arrow {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            background: #f4f4f6;
-            display: grid;
-            place-items: center;
-            color: #888;
-        }
-
-        /* EMPTY */
-
-        .empty {
-            background: #fff;
-            border: 1px dashed #ddd;
-            border-radius: 18px;
-            padding: 70px;
-            text-align: center;
-        }
-
-        .empty-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .empty h3 {
-            font-size: 18px;
-        }
-
-        .empty p {
-            color: #888;
-            font-size: 12px;
-            margin: 5px 0 17px;
-        }
-
-        .empty a {
-            background: #111;
-            color: #fff;
-            border-radius: 9px;
-            padding: 10px 17px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        /* FOOTER */
-
-        footer {
-            background: #151515;
-            color: white;
-            margin-top: 30px;
-        }
-
-        .footer-inner {
-            width: min(1200px, calc(100% - 40px));
-            margin: auto;
-            padding: 45px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .footer-inner p {
-            color: #888;
-            font-size: 11px;
-            margin-top: 10px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 25px;
-            color: #aaa;
-            font-size: 11px;
-        }
-
-        .copyright {
-            border-top: 1px solid #292929;
-            text-align: center;
-            padding: 16px;
-            color: #666;
-            font-size: 9px;
-        }
-
-        /* MOBILE */
-
-        @media (max-width: 950px) {
-            .nav {
-                display: none;
-            }
-
-            .categories {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .products {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Cairo", sans-serif; background: #f7f7f9; color: #15151a; direction: rtl; }
+        a { text-decoration: none; color: inherit; }
+        .header { height: 76px; background: rgba(255,255,255,.94); border-bottom: 1px solid #e8e8ec; display: flex; align-items: center; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(15px); }
+        .header-inner { width: min(1200px, calc(100% - 40px)); margin: auto; display: flex; align-items: center; gap: 25px; }
+        .logo { display: flex; align-items: center; gap: 10px; direction: ltr; font-size: 23px; font-weight: 800; }
+        .logo-box { width: 38px; height: 38px; border-radius: 11px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 800; }
+        .nav { display: flex; gap: 8px; align-items: center; }
+        .nav a { padding: 9px 14px; border-radius: 9px; color: #666; font-size: 13px; font-weight: 600; }
+        .nav a:hover { background: #f1f1f4; color: #111; }
+        .nav .ai { color: #7155f5; }
+        .header-spacer { flex: 1; }
+        .my-listings { color: #666; font-size: 13px; font-weight: 600; }
+        .profile-btn { background: #f3f3f6; color: #111; border-radius: 10px; padding: 11px 16px; font-size: 13px; font-weight: 700; }
+        .profile-btn:hover { background: #e5e5ea; }
+        .sell { background: #111; color: #fff; border-radius: 10px; padding: 11px 18px; font-size: 13px; font-weight: 700; }
+        .hero { min-height: 525px; position: relative; overflow: hidden; background: radial-gradient(circle at 78% 15%, rgba(116,86,255,.18), transparent 28%), radial-gradient(circle at 10% 85%, rgba(116,86,255,.09), transparent 30%), #fafafd; display: flex; align-items: center; }
+        .hero-inner { width: min(1000px, calc(100% - 40px)); margin: auto; text-align: center; position: relative; z-index: 2; }
+        .badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; border: 1px solid #dedde5; border-radius: 50px; background: rgba(255,255,255,.75); color: #666; font-size: 12px; font-weight: 600; margin-bottom: 22px; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: #7658ff; }
+        .hero h1 { font-size: clamp(42px, 6vw, 70px); line-height: 1.2; letter-spacing: -3px; font-weight: 800; }
+        .hero h1 span { color: #7155f5; }
+        .hero p { max-width: 600px; margin: 20px auto 30px; color: #777780; font-size: 15px; line-height: 2; }
+        .search { width: min(760px, 100%); height: 68px; background: #fff; border: 1px solid #dddde4; border-radius: 16px; padding: 7px; margin: auto; display: flex; align-items: center; box-shadow: 0 18px 45px rgba(20,20,30,.08); }
+        .search-icon { width: 50px; font-size: 29px; color: #999; }
+        .search input { flex: 1; height: 100%; border: 0; outline: 0; font-family: inherit; font-size: 14px; background: transparent; }
+        .search button { height: 54px; padding: 0 25px; border: 0; border-radius: 11px; background: #111; color: #fff; font-family: inherit; font-weight: 700; cursor: pointer; }
+        .search button:hover { background: #7155f5; }
+        .popular { margin-top: 16px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; color: #999; font-size: 11px; }
+        .popular a { background: #fff; border: 1px solid #e5e5e9; border-radius: 30px; padding: 5px 11px; color: #666; }
+        .section { width: min(1200px, calc(100% - 40px)); margin: auto; padding: 75px 0; }
+        .heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 25px; }
+        .heading small { display: block; color: #7155f5; font-weight: 800; font-size: 11px; margin-bottom: 3px; }
+        .heading h2 { font-size: 26px; }
+        .all { color: #666; font-size: 12px; font-weight: 700; }
+        .categories { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+        .category { background: #fff; border: 1px solid #e6e6eb; border-radius: 17px; padding: 20px; min-height: 150px; position: relative; transition: .25s; }
+        .category:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(20,20,30,.08); border-color: #d8d1ff; }
+        .category-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; margin-bottom: 17px; }
+        .c1 { background: #fff0ec; } .c2 { background: #eaf7ef; } .c3 { background: #edf1ff; } .c4 { background: #f1edff; } .c5 { background: #fff3dd; }
+        .category strong { display: block; font-size: 14px; }
+        .category p { color: #999; font-size: 10px; margin-top: 2px; }
+        .category-arrow { position: absolute; left: 16px; bottom: 17px; color: #aaa; }
+        .ai-banner { width: min(1200px, calc(100% - 40px)); margin: 0 auto; border-radius: 22px; min-height: 180px; padding: 32px 38px; background: radial-gradient(circle at 15% 20%, rgba(130,100,255,.35), transparent 30%), linear-gradient(120deg,#17151f,#2a2440); color: white; display: flex; align-items: center; justify-content: space-between; }
+        .ai-content { display: flex; align-items: center; gap: 20px; }
+        .ai-icon { width: 58px; height: 58px; border-radius: 16px; background: rgba(255,255,255,.1); display: grid; place-items: center; font-size: 27px; color: #b8a9ff; }
+        .ai-content small { color: #aaa0ff; font-size: 10px; font-weight: 800; letter-spacing: 2px; }
+        .ai-content h2 { font-size: 21px; margin: 3px 0; }
+        .ai-content p { color: #aaa6b6; font-size: 11px; }
+        .ai-button { background: white; color: #18151f; padding: 12px 18px; border-radius: 10px; font-size: 12px; font-weight: 800; }
+        .products { display: grid; grid-template-columns: repeat(4, 1fr); gap: 17px; }
+        .product { background: #fff; border: 1px solid #e5e5ea; border-radius: 17px; overflow: hidden; transition: .25s; }
+        .product:hover { transform: translateY(-5px); box-shadow: 0 17px 35px rgba(20,20,30,.08); }
+        .product-image { height: 210px; background: #f0f0f3; position: relative; overflow: hidden; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; display: block; transition: .4s; }
+        .product:hover img { transform: scale(1.04); }
+        .no-image { width: 100%; height: 100%; display: grid; place-items: center; font-size: 35px; color: #aaa; }
+        .category-label { position: absolute; right: 12px; top: 12px; background: rgba(255,255,255,.92); border-radius: 7px; padding: 5px 9px; font-size: 10px; font-weight: 700; }
+        .heart { position: absolute; left: 12px; top: 12px; width: 33px; height: 33px; border: 0; border-radius: 50%; background: rgba(255,255,255,.92); font-size: 19px; cursor: pointer; }
+        .product-info { padding: 16px; }
+        .location { color: #999; font-size: 10px; margin-bottom: 6px; }
+        .product h3 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 13px; }
+        .price-row { display: flex; align-items: center; justify-content: space-between; }
+        .price { font-size: 17px; font-weight: 800; }
+        .price small { font-size: 9px; color: #777; }
+        .arrow { width: 30px; height: 30px; border-radius: 8px; background: #f4f4f6; display: grid; place-items: center; color: #888; }
+        .empty { background: #fff; border: 1px dashed #ddd; border-radius: 18px; padding: 70px; text-align: center; }
+        .empty-icon { font-size: 40px; margin-bottom: 10px; }
+        .empty h3 { font-size: 18px; }
+        .empty p { color: #888; font-size: 12px; margin: 5px 0 17px; }
+        .empty a { background: #111; color: #fff; border-radius: 9px; padding: 10px 17px; font-size: 12px; font-weight: 700; }
+        footer { background: #151515; color: white; margin-top: 30px; }
+        .footer-inner { width: min(1200px, calc(100% - 40px)); margin: auto; padding: 45px 0; display: flex; justify-content: space-between; }
+        .footer-inner p { color: #888; font-size: 11px; margin-top: 10px; }
+        .footer-links { display: flex; gap: 25px; color: #aaa; font-size: 11px; }
+        .copyright { border-top: 1px solid #292929; text-align: center; padding: 16px; color: #666; font-size: 9px; }
+        @media (max-width: 950px) { .nav { display: none; } .categories { grid-template-columns: repeat(3, 1fr); } .products { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) {
-            .header-inner,
-            .hero-inner,
-            .section,
-            .ai-banner,
-            .footer-inner {
-                width: calc(100% - 28px);
-            }
-
-            .header {
-                height: 65px;
-            }
-
-            .my-listings {
-                display: none;
-            }
-
-            .hero {
-                min-height: 500px;
-            }
-
-            .hero h1 {
-                font-size: 40px;
-                letter-spacing: -2px;
-            }
-
-            .hero p {
-                font-size: 12px;
-            }
-
-            .search {
-                height: 60px;
-            }
-
-            .search button {
-                height: 46px;
-                padding: 0 15px;
-                font-size: 11px;
-            }
-
-            .search input {
-                font-size: 11px;
-            }
-
-            .categories {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .products {
-                gap: 10px;
-            }
-
-            .product-image {
-                height: 155px;
-            }
-
-            .product-info {
-                padding: 12px;
-            }
-
-            .product h3 {
-                font-size: 12px;
-            }
-
-            .price {
-                font-size: 14px;
-            }
-
-            .ai-banner {
-                display: block;
-                padding: 25px 20px;
-            }
-
-            .ai-button {
-                display: inline-block;
-                margin-top: 20px;
-            }
-
-            .footer-inner {
-                display: block;
-            }
-
-            .footer-links {
-                margin-top: 25px;
-                flex-wrap: wrap;
-            }
+            .header-inner, .hero-inner, .section, .ai-banner, .footer-inner { width: calc(100% - 28px); }
+            .header { height: 65px; }
+            .my-listings { display: none; }
+            .hero { min-height: 500px; }
+            .hero h1 { font-size: 40px; letter-spacing: -2px; }
+            .hero p { font-size: 12px; }
+            .search { height: 60px; }
+            .search button { height: 46px; padding: 0 15px; font-size: 11px; }
+            .search input { font-size: 11px; }
+            .categories { grid-template-columns: repeat(2, 1fr); }
+            .products { gap: 10px; }
+            .product-image { height: 155px; }
+            .product-info { padding: 12px; }
+            .product h3 { font-size: 12px; }
+            .price { font-size: 14px; }
+            .ai-banner { display: block; padding: 25px 20px; }
+            .ai-button { display: inline-block; margin-top: 20px; }
+            .footer-inner { display: block; }
+            .footer-links { margin-top: 25px; flex-wrap: wrap; }
         }
     </style>
 </head>
-
 <body>
 
 <header class="header">
     <div class="header-inner">
-
         <a href="/" class="logo">
             <span class="logo-box">L</span>
             <span>Lavreen</span>
         </a>
-
         <nav class="nav">
             <a href="/">الرئيسية</a>
             <a href="#categories">التصنيفات</a>
             <a href="#listings">الإعلانات</a>
             <a href="/ai" class="ai">✦ مساعد AI</a>
         </nav>
-
         <div class="header-spacer"></div>
-
+        <a href="/messages" class="my-listings font-bold text-blue-600">💬 الرسائل</a>
         <a href="/my-listings" class="my-listings">إعلاناتي</a>
         <a href="/profile" class="profile-btn">👤 ملفي الشخصي</a>
         <a href="/sell" class="sell">＋ أضف إعلان</a>
-
     </div>
 </header>
 
-
 <section class="hero">
-
     <div class="hero-inner">
-
         <div class="badge">
             <span class="dot"></span>
             السوق الذكي في السعودية
         </div>
-
-        <h1>
-            لا تدور كثير.<br>
-            <span>لافريين يلقاه لك.</span>
-        </h1>
-
-        <p>
-            ابحث عن السيارات، الأجهزة، العقارات وكل اللي تحتاجه
-            في مكان واحد، مع مساعد ذكي يساعدك تختار الأفضل.
-        </p>
-
+        <h1>لا تدور كثير.<br><span>لافريين يلقاه لك.</span></h1>
+        <p>ابحث عن السيارات، الأجهزة، العقارات وكل اللي تحتاجه في مكان واحد، مع مساعد ذكي يساعدك تختار الأفضل.</p>
         <form action="/search" method="GET" class="search">
-
             <div class="search-icon">⌕</div>
-
-            <input
-                type="text"
-                name="q"
-                placeholder="وش تدور عليه؟ مثال: كامري 2022"
-            >
-
+            <input type="text" name="q" placeholder="وش تدور عليه؟ مثال: كامري 2022">
             <button type="submit">بحث ←</button>
-
         </form>
-
         <div class="popular">
             <span>الأكثر بحثًا</span>
             <a href="/search?q=كامري">كامري</a>
@@ -763,222 +151,125 @@
             <a href="/search?q=سيارات">سيارات</a>
             <a href="/search?q=عقار">عقار</a>
         </div>
-
     </div>
-
 </section>
 
-
 <section class="section" id="categories">
-
     <div class="heading">
         <div>
             <small>اكتشف السوق</small>
             <h2>تصفح حسب التصنيف</h2>
         </div>
-
         <a href="/search" class="all">عرض الكل ←</a>
     </div>
-
     <div class="categories">
-
         <a href="/search?q=سيارات" class="category">
             <div class="category-icon c1">🚘</div>
             <strong>سيارات</strong>
             <p>بيع وشراء السيارات</p>
             <span class="category-arrow">←</span>
         </a>
-
         <a href="/search?q=عقار" class="category">
             <div class="category-icon c2">🏠</div>
             <strong>عقار</strong>
             <p>بيوت وشقق وأراضي</p>
             <span class="category-arrow">←</span>
         </a>
-
         <a href="/search?q=جوالات" class="category">
             <div class="category-icon c3">📱</div>
             <strong>جوالات</strong>
             <p>جوالات وإلكترونيات</p>
             <span class="category-arrow">←</span>
         </a>
-
         <a href="/search?q=كمبيوتر" class="category">
             <div class="category-icon c4">💻</div>
             <strong>كمبيوتر</strong>
             <p>PC وقطع وأجهزة</p>
             <span class="category-arrow">←</span>
         </a>
-
         <a href="/search?q=ألعاب" class="category">
             <div class="category-icon c5">🎮</div>
             <strong>ألعاب</strong>
             <p>ألعاب وكونسول</p>
             <span class="category-arrow">←</span>
         </a>
-
     </div>
-
 </section>
 
-
 <section class="ai-banner">
-
     <div class="ai-content">
-
         <div class="ai-icon">✦</div>
-
         <div>
             <small>LAVREEN AI</small>
             <h2>قل له وش تبي، وهو يدور لك.</h2>
-            <p>
-                مثال: "أبي كامري 2022 بميزانية 75 ألف"
-            </p>
+            <p>مثال: "أبي كامري 2022 بميزانية 75 ألف"</p>
         </div>
-
     </div>
-
-    <a href="/ai" class="ai-button">
-        جرّب المساعد ←
-    </a>
-
+    <a href="/ai" class="ai-button">جرّب المساعد ←</a>
 </section>
 
-
 <section class="section" id="listings">
-
     <div class="heading">
         <div>
             <small>جديد السوق</small>
             <h2>أحدث الإعلانات</h2>
         </div>
-
         <a href="/search" class="all">مشاهدة الكل ←</a>
     </div>
-
-
     {% if listings %}
-
     <div class="products">
-
         {% for listing in listings %}
-
         <a href="/listing/{{ listing['id'] }}" class="product">
-
             <div class="product-image">
-
                 {% if listing['image_path'] %}
-
-                <img
-                    src="{{ url_for('static', filename=listing['image_path']) }}"
-                    alt="{{ listing['title'] }}"
-                >
-
+                <img src="{{ url_for('static', filename=listing['image_path']) }}" alt="{{ listing['title'] }}">
                 {% else %}
-
                 <div class="no-image">📦</div>
-
                 {% endif %}
-
-                <div class="category-label">
-                    {{ listing['category'] }}
-                </div>
-
-                <button
-                    class="heart"
-                    type="button"
-                    onclick="event.preventDefault(); event.stopPropagation();"
-                >
-                    ♡
-                </button>
-
+                <div class="category-label">{{ listing['category'] }}</div>
+                <button class="heart" type="button" onclick="event.preventDefault(); event.stopPropagation();">♡</button>
             </div>
-
             <div class="product-info">
-
-                <div class="location">
-                    📍 {{ listing['city'] }}
-                </div>
-
+                <div class="location">📍 {{ listing['city'] }}</div>
                 <h3>{{ listing['title'] }}</h3>
-
                 <div class="price-row">
-
-                    <div class="price">
-                        {{ "{:,.0f}".format(listing['price']) }}
-                        <small>ريال</small>
-                    </div>
-
+                    <div class="price">{{ "{:,.0f}".format(listing['price']) }} <small>ريال</small></div>
                     <div class="arrow">←</div>
-
                 </div>
-
             </div>
-
         </a>
-
         {% endfor %}
-
     </div>
-
     {% else %}
-
     <div class="empty">
         <div class="empty-icon">📦</div>
         <h3>ما فيه إعلانات حالياً</h3>
         <p>كن أول شخص ينزل إعلان في لافريين.</p>
         <a href="/sell">أضف إعلانك</a>
     </div>
-
     {% endif %}
-
 </section>
 
-
 <footer>
-
     <div class="footer-inner">
-
         <div>
             <div class="logo">
                 <span class="logo-box">L</span>
                 <span>Lavreen</span>
             </div>
-
             <p>سوقك الذكي. ابحث، قارن، وبع بسهولة.</p>
         </div>
-
         <div class="footer-links">
             <a href="/">الرئيسية</a>
+            <a href="/messages">الرسائل</a>
             <a href="/sell">أضف إعلان</a>
             <a href="/my-listings">إعلاناتي</a>
             <a href="/profile">ملفي الشخصي</a>
             <a href="/ai">Lavreen AI</a>
         </div>
-
     </div>
-
-    <div class="copyright">
-        ©️ 2026 Lavreen — جميع الحقوق محفوظة
-    </div>
-
+    <div class="copyright">©️ 2026 Lavreen — جميع الحقوق محفوظة</div>
 </footer>
-
-<!-- شريط التنقل السفلي الخاص بالجوالات -->
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 flex justify-around py-3 px-2 md:hidden">
-    <a href="/" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-        <span class="text-xs mt-1">الرئيسية</span>
-    </a>
-    <a href="/ai" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-        <span class="text-xs mt-1">ذكاء اصطناعي</span>
-    </a>
-    <a href="/sell" class="flex flex-col items-center text-blue-600 font-bold">
-        <span class="text-xs mt-1">أضف إعلان</span>
-    </a>
-    <a href="/profile" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-        <span class="text-xs mt-1">حسابي</span>
-    </a>
-</div>
 
 </body>
 </html>

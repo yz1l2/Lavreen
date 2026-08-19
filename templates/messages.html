@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرسائل الخاصة - لافريين</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">صندوق الرسائل الخاصة 💬</h1>
+            <a href="/" class="text-sm bg-gray-100 px-4 py-2 rounded-xl hover:bg-gray-200 transition">الرئيسية</a>
+        </div>
+
+        <div class="space-y-4">
+            {% if messages and messages|length > 0 %}
+                {% for msg in messages %}
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-sm text-blue-600">المرسل: {{ msg.sender_name }}</span>
+                            <span class="text-xs text-gray-400">{{ msg.created_at }}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">{{ msg.message }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-12 text-gray-400">لا توجد رسائل خاصة حالياً.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

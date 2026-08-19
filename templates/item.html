@@ -23,7 +23,7 @@
     <div class="max-w-4xl mx-auto px-4 py-8">
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-6">
             
-            <!-- صور أو وسائط الإعلان -->
+            <!-- صورة أو وسائط الإعلان -->
             <div class="mb-6">
                 {% if media and media|length > 0 %}
                     <img src="{{ url_for('static', filename=media[0]['file_path']) }}" alt="الإعلان" class="w-full h-80 object-cover rounded-xl">
@@ -52,7 +52,7 @@
 
             <hr class="my-4">
 
-            <!-- قسم المراسلة الخاصة للمعلن -->
+            <!-- قسم المراسلة الخاصة للمعلن (بدون طلب اسم يدوي) -->
             <div class="mb-8 bg-blue-50 border border-blue-100 p-4 rounded-2xl">
                 <h3 class="font-bold text-lg mb-2 text-blue-900">تواصل خاص مع المعلن</h3>
                 <form action="/send-message" method="POST" class="space-y-3">
@@ -60,20 +60,17 @@
                     <input type="hidden" name="is_private" value="1">
                     <input type="hidden" name="receiver_name" value="المعلن">
                     <div>
-                        <input type="text" name="sender_name" placeholder="اسمك الكريم..." class="w-full p-2.5 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-black" required>
+                        <textarea name="message" rows="2" placeholder="اكتب رسالة خاصة للمعلن..." class="w-full p-3 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                     </div>
-                    <div>
-                        <textarea name="message" rows="2" placeholder="اكتب رسالة خاصة للمعلن (تذهب إلى لوحة الرسائل)..." class="w-full p-2.5 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-black" required></textarea>
-                    </div>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">إرسال رسالة خاصة</button>
+                    <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">إرسال رسالة خاصة</button>
                 </form>
             </div>
 
-            <!-- الشات العام أسفل الإعلان (محفوظ بقاعدة البيانات) -->
+            <!-- الشات العام أسفل الإعلان (كما هو بدون لمس تصميمه الأساسي، لكن مرتبط بقاعدة البيانات ومستخدم النظام) -->
             <div>
                 <h3 class="font-bold text-lg mb-4">التعليقات والمحادثة العامة</h3>
                 
-                <div class="bg-gray-50 h-56 rounded-xl p-4 mb-4 overflow-y-auto border border-gray-200 flex flex-col gap-3">
+                <div id="chat-box" class="bg-gray-50 h-56 rounded-xl p-4 mb-4 overflow-y-auto border border-gray-200 flex flex-col gap-3">
                     {% if messages and messages|length > 0 %}
                         {% for msg in messages %}
                             <div class="bg-white p-3 rounded-xl shadow-sm max-w-md border border-gray-100">
@@ -87,13 +84,12 @@
                     {% endif %}
                 </div>
 
-                <!-- نموذج إرسال تعليق عام -->
+                <!-- نموذج إرسال تعليق عام متجاوب للجوال والكمبيوتر -->
                 <form action="/send-message" method="POST" class="flex flex-col sm:flex-row gap-2">
                     <input type="hidden" name="listing_id" value="{{ listing.id }}">
                     <input type="hidden" name="is_private" value="0">
-                    <input type="text" name="sender_name" placeholder="اسمك..." class="w-full sm:w-1/4 border border-gray-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-black" required>
-                    <input type="text" name="message" placeholder="اكتب تعليقك العام هنا..." class="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-black" required>
-                    <button type="submit" class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-xl text-sm font-medium transition">إرسال</button>
+                    <input type="text" name="message" placeholder="اكتب تعليقك العام هنا..." class="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-black" required>
+                    <button type="submit" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl text-sm font-medium transition">إرسال</button>
                 </form>
             </div>
 
