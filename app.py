@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from werkzeug.utils import secure_filename
 import database  # استدعاء ملف قاعدة البيانات حقك
-
 app = Flask(__name__)
 app.secret_key = 'lvreen_secure_key_2026'
 
@@ -139,7 +138,17 @@ def update_profile():
     connection.close()
     
     return redirect(url_for('profile'))
+@app.route('/profile')
+def profile():
+    connection = database.get_db()
+    user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
+    connection.close()
 
+    if not user:
+        return redirect(url_for('index'))
+
+    return render_template('profile.html', user=user)
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
+    
