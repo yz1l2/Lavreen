@@ -87,9 +87,12 @@ def sell():
                 file = request.files['images']
                 if file and file.filename != '':
                     filename = secure_filename(file.filename)
-                    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    upload_path = os.path.join(app.root_path, 'static', 'uploads')
+                    os.makedirs(upload_path, exist_ok=True)
+                    file_path = os.path.join(upload_path, filename)
+                    file.save(file_path)
                     database.add_listing_media(listing_id, 'image', f'uploads/{filename}')
+                    
             return redirect(url_for('index'))
         except Exception as e:
             print("SELL ERROR:", str(e))
