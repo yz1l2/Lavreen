@@ -5,23 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ listing.title }} | Lavreen</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 pb-12">
 
     <!-- Navbar -->
     <nav class="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <a href="/" class="text-xl font-bold text-black">Lavreen</a>
-        <a href="/" class="text-sm text-gray-600 hover:text-black">الرئيسية ←</a>
+        <a href="/" class="text-xl font-bold text-black">Lavreen ✦</a>
+        <div class="flex gap-4 items-center">
+            <a href="/messages" class="text-sm bg-gray-100 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition">الرسائل الخاصة</a>
+            <a href="/" class="text-sm text-gray-600 hover:text-black">الرئيسية ←</a>
+        </div>
     </nav>
 
     <!-- Main Details Container -->
     <div class="max-w-4xl mx-auto px-4 py-8">
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-6">
             
-            <!-- صورة الإعلان -->
+            <!-- صور أو وسائط الإعلان -->
             <div class="mb-6">
-                {% if listing.image_filename %}
-                    <img src="{{ url_for('static', filename='uploads/' + listing.image_filename) }}" alt="الإعلان" class="w-full h-80 object-cover rounded-xl">
+                {% if media and media|length > 0 %}
+                    <img src="{{ url_for('static', filename=media[0]['file_path']) }}" alt="الإعلان" class="w-full h-80 object-cover rounded-xl">
                 {% else %}
                     <div class="w-full h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">لا توجد صورة متاحة</div>
                 {% endif %}
@@ -30,9 +35,9 @@
             <!-- معلومات الإعلان -->
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <span class="text-xs font-semibold bg-gray-100 px-3 py-1 rounded-full text-gray-600">{{ listing.category }} / {{ listing.sub_category }}</span>
+                    <span class="text-xs font-semibold bg-gray-100 px-3 py-1 rounded-full text-gray-600">{{ listing.category }}</span>
                     <h1 class="text-2xl font-bold mt-2">{{ listing.title }}</h1>
-                    <p class="text-gray-500 text-sm mt-1">المدينة: {{ listing.city }} | الموديل: {{ listing.model }}</p>
+                    <p class="text-gray-500 text-sm mt-1">المدينة: {{ listing.city }}</p>
                 </div>
                 <div class="text-2xl font-bold text-black">{{ listing.price }} ر.س</div>
             </div>
@@ -47,35 +52,53 @@
 
             <hr class="my-4">
 
-            <!-- صندوق الشات الفوري المبسط -->
+            <!-- قسم المراسلة الخاصة للمعلن -->
+            <div class="mb-8 bg-blue-50 border border-blue-100 p-4 rounded-2xl">
+                <h3 class="font-bold text-lg mb-2 text-blue-900">تواصل خاص مع المعلن</h3>
+                <form action="/send-message" method="POST" class="space-y-3">
+                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                    <input type="hidden" name="is_private" value="1">
+                    <input type="hidden" name="receiver_name" value="المعلن">
+                    <div>
+                        <input type="text" name="sender_name" placeholder="اسمك الكريم..." class="w-full p-2.5 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-black" required>
+                    </div>
+                    <div>
+                        <textarea name="message" rows="2" placeholder="اكتب رسالة خاصة للمعلن (تذهب إلى لوحة الرسائل)..." class="w-full p-2.5 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-black" required></textarea>
+                    </div>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">إرسال رسالة خاصة</button>
+                </form>
+            </div>
+
+            <!-- الشات العام أسفل الإعلان (محفوظ بقاعدة البيانات) -->
             <div>
-                <h3 class="font-bold text-lg mb-4">المراسلة الفورية مع المعلن</h3>
-                <div id="chat-box" class="bg-gray-50 h-48 rounded-xl p-4 mb-4 overflow-y-auto border border-gray-200 flex flex-col gap-2">
-                    <div class="bg-white p-2.5 rounded-lg shadow-sm max-w-xs text-sm self-start">مرحباً، هل الإعلان ما زال متاحاً؟</div>
+                <h3 class="font-bold text-lg mb-4">التعليقات والمحادثة العامة</h3>
+                
+                <div class="bg-gray-50 h-56 rounded-xl p-4 mb-4 overflow-y-auto border border-gray-200 flex flex-col gap-3">
+                    {% if messages and messages|length > 0 %}
+                        {% for msg in messages %}
+                            <div class="bg-white p-3 rounded-xl shadow-sm max-w-md border border-gray-100">
+                                <span class="text-xs font-bold text-blue-600 block mb-1">{{ msg.sender_name }}</span>
+                                <p class="text-sm text-gray-800">{{ msg.message }}</p>
+                                <span class="text-[10px] text-gray-400 mt-1 block text-left">{{ msg.created_at }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-400 text-sm text-center my-auto">كن أول من يشارك بتعليق أو سؤال حول هذا الإعلان!</p>
+                    {% endif %}
                 </div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." class="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-black">
-                    <button onclick="sendMessage()" class="bg-black text-white px-5 py-2 rounded-xl text-sm font-medium">إرسال</button>
-                </div>
+
+                <!-- نموذج إرسال تعليق عام -->
+                <form action="/send-message" method="POST" class="flex flex-col sm:flex-row gap-2">
+                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                    <input type="hidden" name="is_private" value="0">
+                    <input type="text" name="sender_name" placeholder="اسمك..." class="w-full sm:w-1/4 border border-gray-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-black" required>
+                    <input type="text" name="message" placeholder="اكتب تعليقك العام هنا..." class="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-black" required>
+                    <button type="submit" class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-xl text-sm font-medium transition">إرسال</button>
+                </form>
             </div>
 
         </div>
     </div>
-
-    <script>
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const chatBox = document.getElementById('chat-box');
-            if (input.value.trim() !== '') {
-                const msg = document.createElement('div');
-                msg.className = 'bg-black text-white p-2.5 rounded-lg shadow-sm max-w-xs text-sm self-end';
-                msg.textContent = input.value;
-                chatBox.appendChild(msg);
-                input.value = '';
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        }
-    </script>
 
 </body>
 </html>

@@ -72,6 +72,19 @@ def create_database():
         )
     """)
 
+    # إنشاء جدول الرسائل (الشات العام والخاص)
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            listing_id INTEGER,
+            sender_name TEXT,
+            receiver_name TEXT,
+            message TEXT,
+            is_private INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     connection.execute("""
         CREATE INDEX IF NOT EXISTS idx_listings_owner_id
         ON listings(owner_id)
@@ -460,3 +473,36 @@ def get_listing_media(listing_id):
     connection.close()
 
     return media
+
+
+# دوال الرسائل والشات
+def add_message(listing_id, sender_name, receiver_name, message, is_private=0):
+    connection = get_db()
+    connection.execute("""
+        INSERT INTO messages (listing_id, sender_name, receiver_name, message, is_private)
+        VALUES (?, ?, ?, ?, ?)
+    """, (listing_id, sender_name, receiver_name, message, is_private))
+    connection.commit()
+    connection.close()
+
+
+def get_messages_for_listing(listing_id):
+    connection = get_db()
+    messages = connection.execute("""
+        SELECT * FROM messages 
+        WHERE listing_id = ? AND is_private = 0 
+        ORDER BY id ASC
+    """, (listing_id,)).fetchall()
+    connection.close()
+    return messages
+
+
+def get_private_messages():
+    connection = get_db()
+    messages = connection.execute("""
+        SELECT * FROM messages 
+        WHERE is_private = 1 
+        ORDER BY id DESC
+    """).fetchall()
+    connection.close()
+    return messages
