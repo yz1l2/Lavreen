@@ -11,7 +11,6 @@ def create_database():
     conn = get_db()
     cursor = conn.cursor()
     
-    # جدول المستخدمين الحقيقي
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +22,17 @@ def create_database():
         )
     """)
     
-    # جدول الإعلانات مربوط بـ owner_id
+    # إضافة الأعمدة تلقائياً إذا كانت غير موجودة في قاعدة البيانات القديمة
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+    except sqlite3.OperationalError:
+        pass
+        
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN bio TEXT")
+    except sqlite3.OperationalError:
+        pass
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +46,6 @@ def create_database():
         )
     """)
     
-    # جدول وسائط الإعلانات (الصور)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listing_media (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +56,6 @@ def create_database():
         )
     """)
 
-    # جدول الرسائل والتعليقات (مع تحديد receiver_id للرسائل الخاصة)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +82,6 @@ def add_sample_listings():
     count = cursor.fetchone()[0]
     
     if count == 0:
-        # إضافة مستخدم تجريبي افتراضي
         cursor.execute("""
             INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio)
             VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')
@@ -151,7 +157,6 @@ def get_messages_for_listing(listing_id):
 
 def get_private_messages_for_user(user_id):
     conn = get_db()
-    # تجلب الرسائل الخاصة التي أُرسلت للمستخدم الحالي فقط
     messages = conn.execute("""
         SELECT messages.*, listings.title as listing_title FROM messages 
         LEFT JOIN listings ON messages.listing_id = listings.id
