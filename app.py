@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from werkzeug.utils import secure_filename
-import database  # استدعاء ملف قاعدة البيانات حقك
+import database  # استدعاء ملف قاعدة البيانات
+
 app = Flask(__name__)
 app.secret_key = 'lvreen_secure_key_2026'
 
@@ -57,7 +58,7 @@ def sell():
         
     return render_template('sell.html')
 
-# مسار عرض تفاصيل الإعلان (متطابق مع تصميمك /listing/)
+# مسار عرض تفاصيل الإعلان
 @app.route('/listing/<int:item_id>')
 def view_item(item_id):
     listing = database.get_listing(item_id)
@@ -82,7 +83,7 @@ def search():
     connection.close()
     return render_template('index.html', listings=listings)
 
-# مسار الـ AI المحدث للبحث الذكي داخل قاعدة البيانات
+# مسار البحث الذكي (AI)
 @app.route('/ai', methods=['GET', 'POST'])
 def ai():
     query = ""
@@ -122,7 +123,17 @@ def profile():
     connection.close()
     
     if not user:
-        return redirect(url_for('index'))
+        connection = database.get_db()
+        connection.execute("""
+            INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio)
+            VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')
+        """)
+        connection.commit()
+        connection.close()
+        
+        connection = database.get_db()
+        user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
+        connection.close()
         
     return render_template('profile.html', user=user)
 
@@ -138,17 +149,7 @@ def update_profile():
     connection.close()
     
     return redirect(url_for('profile'))
-@app.route('/profile')
-def profile():
-    connection = database.get_db()
-    user = connection.execute("SELECT * FROM users LIMIT 1").fetchone()
-    connection.close()
 
-    if not user:
-        return redirect(url_for('index'))
-
-    return render_template('profile.html', user=user)
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
-    
