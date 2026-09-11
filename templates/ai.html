@@ -73,6 +73,27 @@
             font-size: 15px;
         }
 
+        .ai-message {
+            background: #edeaff;
+            border: 1px solid #d9d1ff;
+            color: #4a3c99;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .ai-error {
+            background: #ffecec;
+            border: 1px solid #ffcaca;
+            color: #a33;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
         .ai-results {
             margin-top: 35px;
         }
@@ -83,6 +104,7 @@
             border-radius: 18px;
             padding: 20px;
             margin-bottom: 12px;
+            position: relative;
         }
 
         .ai-result h3 {
@@ -92,6 +114,32 @@
         .ai-result p {
             color: #777;
             margin: 6px 0;
+        }
+
+        .ai-rank {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #111;
+            color: white;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-reason {
+            display: inline-block;
+            background: #f4f2ff;
+            color: #5a48c9;
+            font-size: 12.5px;
+            padding: 8px 12px;
+            border-radius: 9px;
+            margin-top: 8px;
         }
 
         .ai-empty {
@@ -184,7 +232,7 @@
                 type="text"
                 name="query"
                 value="{{ query }}"
-                placeholder="مثال: كامري 2022 بحدود 75 ألف"
+                placeholder="مثال: كامري 2023 بميزانية 90 ألف وماشية قليلة"
                 required
             >
 
@@ -193,6 +241,18 @@
             </button>
 
         </form>
+
+        {% if error %}
+        <div class="ai-error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        {% if ai_message %}
+        <div class="ai-message">
+            ✨ {{ ai_message }}
+        </div>
+        {% endif %}
 
     </section>
 
@@ -222,7 +282,9 @@
 
             {% for result in results %}
 
-                <div class="ai-result">
+                <a href="{{ url_for('view_item', item_id=result['id']) }}" class="ai-result">
+
+                    <div class="ai-rank">{{ loop.index }}</div>
 
                     <h3>
                         {{ result["title"] }}
@@ -234,13 +296,23 @@
 
                     <p>
                         📍 {{ result["city"] }}
+                        {% if result["year"] %} &nbsp;|&nbsp; 📅 {{ result["year"] }}{% endif %}
+                        {% if result["mileage"] %} &nbsp;|&nbsp; 🛣️ {{ "{:,.0f}".format(result["mileage"]) }} كم{% endif %}
                     </p>
 
+                    {% if result["description"] %}
                     <p>
                         {{ result["description"] }}
                     </p>
+                    {% endif %}
 
-                </div>
+                    {% if result["ai_reason"] %}
+                    <div class="ai-reason">
+                        ✨ {{ result["ai_reason"] }}
+                    </div>
+                    {% endif %}
+
+                </a>
 
             {% endfor %}
 
@@ -262,3 +334,4 @@
 
 
 </body>
+</html>

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import os
 from werkzeug.utils import secure_filename
 import database
+import ai_assistant
 
 app = Flask(__name__)
 app.secret_key = 'lvreen_secure_key_2026_real'
@@ -10,7 +11,8 @@ UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 database.create_database()
-database.add_sample_listings()
+database.remove_demo_listings()  # يشيل إعلانات العينة القديمة لو كانت موجودة
+# database.add_sample_listings()  # موقوفة عشان ما تنزرع إعلانات وهمية
 
 @app.route('/')
 def index():
@@ -79,7 +81,18 @@ def sell():
             description = request.form.get('description', '')
             owner_id = session['user_id']
 
-            listing_id = database.add_listing(title, category, float(price) if price else 0.0, city, description, owner_id)
+            # حقول اختيارية جديدة (مفيدة خصوصاً لتصنيف السيارات)
+            year = request.form.get('year') or None
+            mileage = request.form.get('mileage') or None
+            make = request.form.get('make') or None
+            model = request.form.get('model') or None
+            year = int(year) if year else None
+            mileage = int(mileage) if mileage else None
+
+            listing_id = database.add_listing(
+                title, category, float(price) if price else 0.0, city, description, owner_id,
+                year=year, mileage=mileage, make=make, model=model
+            )
             
             # استقبال حتى 30 صورة و 5 فيديوهات دفعة وحدة
             upload_path = os.path.join(app.root_path, 'static', 'uploads')
@@ -162,25 +175,67 @@ def search():
 
 @app.route('/ai', methods=['GET', 'POST'])
 def ai():
+    """
+    مساعد بحث ذكي بالمحادثة:
+    1. العميل يكتب طلبه بكلامه العادي
+    2. Claude يستخرج فلاتر منظمة (سعر، سنة، ماشية، مدينة...)
+    3. نفلتر قاعدة البيانات فعلياً بهالفلاتر (SQL)
+    4. Claude يرتب النتائج ويشرح ليش كل خيار مناسب
+    """
     query = ""
     results = []
-    connection = database.get_db()
+    ai_message = None
+    error = None
+
     if request.method == 'POST':
-        query = request.form.get('query', '')
+        query = request.form.get('query', '').strip()
+
         if query:
-            q_lower = f"%{query.lower()}%"
-            results = connection.execute("""
-                SELECT listings.*, 
-                       (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
-                FROM listings 
-                WHERE lower(title) LIKE ? OR lower(description) LIKE ? OR lower(category) LIKE ? OR lower(city) LIKE ?
-            """, (q_lower, q_lower, q_lower, q_lower)).fetchall()
+            try:
+                # 1) استخراج الفلاتر من كلام العميل
+                filters = ai_assistant.extract_filters(query)
+
+                # 2) فلترة فعلية من قاعدة البيانات
+                rows = database.search_listings_smart(filters, limit=20)
+                listings = [dict(row) for row in rows]
+
+                if listings:
+                    # 3) ترتيب وشرح من Claude
+                    ranking = ai_assistant.rank_listings(query, listings)
+                    reason_by_id = {r["id"]: r.get("reason", "") for r in ranking if "id" in r}
+
+                    # نرتب القائمة حسب ترتيب Claude، ونضيف السبب لكل عنصر
+                    ordered_ids = [r["id"] for r in ranking if "id" in r]
+                    listings_by_id = {l["id"]: l for l in listings}
+
+                    ordered_results = []
+                    for lid in ordered_ids:
+                        if lid in listings_by_id:
+                            item = listings_by_id[lid]
+                            item["ai_reason"] = reason_by_id.get(lid, "")
+                            ordered_results.append(item)
+                    # أي عنصر ما رجع بالترتيب (احتياط) نضيفه بالآخر
+                    for l in listings:
+                        if l["id"] not in ordered_ids:
+                            l["ai_reason"] = ""
+                            ordered_results.append(l)
+
+                    results = ordered_results
+                    ai_message = f"لقيت لك {len(results)} إعلان يطابق طلبك، رتبتهم من الأنسب للأقل:"
+                else:
+                    results = []
+                    ai_message = "ما لقيت إعلانات تطابق طلبك بالضبط، جرب تخفف الشروط شوي (زي الميزانية أو السنة)."
+
+            except Exception as e:
+                print("AI SEARCH ERROR:", str(e))
+                error = "صار خطأ أثناء معالجة طلبك بالذكاء الاصطناعي. تأكد إن مفتاح API مضبوط صح."
+                results = database.get_all_listings_with_first_media()
         else:
             results = database.get_all_listings_with_first_media()
     else:
         results = database.get_all_listings_with_first_media()
-    connection.close()
-    return render_template('ai.html', query=query, results=results)
+
+    return render_template('ai.html', query=query, results=results, ai_message=ai_message, error=error)
 
 @app.route('/my-listings')
 def my_listings():

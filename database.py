@@ -10,7 +10,7 @@ def get_db():
 def create_database():
     conn = get_db()
     cursor = conn.cursor()
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,17 +21,17 @@ def create_database():
             bio TEXT
         )
     """)
-    
+
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN phone TEXT")
     except sqlite3.OperationalError:
         pass
-        
+
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN bio TEXT")
     except sqlite3.OperationalError:
         pass
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +44,20 @@ def create_database():
             FOREIGN KEY (owner_id) REFERENCES users (id)
         )
     """)
-    
+
+    # ===== أعمدة جديدة لدعم البحث الذكي (خصوصاً السيارات) =====
+    # كل عمود نضيفه بـ try/except عشان ما يسبب خطأ لو موجود مسبقاً
+    for column_def in [
+        "ALTER TABLE listings ADD COLUMN year INTEGER",
+        "ALTER TABLE listings ADD COLUMN mileage INTEGER",
+        "ALTER TABLE listings ADD COLUMN make TEXT",
+        "ALTER TABLE listings ADD COLUMN model TEXT",
+    ]:
+        try:
+            cursor.execute(column_def)
+        except sqlite3.OperationalError:
+            pass
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listing_media (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +83,7 @@ def create_database():
             FOREIGN KEY (receiver_id) REFERENCES users (id)
         )
     """)
-    
+
     conn.commit()
     conn.close()
 
@@ -79,34 +92,66 @@ def add_sample_listings():
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM listings")
     count = cursor.fetchone()[0]
-    
+
     if count == 0:
         cursor.execute("""
             INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio)
             VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')
         """ )
-        
+
+        # (title, category, price, city, description, owner_id, year, mileage, make, model)
         sample_listings = [
-            ("تويوتا كامري 2022 نظيفة جداً", "سيارات", 75000.0, "الرياض", "بنزين، قير أوتوماتيك، الموتر شرط الفحص والممشى معقول.", 1),
-            ("آيفون 15 برو ماكس 256 جيجابايت", "جوالات", 4200.0, "جدة", "الجهاز جديد بتغليف المصنع مع ضمان المشتري.", 1),
-            ("شقة مفروشة للإيجار السنوي", "عقار", 30000.0, "الدمام", "غرفتين وصالة ومطبخ، مكيفات سبليت مطبخة بالكامل.", 1),
-            ("لابتوب الألعاب ASUS ROG Strix", "كمبيوتر", 5500.0, "الرياض", "كرت شاشة RTX 4070 مع معالج قوي لأداء ممتاز في الألعاب والمنتجة.", 1)
+            ("تويوتا كامري 2022 نظيفة جداً", "سيارات", 75000.0, "الرياض",
+             "بنزين، قير أوتوماتيك، الموتر شرط الفحص والممشى معقول.", 1, 2022, 45000, "تويوتا", "كامري"),
+            ("تويوتا كامري 2023 فل كامل", "سيارات", 98000.0, "جدة",
+             "ماشية قليلة جداً، فحص كامل، لا حوادث.", 1, 2023, 12000, "تويوتا", "كامري"),
+            ("تويوتا كامري 2023 ستاندر", "سيارات", 88000.0, "الرياض",
+             "ماشية 20 ألف كم، صيانة الوكالة.", 1, 2023, 20000, "تويوتا", "كامري"),
+            ("آيفون 15 برو ماكس 256 جيجابايت", "جوالات", 4200.0, "جدة",
+             "الجهاز جديد بتغليف المصنع مع ضمان المشتري.", 1, None, None, None, None),
+            ("شقة مفروشة للإيجار السنوي", "عقار", 30000.0, "الدمام",
+             "غرفتين وصالة ومطبخ، مكيفات سبليت مطبخة بالكامل.", 1, None, None, None, None),
+            ("لابتوب الألعاب ASUS ROG Strix", "كمبيوتر", 5500.0, "الرياض",
+             "كرت شاشة RTX 4070 مع معالج قوي لأداء ممتاز في الألعاب والمنتجة.", 1, None, None, None, None),
         ]
-        for title, category, price, city, description, owner_id in sample_listings:
+        for title, category, price, city, description, owner_id, year, mileage, make, model in sample_listings:
             cursor.execute("""
-                INSERT INTO listings (title, category, price, city, description, owner_id)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (title, category, price, city, description, owner_id))
+                INSERT INTO listings (title, category, price, city, description, owner_id, year, mileage, make, model)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (title, category, price, city, description, owner_id, year, mileage, make, model))
         conn.commit()
     conn.close()
 
-def add_listing(title, category, price, city, description, owner_id):
+def remove_demo_listings():
+    """يحذف إعلانات العينة التجريبية (لو كانت انزرعت بقاعدة بياناتك سابقاً)."""
+    demo_titles = [
+        "تويوتا كامري 2022 نظيفة جداً",
+        "تويوتا كامري 2023 فل كامل",
+        "تويوتا كامري 2023 ستاندر",
+        "آيفون 15 برو ماكس 256 جيجابايت",
+        "شقة مفروشة للإيجار السنوي",
+        "لابتوب الألعاب ASUS ROG Strix",
+    ]
+    conn = get_db()
+    cursor = conn.cursor()
+    placeholders = ",".join("?" for _ in demo_titles)
+    # نحذف الوسائط المرتبطة أولاً، ثم الإعلانات نفسها
+    cursor.execute(f"""
+        DELETE FROM listing_media
+        WHERE listing_id IN (SELECT id FROM listings WHERE title IN ({placeholders}))
+    """, demo_titles)
+    cursor.execute(f"DELETE FROM listings WHERE title IN ({placeholders})", demo_titles)
+    conn.commit()
+    conn.close()
+
+def add_listing(title, category, price, city, description, owner_id,
+                 year=None, mileage=None, make=None, model=None):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO listings (title, category, price, city, description, owner_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (title, category, price, city, description, owner_id))
+        INSERT INTO listings (title, category, price, city, description, owner_id, year, mileage, make, model)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (title, category, price, city, description, owner_id, year, mileage, make, model))
     listing_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -146,7 +191,71 @@ def get_all_listings_with_first_media():
     conn.close()
     return listings
 
-# دوال الرسائل والدردشة (التي كانت ناقصة وتسبب خطأ 500)
+# ===== البحث الذكي: يبني استعلام SQL ديناميكي بناءً على الفلاتر اللي يستخرجها Claude =====
+def search_listings_smart(filters, limit=20):
+    """
+    filters: dict ممكن يحتوي على:
+      category, keywords (list[str]), city,
+      min_price, max_price, min_year, max_year, max_mileage
+    """
+    conditions = []
+    params = []
+
+    if filters.get("category"):
+        conditions.append("lower(category) LIKE ?")
+        params.append(f"%{filters['category'].lower()}%")
+
+    if filters.get("city"):
+        conditions.append("lower(city) LIKE ?")
+        params.append(f"%{filters['city'].lower()}%")
+
+    if filters.get("keywords"):
+        keyword_conditions = []
+        for kw in filters["keywords"]:
+            keyword_conditions.append("(lower(title) LIKE ? OR lower(description) LIKE ? OR lower(make) LIKE ? OR lower(model) LIKE ?)")
+            kw_pattern = f"%{kw.lower()}%"
+            params.extend([kw_pattern, kw_pattern, kw_pattern, kw_pattern])
+        if keyword_conditions:
+            conditions.append("(" + " OR ".join(keyword_conditions) + ")")
+
+    if filters.get("min_price") is not None:
+        conditions.append("price >= ?")
+        params.append(filters["min_price"])
+
+    if filters.get("max_price") is not None:
+        conditions.append("price <= ?")
+        params.append(filters["max_price"])
+
+    if filters.get("min_year") is not None:
+        conditions.append("year >= ?")
+        params.append(filters["min_year"])
+
+    if filters.get("max_year") is not None:
+        conditions.append("year <= ?")
+        params.append(filters["max_year"])
+
+    if filters.get("max_mileage") is not None:
+        conditions.append("(mileage IS NULL OR mileage <= ?)")
+        params.append(filters["max_mileage"])
+
+    where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+
+    query = f"""
+        SELECT listings.*,
+               (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
+        FROM listings
+        {where_clause}
+        ORDER BY listings.id DESC
+        LIMIT ?
+    """
+    params.append(limit)
+
+    conn = get_db()
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return rows
+
+# دوال الرسائل والدردشة
 def add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private):
     conn = get_db()
     cursor = conn.cursor()
