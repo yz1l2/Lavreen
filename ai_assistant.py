@@ -11,7 +11,7 @@ import json
 import re
 import requests
 
-MODEL = os.environ.get("OPENROUTER_MODEL", "openrouter/free")
+MODEL = os.environ.get("OPENROUTER_MODEL", "openai/gpt-4o-mini")
 API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -116,7 +116,12 @@ def extract_filters(user_query):
 
         filters = _extract_json_block(raw_text)
 
-    except (json.JSONDecodeError, AttributeError, RuntimeError, requests.RequestException, KeyError, re.error):
+    except (json.JSONDecodeError, AttributeError, RuntimeError, requests.RequestException, KeyError, re.error) as e:
+        print("EXTRACT_FILTERS FAILED:", type(e).__name__, str(e))
+        try:
+            print("RAW MODEL OUTPUT WAS:", raw_text)
+        except NameError:
+            print("NO RESPONSE RECEIVED FROM OPENROUTER AT ALL")
         filters = {}
 
     return filters
@@ -202,7 +207,12 @@ def rank_listings(user_query, listings):
         requests.RequestException,
         KeyError,
         re.error
-    ):
+    ) as e:
+        print("RANK_LISTINGS FAILED:", type(e).__name__, str(e))
+        try:
+            print("RAW MODEL OUTPUT WAS:", raw_text)
+        except NameError:
+            print("NO RESPONSE RECEIVED FROM OPENROUTER AT ALL")
         ranking = [
             {
                 "id": l["id"],

@@ -42,11 +42,13 @@
         }
 
         .ai-box {
-            background: white;
+            background: rgba(255,255,255,0.55);
             padding: 25px;
             border-radius: 22px;
-            border: 1px solid #e7e7eb;
-            box-shadow: 0 15px 40px rgba(0,0,0,.06);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 15px 40px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,0.5);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
 
         .ai-form {
@@ -99,12 +101,20 @@
         }
 
         .ai-result {
-            background: white;
-            border: 1px solid #e7e7eb;
+            background: rgba(255,255,255,0.55);
+            border: 1px solid rgba(255,255,255,0.6);
             border-radius: 18px;
             padding: 20px;
             margin-bottom: 12px;
             position: relative;
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            transition: 0.25s;
+        }
+
+        .ai-result:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(20,20,30,0.08);
         }
 
         .ai-result h3 {
@@ -172,12 +182,13 @@
 
 <body>
 
-<header class="main-header">
+<header class="topbar">
 
-    <div class="header-container">
+    <div class="topbar-inner">
 
         <a href="/" class="logo">
-            لافريين
+            <span class="logo-mark">L</span>
+            <span class="logo-text">لافريين</span>
         </a>
 
         <nav class="main-nav">
@@ -190,11 +201,19 @@
                 إعلاناتي
             </a>
 
-            <a href="/sell" class="header-sell">
-                + بيع الآن
+            <a href="/ai" class="ai-nav active">
+                <span>✦</span> مساعد AI
             </a>
 
         </nav>
+
+        <div class="header-actions">
+
+            <a href="/sell" class="sell-btn">
+                + بيع الآن
+            </a>
+
+        </div>
 
     </div>
 
