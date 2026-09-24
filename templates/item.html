@@ -63,6 +63,22 @@
                 <div class="text-2xl font-bold text-black">{{ listing.price }} ر.س</div>
             </div>
 
+            <!-- كرت البائع - يربط على متجره العام -->
+            <a href="/store/{{ listing.owner_id }}" class="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 transition rounded-2xl p-3 mb-4 border border-gray-100">
+                {% if listing.owner_avatar %}
+                <img src="{{ url_for('static', filename=listing.owner_avatar) }}" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+                {% else %}
+                <div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-bold flex-shrink-0">
+                    {{ listing.owner_name[0] if listing.owner_name else '؟' }}
+                </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11px] text-gray-400">البائع</p>
+                    <p class="font-bold text-sm truncate">{{ listing.owner_name or 'مستخدم لافريين' }}</p>
+                </div>
+                <span class="text-xs text-blue-600 font-bold whitespace-nowrap">زيارة المتجر ←</span>
+            </a>
+
             <hr class="my-4">
 
             <!-- الوصف -->

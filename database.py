@@ -198,7 +198,12 @@ def add_listing_media(listing_id, media_type, file_path):
 
 def get_listing(listing_id):
     conn = get_db()
-    listing = conn.execute("SELECT listings.*, users.name as owner_name FROM listings LEFT JOIN users ON listings.owner_id = users.id WHERE listings.id = ?", (listing_id,)).fetchone()
+    listing = conn.execute("""
+        SELECT listings.*, users.name as owner_name, users.avatar_path as owner_avatar
+        FROM listings
+        LEFT JOIN users ON listings.owner_id = users.id
+        WHERE listings.id = ?
+    """, (listing_id,)).fetchone()
     conn.close()
     return listing
 
