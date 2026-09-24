@@ -239,14 +239,13 @@
 <body>
 
 
-<header class="main-header">
+<header class="topbar">
 
-    <div class="header-container">
+    <div class="topbar-inner">
 
         <a href="/" class="logo">
-            لافريين
+            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
         </a>
-
 
         <nav class="main-nav">
 
@@ -258,11 +257,13 @@
                 ✨ مساعد AI
             </a>
 
-            <a href="/sell" class="header-sell">
+        </nav>
+
+        <div class="header-actions">
+            <a href="/sell" class="sell-btn">
                 + بيع الآن
             </a>
-
-        </nav>
+        </div>
 
     </div>
 
@@ -321,11 +322,13 @@
 
 
             <div class="my-ad-image">
-
+                {% if item['first_image'] %}
+                <img src="{{ url_for('static', filename=item['first_image']) }}" alt="{{ item['title'] }}">
+                {% else %}
                 <div>
                     📦
                 </div>
-
+                {% endif %}
             </div>
 
 
@@ -367,7 +370,7 @@
 
 
                 <a
-                    href="{{ url_for('listing', listing_id=item['id']) }}"
+                    href="{{ url_for('view_item', item_id=item['id']) }}"
                 >
                     عرض
                 </a>
@@ -447,28 +450,16 @@
 
 
 
-<footer class="main-footer">
-
-
-    <div>
-
-        <strong>
-            لافريين
-        </strong>
-
-        <span>
-            السوق الذكي 🚀
-        </span>
-
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <strong>لافريين</strong>
+            <p>السوق الذكي 🚀</p>
+        </div>
     </div>
-
-
-    <p>
-        جميع الحقوق محفوظة © لافريين
-    </p>
-
-
+    <div class="footer-bottom">جميع الحقوق محفوظة © لافريين</div>
 </footer>
 
 
 </body>
+</html>

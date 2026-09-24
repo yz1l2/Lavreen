@@ -173,19 +173,21 @@ def search():
     connection.close()
     return render_template('index.html', listings=listings)
 
+AI_CHAT_SESSION_KEY = 'ai_chat_history'
+AI_CHAT_MAX_TURNS = 4  # نحتفظ بآخر 4 أسئلة بس عشان الكوكي ما يكبر كثير
+
 @app.route('/ai', methods=['GET', 'POST'])
 def ai():
     """
-    مساعد بحث ذكي بالمحادثة:
+    مساعد بحث ذكي بشكل محادثة (شات):
     1. العميل يكتب طلبه بكلامه العادي
-    2. Claude يستخرج فلاتر منظمة (سعر، سنة، ماشية، مدينة...)
+    2. Claude/الذكاء يستخرج فلاتر منظمة (سعر، سنة، ماشية، مدينة...)
     3. نفلتر قاعدة البيانات فعلياً بهالفلاتر (SQL)
-    4. Claude يرتب النتائج ويشرح ليش كل خيار مناسب
+    4. الذكاء يرتب النتائج ويشرح ليش كل خيار مناسب
+    5. كل سؤال ورد يضاف كفقاعة محادثة، ويبقى محفوظ بالسيشن
     """
-    query = ""
-    results = []
-    ai_message = None
     error = None
+    history = session.get(AI_CHAT_SESSION_KEY, [])
 
     if request.method == 'POST':
         query = request.form.get('query', '').strip()
@@ -199,12 +201,13 @@ def ai():
                 rows = database.search_listings_smart(filters, limit=20)
                 listings = [dict(row) for row in rows]
 
+                ai_message = ""
+                turn_results = []
+
                 if listings:
-                    # 3) ترتيب وشرح من Claude
+                    # 3) ترتيب وشرح من الذكاء
                     ranking = ai_assistant.rank_listings(query, listings)
                     reason_by_id = {r["id"]: r.get("reason", "") for r in ranking if "id" in r}
-
-                    # نرتب القائمة حسب ترتيب Claude، ونضيف السبب لكل عنصر
                     ordered_ids = [r["id"] for r in ranking if "id" in r]
                     listings_by_id = {l["id"]: l for l in listings}
 
@@ -214,28 +217,97 @@ def ai():
                             item = listings_by_id[lid]
                             item["ai_reason"] = reason_by_id.get(lid, "")
                             ordered_results.append(item)
-                    # أي عنصر ما رجع بالترتيب (احتياط) نضيفه بالآخر
                     for l in listings:
                         if l["id"] not in ordered_ids:
                             l["ai_reason"] = ""
                             ordered_results.append(l)
 
-                    results = ordered_results
-                    ai_message = f"لقيت لك {len(results)} إعلان يطابق طلبك، رتبتهم من الأنسب للأقل:"
+                    # نعرض بالشات أول 5 نتائج بس عشان يضل الشكل مرتب
+                    top_results = ordered_results[:5]
+                    ai_message = f"لقيت لك {len(ordered_results)} إعلان يطابق طلبك، هذي أفضلها:"
+
+                    # نخزن بالسيشن أهم الحقول بس (اسم، سعر، مدينة، سبب، صورة) عشان الكوكي ما يكبر
+                    turn_results = [
+                        {
+                            "id": item["id"],
+                            "title": item["title"],
+                            "price": item["price"],
+                            "city": item["city"],
+                            "first_image": item.get("first_image"),
+                            "ai_reason": item.get("ai_reason", ""),
+                        }
+                        for item in top_results
+                    ]
                 else:
-                    results = []
                     ai_message = "ما لقيت إعلانات تطابق طلبك بالضبط، جرب تخفف الشروط شوي (زي الميزانية أو السنة)."
+
+                history.append({
+                    "query": query,
+                    "ai_message": ai_message,
+                    "results": turn_results,
+                })
+                history = history[-AI_CHAT_MAX_TURNS:]
+                session[AI_CHAT_SESSION_KEY] = history
 
             except Exception as e:
                 print("AI SEARCH ERROR:", str(e))
-                error = "صار خطأ أثناء معالجة طلبك بالذكاء الاصطناعي. تأكد إن مفتاح API مضبوط صح."
-                results = database.get_all_listings_with_first_media()
-        else:
-            results = database.get_all_listings_with_first_media()
-    else:
-        results = database.get_all_listings_with_first_media()
+                error = "صار خطأ أثناء معالجة طلبك بالذكاء الاصطناعي. تأكد إن مفتاح API مضبوط صح وفيه رصيد."
 
-    return render_template('ai.html', query=query, results=results, ai_message=ai_message, error=error)
+        return redirect(url_for('ai'))
+
+    return render_template('ai.html', history=history, error=error)
+
+
+@app.route('/ai/reset')
+def ai_reset():
+    session.pop(AI_CHAT_SESSION_KEY, None)
+    return redirect(url_for('ai'))
+
+@app.route('/listing/<int:listing_id>/edit', methods=['GET', 'POST'])
+def edit_listing(listing_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    listing = database.get_listing(listing_id)
+    if not listing:
+        return "الإعلان غير موجود", 404
+    if listing['owner_id'] != session['user_id']:
+        return "ما تملك صلاحية تعديل هذا الإعلان", 403
+
+    if request.method == 'POST':
+        title = request.form.get('title', listing['title'])
+        category = request.form.get('category', listing['category'])
+        price = request.form.get('price', listing['price'])
+        city = request.form.get('city', listing['city'])
+        description = request.form.get('description', listing['description'])
+        year = request.form.get('year') or None
+        mileage = request.form.get('mileage') or None
+        make = request.form.get('make') or None
+        model = request.form.get('model') or None
+        year = int(year) if year else None
+        mileage = int(mileage) if mileage else None
+
+        database.update_listing(
+            listing_id, title, category, float(price) if price else 0.0,
+            city, description, year=year, mileage=mileage, make=make, model=model
+        )
+        return redirect(url_for('my_listings'))
+
+    return render_template('edit_listing.html', listing=listing)
+
+@app.route('/listing/<int:listing_id>/delete', methods=['POST'])
+def remove_listing(listing_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    listing = database.get_listing(listing_id)
+    if not listing:
+        return "الإعلان غير موجود", 404
+    if listing['owner_id'] != session['user_id']:
+        return "ما تملك صلاحية حذف هذا الإعلان", 403
+
+    database.delete_listing(listing_id)
+    return redirect(url_for('my_listings'))
 
 @app.route('/my-listings')
 def my_listings():

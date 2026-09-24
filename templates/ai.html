@@ -5,173 +5,261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Lavreen AI</title>
+    <title>مساعد لافرين الذكي</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <style>
-        .ai-page {
-            max-width: 1000px;
+        .chat-page {
+            max-width: 720px;
             margin: auto;
-            padding: 70px 20px;
+            padding: 24px 16px 100px;
+            min-height: calc(100vh - 76px);
+            display: flex;
+            flex-direction: column;
         }
 
-        .ai-hero {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .ai-badge {
-            display: inline-block;
-            padding: 9px 15px;
-            border-radius: 30px;
-            background: white;
-            border: 1px solid #e5e5e9;
+        .chat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 18px;
         }
 
-        .ai-hero h1 {
-            font-size: 52px;
-            margin: 0 0 15px;
+        .chat-top h1 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .ai-hero p {
-            color: #777;
-            font-size: 17px;
+        .chat-top h1 span.badge-ai {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #7357ff, #6045ed);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
         }
 
-        .ai-box {
+        .chat-new {
+            font-size: 12px;
+            font-weight: 700;
+            color: #7357ff;
+            background: #f1efff;
+            padding: 8px 13px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-log {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .chat-empty {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            padding: 60px 20px;
             background: white;
-            padding: 25px;
-            border-radius: 22px;
-            border: 1px solid #e7e7eb;
-            box-shadow: 0 15px 40px rgba(115,87,255,0.1);
+            border: 1px dashed #d8d2ff;
+            border-radius: 18px;
         }
 
-        .ai-form {
+        .chat-empty strong {
+            display: block;
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .chat-row {
             display: flex;
             gap: 10px;
         }
 
-        .ai-form input {
-            flex: 1;
-            padding: 17px;
-            border: 1px solid #ddd;
-            border-radius: 14px;
-            outline: none;
-            font-size: 16px;
+        .user-row {
+            justify-content: flex-end;
         }
 
-        .ai-form button {
+        .assistant-row {
+            justify-content: flex-start;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7357ff, #6045ed);
+            color: white;
+            font-size: 12px;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+
+        .chat-bubble {
+            max-width: 78%;
+            padding: 13px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .user-bubble {
+            background: linear-gradient(135deg, #7357ff, #6045ed);
+            color: white;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 8px 18px rgba(115,87,255,0.25);
+        }
+
+        .assistant-bubble {
+            background: white;
+            border: 1px solid #e7e7eb;
+            color: var(--text);
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-results {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-result-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fafaff;
+            border: 1px solid #eeecff;
+            border-radius: 13px;
+            padding: 8px;
+            transition: 0.2s;
+        }
+
+        .chat-result-card:hover {
+            border-color: #d8d2ff;
+            background: #f5f3ff;
+        }
+
+        .crc-image {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            background: #f1f1f3;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            color: #aaa;
+        }
+
+        .crc-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .crc-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .crc-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .crc-meta {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .crc-price {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #7357ff;
+            margin-top: 2px;
+        }
+
+        .crc-reason {
+            margin-top: 5px;
+            display: inline-block;
+            background: #f1efff;
+            color: #5a48c9;
+            font-size: 10.5px;
+            padding: 4px 9px;
+            border-radius: 8px;
+        }
+
+        .chat-input-bar {
+            position: sticky;
+            bottom: 14px;
+            margin-top: 20px;
+
+            display: flex;
+            gap: 8px;
+
+            background: white;
+            border: 1px solid #e7e7eb;
+            border-radius: 16px;
+            padding: 8px;
+
+            box-shadow: 0 15px 35px rgba(20,20,30,0.1);
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+            padding: 10px 12px;
+        }
+
+        .chat-input-bar button {
             border: 0;
             background: linear-gradient(135deg, #7357ff, #6045ed);
             color: white;
-            border-radius: 14px;
-            padding: 0 28px;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 15px;
-            box-shadow: 0 8px 20px rgba(115,87,255,0.3);
+            flex-shrink: 0;
         }
 
-        .ai-message {
-            background: #edeaff;
-            border: 1px solid #d9d1ff;
-            color: #4a3c99;
-            border-radius: 14px;
-            padding: 14px 18px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-top: 20px;
-        }
-
-        .ai-error {
+        .chat-error {
+            margin-top: 12px;
             background: #ffecec;
             border: 1px solid #ffcaca;
             color: #a33;
             border-radius: 14px;
-            padding: 14px 18px;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-
-        .ai-results {
-            margin-top: 35px;
-        }
-
-        .ai-result {
-            background: white;
-            border: 1px solid #e7e7eb;
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 12px;
-            position: relative;
-            transition: 0.25s;
-        }
-
-        .ai-result:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 30px rgba(115,87,255,0.15);
-            border-color: #d8d2ff;
-        }
-
-        .ai-result h3 {
-            margin: 0 0 10px;
-        }
-
-        .ai-result p {
-            color: #777;
-            margin: 6px 0;
-        }
-
-        .ai-rank {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #111;
-            color: white;
-            font-size: 12px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ai-reason {
-            display: inline-block;
-            background: #f4f2ff;
-            color: #5a48c9;
-            font-size: 12.5px;
-            padding: 8px 12px;
-            border-radius: 9px;
-            margin-top: 8px;
-        }
-
-        .ai-empty {
-            text-align: center;
-            color: #777;
-            padding: 35px;
+            padding: 12px 16px;
+            font-size: 13px;
         }
 
         @media (max-width: 600px) {
-
-            .ai-page {
-                padding: 45px 16px;
+            .chat-page {
+                padding: 18px 12px 90px;
             }
-
-            .ai-hero h1 {
-                font-size: 38px;
-            }
-
-            .ai-form {
-                flex-direction: column;
-            }
-
-            .ai-form button {
-                padding: 15px;
+            .chat-bubble {
+                max-width: 88%;
             }
         }
     </style>
@@ -181,174 +269,98 @@
 <body>
 
 <header class="topbar">
-
     <div class="topbar-inner">
 
         <a href="/" class="logo">
-            <span class="logo-mark">L</span>
-            <span class="logo-text">لافريين</span>
+            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
         </a>
 
         <nav class="main-nav">
-
-            <a href="/">
-                الرئيسية
-            </a>
-
-            <a href="/my-listings">
-                إعلاناتي
-            </a>
-
-            <a href="/ai" class="ai-nav active">
-                <span>✦</span> مساعد AI
-            </a>
-
+            <a href="/">الرئيسية</a>
+            <a href="/ai" class="ai-nav active"><span>✦</span> مساعد AI</a>
         </nav>
 
         <div class="header-actions">
-
-            <a href="/sell" class="sell-btn">
-                + بيع الآن
-            </a>
-
+            {% if session.get('user_id') %}
+                <a href="/my-listings" class="header-link">إعلاناتي</a>
+                <a href="/sell" class="sell-btn">+ أضف إعلان</a>
+            {% else %}
+                <a href="/login" class="header-link">تسجيل الدخول</a>
+                <a href="/sell" class="sell-btn">+ أضف إعلان</a>
+            {% endif %}
         </div>
 
     </div>
-
 </header>
 
+<main class="chat-page">
 
-<main class="ai-page">
+    <div class="chat-top">
+        <h1><span class="badge-ai">Ai</span> مساعد لافرين</h1>
+        <a href="/ai/reset" class="chat-new">↻ محادثة جديدة</a>
+    </div>
 
-    <section class="ai-hero">
+    <div class="chat-log">
 
-        <div class="ai-badge">
-            ✨ Lavreen AI
-        </div>
-
-        <h1>
-            وش تدور عليه؟
-        </h1>
-
-        <p>
-            قل لنا وش تبي، وخلك على الباقي علينا.
-        </p>
-
-    </section>
-
-
-    <section class="ai-box">
-
-        <form
-            action="{{ url_for('ai') }}"
-            method="POST"
-            class="ai-form"
-        >
-
-            <input
-                type="text"
-                name="query"
-                value="{{ query }}"
-                placeholder="مثال: كامري 2023 بميزانية 90 ألف وماشية قليلة"
-                required
-            >
-
-            <button type="submit">
-                ✨ ابحث بالذكاء
-            </button>
-
-        </form>
-
-        {% if error %}
-        <div class="ai-error">
-            ⚠️ {{ error }}
+        {% if not history %}
+        <div class="chat-empty">
+            <strong>👋 أهلاً فيك</strong>
+            وش تدور عليه؟ اكتب طلبك بأي صيغة، مثلاً:<br>
+            "كامري 2023 بميزانية 90 ألف وماشية قليلة"
         </div>
         {% endif %}
 
-        {% if ai_message %}
-        <div class="ai-message">
-            ✨ {{ ai_message }}
-        </div>
-        {% endif %}
+        {% for turn in history %}
 
-    </section>
-
-
-    {% if query %}
-
-    <section class="ai-results">
-
-        <div class="section-title">
-
-            <div>
-
-                <span class="section-label">
-                    نتائج البحث
-                </span>
-
-                <h2>
-                    أفضل الخيارات لك
-                </h2>
-
+            <div class="chat-row user-row">
+                <div class="chat-bubble user-bubble">{{ turn.query }}</div>
             </div>
 
-        </div>
+            <div class="chat-row assistant-row">
+                <div class="chat-avatar">Ai</div>
+                <div class="chat-bubble assistant-bubble">
+                    <div>{{ turn.ai_message }}</div>
 
-
-        {% if results %}
-
-            {% for result in results %}
-
-                <a href="{{ url_for('view_item', item_id=result['id']) }}" class="ai-result">
-
-                    <div class="ai-rank">{{ loop.index }}</div>
-
-                    <h3>
-                        {{ result["title"] }}
-                    </h3>
-
-                    <p>
-                        💰 {{ "{:,.0f}".format(result["price"]) }} ريال
-                    </p>
-
-                    <p>
-                        📍 {{ result["city"] }}
-                        {% if result["year"] %} &nbsp;|&nbsp; 📅 {{ result["year"] }}{% endif %}
-                        {% if result["mileage"] %} &nbsp;|&nbsp; 🛣️ {{ "{:,.0f}".format(result["mileage"]) }} كم{% endif %}
-                    </p>
-
-                    {% if result["description"] %}
-                    <p>
-                        {{ result["description"] }}
-                    </p>
-                    {% endif %}
-
-                    {% if result["ai_reason"] %}
-                    <div class="ai-reason">
-                        ✨ {{ result["ai_reason"] }}
+                    {% if turn.results %}
+                    <div class="chat-results">
+                        {% for item in turn.results %}
+                        <a href="/listing/{{ item.id }}" class="chat-result-card">
+                            <div class="crc-image">
+                                {% if item.first_image %}
+                                <img src="{{ url_for('static', filename=item.first_image) }}" alt="{{ item.title }}">
+                                {% else %}
+                                📦
+                                {% endif %}
+                            </div>
+                            <div class="crc-body">
+                                <div class="crc-title">{{ item.title }}</div>
+                                <div class="crc-meta">📍 {{ item.city }}</div>
+                                <div class="crc-price">{{ "{:,.0f}".format(item.price) }} ر.س</div>
+                                {% if item.ai_reason %}
+                                <div class="crc-reason">✨ {{ item.ai_reason }}</div>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
                     </div>
                     {% endif %}
-
-                </a>
-
-            {% endfor %}
-
-        {% else %}
-
-            <div class="ai-result ai-empty">
-
-                ما لقينا نتائج مطابقة حاليًا 🤷‍♂️
-
+                </div>
             </div>
 
-        {% endif %}
+        {% endfor %}
 
-    </section>
+    </div>
 
+    {% if error %}
+    <div class="chat-error">⚠️ {{ error }}</div>
     {% endif %}
 
-</main>
+    <form method="POST" action="/ai" class="chat-input-bar">
+        <input type="text" name="query" placeholder="اكتب طلبك هنا..." required autofocus>
+        <button type="submit">➤</button>
+    </form>
 
+</main>
 
 </body>
 </html>

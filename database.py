@@ -173,6 +173,28 @@ def get_listing(listing_id):
     conn.close()
     return listing
 
+def update_listing(listing_id, title, category, price, city, description,
+                    year=None, mileage=None, make=None, model=None):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE listings
+        SET title = ?, category = ?, price = ?, city = ?, description = ?,
+            year = ?, mileage = ?, make = ?, model = ?
+        WHERE id = ?
+    """, (title, category, price, city, description, year, mileage, make, model, listing_id))
+    conn.commit()
+    conn.close()
+
+def delete_listing(listing_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM listing_media WHERE listing_id = ?", (listing_id,))
+    cursor.execute("DELETE FROM messages WHERE listing_id = ?", (listing_id,))
+    cursor.execute("DELETE FROM listings WHERE id = ?", (listing_id,))
+    conn.commit()
+    conn.close()
+
 def get_listing_media(listing_id):
     conn = get_db()
     media = conn.execute("SELECT * FROM listing_media WHERE listing_id = ?", (listing_id,)).fetchall()
