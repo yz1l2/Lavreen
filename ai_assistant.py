@@ -71,18 +71,25 @@ def _extract_json_block(text):
 def extract_filters(user_query):
     """
     يرجع dict فيه:
-    category, keywords(list), city, min_price, max_price,
+    is_search (bool), category, keywords(list), city, min_price, max_price,
     min_year, max_year, max_mileage
+
+    لو الرسالة مو طلب بحث فعلي (سلام، شكراً، كلام عادي)، يرجع is_search: false
     """
 
     system_prompt = """أنت أداة استخراج بيانات فقط لموقع إعلانات مبوبة سعودي
 (سيارات، جوالات، عقار، كمبيوتر، وغيرها).
 
-اقرأ طلب العميل وأرجع JSON فقط بدون أي شرح أو نص إضافي.
+أول شي حدد: هل رسالة العميل فعلاً طلب بحث عن منتج أو إعلان (حتى لو عام زي "أبي شي رخيص")،
+أو مجرد كلام عادي/سلام/شكر/سؤال مو متعلق بالبحث؟
 
-استخدم المفاتيح التالية بالضبط:
+لو مو طلب بحث فعلي، أرجع فقط:
+{"is_search": false}
+
+لو طلب بحث فعلي، اقرأ الطلب وأرجع JSON بالمفاتيح التالية بالضبط:
 
 {
+  "is_search": true,
   "category": "تصنيف الإعلان إن ذكر (سيارات/جوالات/عقار/كمبيوتر) أو null",
   "keywords": ["كلمات مفتاحية مثل الماركة والموديل"],
   "city": "اسم المدينة إن ذكرت أو null",
@@ -116,7 +123,8 @@ def extract_filters(user_query):
             print("RAW MODEL OUTPUT WAS:", raw_text)
         except NameError:
             print("NO RESPONSE RECEIVED FROM OPENROUTER AT ALL")
-        filters = {}
+        # عند أي فشل تقني، نعتبرها مو طلب بحث بدل ما نطلع كل المنتجات بالغلط
+        filters = {"is_search": False}
 
     return filters
 
@@ -196,6 +204,27 @@ def respond_with_listings(user_query, listings):
             "reply": f"لقيت لك {len(compact_listings)} إعلان يطابق طلبك:",
             "items": [{"id": l["id"], "reason": ""} for l in compact_listings],
         }
+
+
+def respond_general(user_query):
+    """رد طبيعي على كلام عادي مو طلب بحث (سلام، شكراً، أسئلة عامة)."""
+
+    system_prompt = """أنت مساعد ودود بموقع إعلانات مبوبة سعودي اسمه لافرين، تتكلم باللهجة السعودية.
+العميل كتب رسالة مو طلب بحث عن منتج (سلام، شكر، سؤال عام...).
+رد عليه بشكل طبيعي وودود بجملة أو جملتين، ولو مناسب اسأله وش يدور عليه بالضبط عشان تساعده.
+أرجع نص عادي بس، بدون أي تنسيق JSON أو علامات اقتباس."""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_query}
+    ]
+
+    try:
+        raw_text = _call_ai(messages, max_tokens=200)
+        return raw_text.strip().strip('"')
+    except (RuntimeError, requests.RequestException) as e:
+        print("RESPOND_GENERAL FAILED:", type(e).__name__, str(e))
+        return "أهلاً فيك! وش تدور عليه اليوم؟ 😊"
 
 
 def respond_no_results(user_query):

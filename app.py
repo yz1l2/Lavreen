@@ -194,54 +194,59 @@ def ai():
 
         if query:
             try:
-                # 1) استخراج الفلاتر من كلام العميل
+                # 1) استخراج الفلاتر من كلام العميل (ويحدد هل هذا أصلاً طلب بحث)
                 filters = ai_assistant.extract_filters(query)
-
-                # 2) فلترة فعلية من قاعدة البيانات
-                rows = database.search_listings_smart(filters, limit=20)
-                listings = [dict(row) for row in rows]
 
                 ai_message = ""
                 turn_results = []
 
-                if listings:
-                    # 3) رد طبيعي + ترتيب من الذكاء بنفس الطلب
-                    ai_result = ai_assistant.respond_with_listings(query, listings)
-                    ranking = ai_result.get("items", [])
-                    ai_message = ai_result.get("reply", "")
+                if not filters.get("is_search", False):
+                    # مو طلب بحث (سلام، شكر، كلام عادي) - نرد بشكل طبيعي بدون ما نطلع أي منتجات
+                    ai_message = ai_assistant.respond_general(query)
 
-                    reason_by_id = {r["id"]: r.get("reason", "") for r in ranking if "id" in r}
-                    ordered_ids = [r["id"] for r in ranking if "id" in r]
-                    listings_by_id = {l["id"]: l for l in listings}
-
-                    ordered_results = []
-                    for lid in ordered_ids:
-                        if lid in listings_by_id:
-                            item = listings_by_id[lid]
-                            item["ai_reason"] = reason_by_id.get(lid, "")
-                            ordered_results.append(item)
-                    for l in listings:
-                        if l["id"] not in ordered_ids:
-                            l["ai_reason"] = ""
-                            ordered_results.append(l)
-
-                    # نعرض بالشات أول 5 نتائج بس عشان يضل الشكل مرتب
-                    top_results = ordered_results[:5]
-
-                    # نخزن بالسيشن أهم الحقول بس (اسم، سعر، مدينة، سبب، صورة) عشان الكوكي ما يكبر
-                    turn_results = [
-                        {
-                            "id": item["id"],
-                            "title": item["title"],
-                            "price": item["price"],
-                            "city": item["city"],
-                            "first_image": item.get("first_image"),
-                            "ai_reason": item.get("ai_reason", ""),
-                        }
-                        for item in top_results
-                    ]
                 else:
-                    ai_message = ai_assistant.respond_no_results(query)
+                    # 2) فلترة فعلية من قاعدة البيانات
+                    rows = database.search_listings_smart(filters, limit=20)
+                    listings = [dict(row) for row in rows]
+
+                    if listings:
+                        # 3) رد طبيعي + ترتيب من الذكاء بنفس الطلب
+                        ai_result = ai_assistant.respond_with_listings(query, listings)
+                        ranking = ai_result.get("items", [])
+                        ai_message = ai_result.get("reply", "")
+
+                        reason_by_id = {r["id"]: r.get("reason", "") for r in ranking if "id" in r}
+                        ordered_ids = [r["id"] for r in ranking if "id" in r]
+                        listings_by_id = {l["id"]: l for l in listings}
+
+                        ordered_results = []
+                        for lid in ordered_ids:
+                            if lid in listings_by_id:
+                                item = listings_by_id[lid]
+                                item["ai_reason"] = reason_by_id.get(lid, "")
+                                ordered_results.append(item)
+                        for l in listings:
+                            if l["id"] not in ordered_ids:
+                                l["ai_reason"] = ""
+                                ordered_results.append(l)
+
+                        # نعرض بالشات أول 5 نتائج بس عشان يضل الشكل مرتب
+                        top_results = ordered_results[:5]
+
+                        # نخزن بالسيشن أهم الحقول بس (اسم، سعر، مدينة، سبب، صورة) عشان الكوكي ما يكبر
+                        turn_results = [
+                            {
+                                "id": item["id"],
+                                "title": item["title"],
+                                "price": item["price"],
+                                "city": item["city"],
+                                "first_image": item.get("first_image"),
+                                "ai_reason": item.get("ai_reason", ""),
+                            }
+                            for item in top_results
+                        ]
+                    else:
+                        ai_message = ai_assistant.respond_no_results(query)
 
                 history.append({
                     "query": query,
