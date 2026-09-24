@@ -1,10 +1,15 @@
 """
 وحدة مساعدة تتواصل مع OpenRouter API لعمل هذي الأشياء:
-1. extract_filters(): تفهم كلام العميل الحر وتحوله لفلاتر منظمة (JSON)
-2. respond_with_listings(): ترتب النتائج + تصيغ رد طبيعي متجاوب مع كلام العميل (مو جملة ثابتة)
-3. respond_no_results(): رد طبيعي لما ما تكون فيه نتائج مطابقة
+1. extract_filters(): تفهم كلام العميل الحر وتحدد هل هو طلب بحث أو كلام عادي، وتستخرج فلاتر منظمة
+2. respond_with_listings(): ترتب النتائج + تصيغ رد طبيعي متجاوب مع كلام العميل
+3. respond_general(): رد طبيعي على كلام عادي (سلام، شكراً...)
+4. respond_no_results(): رد طبيعي لما ما تكون فيه نتائج مطابقة
 
 تحتاج متغير بيئة OPENROUTER_API_KEY معرّف على الجهاز أو السيرفر.
+
+ملاحظة مهمة: أي فشل بالاتصال بـ OpenRouter (مفتاح غلط، ما فيه رصيد، النموذج مو موجود...)
+يطلع نصه الحقيقي مباشرة برد الشات نفسه (مسبوق بـ ⚠️) عشان تقدر تشخص المشكلة
+من الموقع مباشرة بدون ما تحتاج تفتح سجلات Render.
 """
 
 import os
@@ -18,33 +23,46 @@ API_KEY = os.environ.get("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
+class AIError(Exception):
+    """خطأ واضح يحمل تفاصيل حقيقية عن سبب فشل الاتصال بـ OpenRouter."""
+    pass
+
+
 def _call_ai(messages, max_tokens=500):
-    """إرسال طلب إلى OpenRouter وإرجاع النص الناتج."""
+    """إرسال طلب إلى OpenRouter وإرجاع النص الناتج. يرفع AIError بتفاصيل حقيقية عند أي فشل."""
 
     if not API_KEY:
-        raise RuntimeError("OPENROUTER_API_KEY غير موجود في متغيرات البيئة")
+        raise AIError("مفتاح OPENROUTER_API_KEY غير موجود في متغيرات البيئة بـ Render")
 
-    response = requests.post(
-        OPENROUTER_URL,
-        headers={
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://lavreen.onrender.com",
-            "X-Title": "Lavreen",
-        },
-        json={
-            "model": MODEL,
-            "messages": messages,
-            "max_tokens": max_tokens,
-        },
-        timeout=60,
-    )
+    try:
+        response = requests.post(
+            OPENROUTER_URL,
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://lavreen.onrender.com",
+                "X-Title": "Lavreen",
+            },
+            json={
+                "model": MODEL,
+                "messages": messages,
+                "max_tokens": max_tokens,
+            },
+            timeout=60,
+        )
+    except requests.RequestException as e:
+        raise AIError(f"فشل الاتصال بـ OpenRouter: {type(e).__name__}: {e}")
 
-    response.raise_for_status()
+    if response.status_code != 200:
+        # نطبع ونرجع نص رسالة الخطأ الحقيقية من OpenRouter (تحتوي غالباً سبب دقيق)
+        body_preview = response.text[:400]
+        raise AIError(f"OpenRouter رجع خطأ HTTP {response.status_code}: {body_preview}")
 
-    data = response.json()
-
-    return data["choices"][0]["message"]["content"]
+    try:
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, json.JSONDecodeError) as e:
+        raise AIError(f"شكل رد OpenRouter غير متوقع: {type(e).__name__}: {e} | الرد الخام: {response.text[:300]}")
 
 
 def _extract_json_block(text):
@@ -59,7 +77,6 @@ def _extract_json_block(text):
         flags=re.MULTILINE
     ).strip()
 
-    # يدور على أول object { } كامل بالنص
     match = re.search(r"\{.*\}", text, re.DOTALL)
 
     if match:
@@ -75,6 +92,7 @@ def extract_filters(user_query):
     min_year, max_year, max_mileage
 
     لو الرسالة مو طلب بحث فعلي (سلام، شكراً، كلام عادي)، يرجع is_search: false
+    لو صار خطأ تقني، يرجع is_search: false + مفتاح _error فيه تفاصيل الخطأ الحقيقية
     """
 
     system_prompt = """أنت أداة استخراج بيانات فقط لموقع إعلانات مبوبة سعودي
@@ -116,17 +134,16 @@ def extract_filters(user_query):
     try:
         raw_text = _call_ai(messages, max_tokens=500)
         filters = _extract_json_block(raw_text)
+        return filters
 
-    except (json.JSONDecodeError, AttributeError, RuntimeError, requests.RequestException, KeyError, re.error) as e:
-        print("EXTRACT_FILTERS FAILED:", type(e).__name__, str(e))
-        try:
-            print("RAW MODEL OUTPUT WAS:", raw_text)
-        except NameError:
-            print("NO RESPONSE RECEIVED FROM OPENROUTER AT ALL")
-        # عند أي فشل تقني، نعتبرها مو طلب بحث بدل ما نطلع كل المنتجات بالغلط
-        filters = {"is_search": False}
+    except AIError as e:
+        print("EXTRACT_FILTERS FAILED (AIError):", str(e))
+        return {"is_search": False, "_error": str(e)}
 
-    return filters
+    except (json.JSONDecodeError, AttributeError, KeyError, re.error) as e:
+        print("EXTRACT_FILTERS FAILED (parse):", type(e).__name__, str(e))
+        print("RAW MODEL OUTPUT WAS:", raw_text)
+        return {"is_search": False, "_error": f"رد النموذج ما كان JSON صالح: {raw_text[:200]}"}
 
 
 def respond_with_listings(user_query, listings):
@@ -189,17 +206,21 @@ def respond_with_listings(user_query, listings):
         result = _extract_json_block(raw_text)
 
         if not isinstance(result, dict) or "items" not in result:
-            raise ValueError("شكل الرد غير متوقع")
+            raise ValueError("شكل الرد غير متوقع من النموذج")
 
         result.setdefault("reply", f"لقيت لك {len(compact_listings)} إعلان يطابق طلبك:")
         return result
 
-    except (json.JSONDecodeError, AttributeError, RuntimeError, requests.RequestException, KeyError, re.error, ValueError) as e:
-        print("RESPOND_WITH_LISTINGS FAILED:", type(e).__name__, str(e))
-        try:
-            print("RAW MODEL OUTPUT WAS:", raw_text)
-        except NameError:
-            print("NO RESPONSE RECEIVED FROM OPENROUTER AT ALL")
+    except AIError as e:
+        print("RESPOND_WITH_LISTINGS FAILED (AIError):", str(e))
+        return {
+            "reply": f"⚠️ تعذر الاتصال بالذكاء الاصطناعي: {e}",
+            "items": [{"id": l["id"], "reason": ""} for l in compact_listings],
+        }
+
+    except (json.JSONDecodeError, AttributeError, KeyError, re.error, ValueError) as e:
+        print("RESPOND_WITH_LISTINGS FAILED (parse):", type(e).__name__, str(e))
+        print("RAW MODEL OUTPUT WAS:", raw_text)
         return {
             "reply": f"لقيت لك {len(compact_listings)} إعلان يطابق طلبك:",
             "items": [{"id": l["id"], "reason": ""} for l in compact_listings],
@@ -222,9 +243,9 @@ def respond_general(user_query):
     try:
         raw_text = _call_ai(messages, max_tokens=200)
         return raw_text.strip().strip('"')
-    except (RuntimeError, requests.RequestException) as e:
-        print("RESPOND_GENERAL FAILED:", type(e).__name__, str(e))
-        return "أهلاً فيك! وش تدور عليه اليوم؟ 😊"
+    except AIError as e:
+        print("RESPOND_GENERAL FAILED (AIError):", str(e))
+        return f"⚠️ تعذر الاتصال بالذكاء الاصطناعي: {e}"
 
 
 def respond_no_results(user_query):
@@ -243,6 +264,6 @@ def respond_no_results(user_query):
     try:
         raw_text = _call_ai(messages, max_tokens=200)
         return raw_text.strip().strip('"')
-    except (RuntimeError, requests.RequestException) as e:
-        print("RESPOND_NO_RESULTS FAILED:", type(e).__name__, str(e))
+    except AIError as e:
+        print("RESPOND_NO_RESULTS FAILED (AIError):", str(e))
         return "ما لقيت إعلانات تطابق طلبك بالضبط، جرب تخفف الشروط شوي (زي الميزانية أو السنة)."
