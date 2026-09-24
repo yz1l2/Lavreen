@@ -32,6 +32,11 @@ def create_database():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN avatar_path TEXT")
+    except sqlite3.OperationalError:
+        pass
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,6 +126,30 @@ def add_sample_listings():
             """, (title, category, price, city, description, owner_id, year, mileage, make, model))
         conn.commit()
     conn.close()
+
+def get_user(user_id):
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    return user
+
+def update_user_avatar(user_id, avatar_path):
+    conn = get_db()
+    conn.execute("UPDATE users SET avatar_path = ? WHERE id = ?", (avatar_path, user_id))
+    conn.commit()
+    conn.close()
+
+def get_listings_by_owner(owner_id):
+    conn = get_db()
+    listings = conn.execute("""
+        SELECT listings.*,
+               (SELECT file_path FROM listing_media WHERE listing_media.listing_id = listings.id LIMIT 1) as first_image
+        FROM listings
+        WHERE owner_id = ?
+        ORDER BY id DESC
+    """, (owner_id,)).fetchall()
+    conn.close()
+    return listings
 
 def remove_demo_listings():
     """يحذف إعلانات العينة التجريبية (لو كانت انزرعت بقاعدة بياناتك سابقاً)."""

@@ -328,10 +328,9 @@ def my_listings():
 def profile():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    connection = database.get_db()
-    user = connection.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
-    connection.close()
-    return render_template('profile.html', user=user)
+    user = database.get_user(session['user_id'])
+    listings_count = len(database.get_listings_by_owner(session['user_id']))
+    return render_template('profile.html', user=user, listings_count=listings_count)
 
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
@@ -340,12 +339,31 @@ def update_profile():
     name = request.form.get('name', '')
     phone = request.form.get('phone', '')
     bio = request.form.get('bio', '')
+
+    # رفع صورة البروفايل/المتجر لو المستخدم اختار صورة جديدة
+    avatar_file = request.files.get('avatar')
+    if avatar_file and avatar_file.filename != '':
+        upload_path = os.path.join(app.root_path, 'static', 'uploads')
+        os.makedirs(upload_path, exist_ok=True)
+        filename = secure_filename(f"avatar_{session['user_id']}_{avatar_file.filename}")
+        avatar_file.save(os.path.join(upload_path, filename))
+        database.update_user_avatar(session['user_id'], f'uploads/{filename}')
+
     connection = database.get_db()
     connection.execute("UPDATE users SET name = ?, phone = ?, bio = ? WHERE id = ?", (name, phone, bio, session['user_id']))
     connection.commit()
     connection.close()
     session['user_name'] = name
     return redirect(url_for('profile'))
+
+@app.route('/store/<int:user_id>')
+def store(user_id):
+    """صفحة المتجر العامة لأي بائع - يقدر أي زائر يشوفها"""
+    seller = database.get_user(user_id)
+    if not seller:
+        return "المتجر غير موجود", 404
+    listings = database.get_listings_by_owner(user_id)
+    return render_template('store.html', seller=seller, listings=listings)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

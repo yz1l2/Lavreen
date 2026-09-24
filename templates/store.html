@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر {{ seller['name'] }} | لافريين</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .store-hero {
+            background: linear-gradient(120deg, #17151f, #28233b);
+            color: white;
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        .store-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.2);
+            margin: 0 auto 14px;
+            display: block;
+        }
+
+        .store-avatar-fallback {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7357ff, #6045ed);
+            display: grid;
+            place-items: center;
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 auto 14px;
+        }
+
+        .store-hero h1 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .store-hero p {
+            color: #aaa7b4;
+            font-size: 13px;
+            max-width: 420px;
+            margin: auto;
+        }
+
+        .store-badge {
+            display: inline-block;
+            margin-top: 14px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 11px;
+            color: #b8aaff;
+        }
+
+        .listing-cat {
+            text-align: center;
+            color: #a5a5ad;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .listing-info h3 {
+            text-align: center;
+        }
+
+        .listing-price {
+            text-align: center;
+            color: var(--purple);
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .listing-location-row {
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            text-align: center;
+            color: #96969d;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="/" class="logo">
+            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
+        </a>
+        <nav class="main-nav">
+            <a href="/">الرئيسية</a>
+            <a href="/ai">✨ مساعد AI</a>
+        </nav>
+        <div class="header-actions">
+            <a href="/sell" class="sell-btn">+ أضف إعلان</a>
+        </div>
+    </div>
+</header>
+
+<section class="store-hero">
+    {% if seller['avatar_path'] %}
+    <img class="store-avatar" src="{{ url_for('static', filename=seller['avatar_path']) }}" alt="{{ seller['name'] }}">
+    {% else %}
+    <div class="store-avatar-fallback">{{ seller['name'][0] if seller['name'] else '؟' }}</div>
+    {% endif %}
+
+    <h1>متجر {{ seller['name'] }}</h1>
+    <p>{{ seller['bio'] or 'بائع موثوق على لافريين' }}</p>
+
+    <div class="store-badge">📦 {{ listings|length }} إعلان معروض</div>
+</section>
+
+<section class="page-section listings-section">
+
+    {% if listings %}
+    <div class="listing-grid">
+        {% for listing in listings %}
+        <a href="{{ url_for('view_item', item_id=listing['id']) }}" class="listing-card">
+
+            <div class="listing-image">
+                {% if listing['first_image'] %}
+                <img src="{{ url_for('static', filename=listing['first_image']) }}" alt="{{ listing['title'] }}">
+                {% else %}
+                <div class="no-image">📦</div>
+                {% endif %}
+            </div>
+
+            <div class="listing-info">
+                <div class="listing-cat">{{ listing['category'] }}</div>
+                <h3>{{ listing['title'] }}</h3>
+                <div class="listing-price">{{ "{:,.0f}".format(listing['price']) }} ر.س</div>
+                <div class="listing-location-row">
+                    📍 {{ listing['city'] }}
+                </div>
+            </div>
+
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div>📦</div>
+        <h3>ما فيه إعلانات لهذا البائع حالياً</h3>
+        <p>تابع المتجر وترجع تشوف جديد قريباً.</p>
+    </div>
+    {% endif %}
+
+</section>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <span class="logo-text" style="color:white;">LAVREEN</span>
+            <p>سوقك الذكي. ابحث، قارن، وبع بسهولة.</p>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 Lavreen — جميع الحقوق محفوظة</div>
+</footer>
+
+</body>
+</html>

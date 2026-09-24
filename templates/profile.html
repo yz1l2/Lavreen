@@ -3,53 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ملفي الشخصي - لافريين</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>ملفي الشخصي | لافريين</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
     <style>
-        body { font-family: 'Cairo', sans-serif; }
+        .profile-page {
+            max-width: 640px;
+            margin: auto;
+            padding: 50px 20px 80px;
+        }
+
+        .profile-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 16px;
+        }
+
+        .avatar-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--purple-light);
+            border: 3px solid white;
+            box-shadow: 0 8px 25px rgba(115,87,255,0.25);
+        }
+
+        .avatar-fallback {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7357ff, #6045ed);
+            color: white;
+            display: grid;
+            place-items: center;
+            font-size: 38px;
+            font-weight: 800;
+            border: 3px solid white;
+            box-shadow: 0 8px 25px rgba(115,87,255,0.25);
+        }
+
+        .avatar-edit-btn {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #111;
+            color: white;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            border: 3px solid white;
+        }
+
+        .profile-hero h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .profile-hero p {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .store-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+            padding: 10px 18px;
+            border-radius: 100px;
+            background: var(--purple-light);
+            color: var(--purple-dark);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 22px 0 30px;
+        }
+
+        .p-stat {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 22px;
+            text-align: center;
+        }
+
+        .p-stat strong {
+            display: block;
+            font-size: 20px;
+        }
+
+        .p-stat span {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .settings-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 25px;
+        }
+
+        .settings-box h2 {
+            font-size: 16px;
+            margin-bottom: 18px;
+        }
+
+        .form-row {
+            margin-bottom: 16px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        .form-row input,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .save-btn {
+            width: 100%;
+            border: 0;
+            padding: 15px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #7357ff, #6045ed);
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+
+        .logout-row {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .logout-row a {
+            color: #cc3344;
+            font-size: 13px;
+            font-weight: 700;
+        }
     </style>
 </head>
-<body class="bg-gray-50 p-6">
-    <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-md border border-gray-100">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">متجري الشخصي ✦</h1>
-            <a href="/" class="text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-xl transition">الرئيسية</a>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="/" class="logo">
+            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
+        </a>
+        <nav class="main-nav">
+            <a href="/">الرئيسية</a>
+            <a href="/ai">✨ مساعد AI</a>
+        </nav>
+        <div class="header-actions">
+            <a href="/my-listings" class="header-link">إعلاناتي</a>
+            <a href="/sell" class="sell-btn">+ أضف إعلان</a>
         </div>
-
-        <!-- عرض بيانات المستخدم -->
-        <div class="mb-6 bg-gray-50 p-4 rounded-xl border">
-            <p class="text-gray-500 text-sm">اسم المتجر / المستخدم:</p>
-            <p class="text-xl font-bold text-gray-800 mb-3">{{ user['name'] }}</p>
-
-            <p class="text-gray-500 text-sm">رقم الهاتف:</p>
-            <p class="text-lg font-semibold text-gray-800 mb-3">{{ user['phone'] or 'لم يتم إضافته بعد' }}</p>
-
-            <p class="text-gray-500 text-sm">نبذة عن المتجر (البايو):</p>
-            <p class="text-gray-700">{{ user['bio'] or 'لا توجد نبذة حالياً...' }}</p>
-        </div>
-
-        <!-- نموذج تعديل البيانات (يشمل الاسم، الهاتف، والبايو) -->
-        <form action="/update-profile" method="POST" class="space-y-4">
-            <h3 class="font-bold text-lg border-b pb-2">تعديل بيانات المتجر</h3>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">اسم المتجر</label>
-                <input type="text" name="name" value="{{ user['name'] }}" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black" required>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف</label>
-                <input type="text" name="phone" value="{{ user['phone'] or '' }}" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black" placeholder="05xxxxxxxx">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">بايو المتجر (نبذة)</label>
-                <textarea name="bio" rows="3" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black" placeholder="اكتب نبذة مختصرة عن متجرك...">{{ user['bio'] or '' }}</textarea>
-            </div>
-
-            <button type="submit" class="w-full bg-black text-white p-3 rounded-xl font-bold hover:bg-gray-800 transition">حفظ التعديلات</button>
-        </form>
     </div>
+</header>
+
+<main class="profile-page">
+
+    <section class="profile-hero">
+        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" id="avatarForm">
+            <div class="avatar-wrap">
+                {% if user['avatar_path'] %}
+                <img class="avatar-img" src="{{ url_for('static', filename=user['avatar_path']) }}" alt="{{ user['name'] }}">
+                {% else %}
+                <div class="avatar-fallback">{{ user['name'][0] if user['name'] else '؟' }}</div>
+                {% endif %}
+                <label for="avatarInput" class="avatar-edit-btn">✎</label>
+                <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display:none" onchange="document.getElementById('avatarForm').submit()">
+            </div>
+            <!-- نبعث بقية الحقول الحالية عشان ما تنمسح لو رفع صورة بس -->
+            <input type="hidden" name="name" value="{{ user['name'] }}">
+            <input type="hidden" name="phone" value="{{ user['phone'] or '' }}">
+            <input type="hidden" name="bio" value="{{ user['bio'] or '' }}">
+        </form>
+
+        <h1>{{ user['name'] }}</h1>
+        <p>{{ user['bio'] or 'ما فيه نبذة تعريفية بعد' }}</p>
+
+        <a href="{{ url_for('store', user_id=user['id']) }}" class="store-link-btn">
+            🏪 شوف متجرك العام
+        </a>
+    </section>
+
+    <div class="profile-stats">
+        <div class="p-stat">
+            <strong>{{ listings_count }}</strong>
+            <span>إعلان</span>
+        </div>
+    </div>
+
+    <section class="settings-box">
+        <h2>⚙️ الإعدادات</h2>
+
+        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+
+            <div class="form-row">
+                <label>الاسم</label>
+                <input type="text" name="name" value="{{ user['name'] }}" required>
+            </div>
+
+            <div class="form-row">
+                <label>رقم الجوال</label>
+                <input type="text" name="phone" value="{{ user['phone'] or '' }}">
+            </div>
+
+            <div class="form-row">
+                <label>نبذة عن المتجر</label>
+                <textarea name="bio" placeholder="اكتب نبذة بسيطة عنك أو عن متجرك">{{ user['bio'] or '' }}</textarea>
+            </div>
+
+            <button type="submit" class="save-btn">💾 حفظ التعديلات</button>
+        </form>
+    </section>
+
+    <div class="logout-row">
+        <a href="{{ url_for('logout') }}">تسجيل الخروج</a>
+    </div>
+
+</main>
+
 </body>
 </html>
