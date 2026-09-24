@@ -1,7 +1,8 @@
 """
-وحدة مساعدة تتواصل مع OpenRouter API لعمل شيئين:
+وحدة مساعدة تتواصل مع OpenRouter API لعمل هذي الأشياء:
 1. extract_filters(): تفهم كلام العميل الحر وتحوله لفلاتر منظمة (JSON)
-2. rank_listings(): تاخذ نتائج الفلترة وترتبها حسب الأنسب لطلب العميل مع شرح مختصر
+2. respond_with_listings(): ترتب النتائج + تصيغ رد طبيعي متجاوب مع كلام العميل (مو جملة ثابتة)
+3. respond_no_results(): رد طبيعي لما ما تكون فيه نتائج مطابقة
 
 تحتاج متغير بيئة OPENROUTER_API_KEY معرّف على الجهاز أو السيرفر.
 """
@@ -58,8 +59,8 @@ def _extract_json_block(text):
         flags=re.MULTILINE
     ).strip()
 
-    # يدور على أول object { } أو array [ ] كامل بالنص
-    match = re.search(r"\{.*\}|\[.*\]", text, re.DOTALL)
+    # يدور على أول object { } كامل بالنص
+    match = re.search(r"\{.*\}", text, re.DOTALL)
 
     if match:
         text = match.group(0)
@@ -101,19 +102,12 @@ def extract_filters(user_query):
 أرجع JSON صالح فقط، بدون أي نص قبله أو بعده."""
 
     messages = [
-        {
-            "role": "system",
-            "content": system_prompt
-        },
-        {
-            "role": "user",
-            "content": user_query
-        }
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_query}
     ]
 
     try:
         raw_text = _call_ai(messages, max_tokens=500)
-
         filters = _extract_json_block(raw_text)
 
     except (json.JSONDecodeError, AttributeError, RuntimeError, requests.RequestException, KeyError, re.error) as e:
@@ -127,21 +121,19 @@ def extract_filters(user_query):
     return filters
 
 
-def rank_listings(user_query, listings):
+def respond_with_listings(user_query, listings):
     """
-    listings:
-    list of dicts:
-    id, title, price, city, year, mileage...
+    listings: list of dicts (id, title, price, city, year, mileage...)
 
-    يرجع:
-    [
-        {"id": 3, "reason": "أفضل خيار لأن..."},
-        ...
-    ]
+    يرجع dict:
+    {
+        "reply": "رد طبيعي متجاوب مع كلام العميل، جملة أو جملتين",
+        "items": [{"id": 3, "reason": "أفضل سعر..."}, ...]   # مرتبة من الأفضل للأقل
+    }
     """
 
     if not listings:
-        return []
+        return {"reply": "", "items": []}
 
     compact_listings = [
         {
@@ -155,26 +147,21 @@ def rank_listings(user_query, listings):
         for l in listings
     ]
 
-    system_prompt = """أنت مساعد مبيعات خبير بموقع إعلانات مبوبة سعودي.
+    system_prompt = """أنت مساعد مبيعات ودود وخبير بموقع إعلانات مبوبة سعودي اسمه لافرين، تتكلم باللهجة السعودية بأسلوب طبيعي كأنك موظف حقيقي يرد على عميل بالشات.
 
-هدفك ترتيب قائمة الإعلانات حسب مدى مناسبتها لطلب العميل.
+مهمتك:
+1. تكتب رد قصير طبيعي (جملة أو جملتين بس) يتفاعل مع طلب العميل تحديداً - مثلاً يذكر الميزانية أو الماركة أو المدينة اللي طلبها، ويعطيه إحساس إنك فهمت طلبه بالضبط. لا تكرر نفس الجملة الجاهزة كل مرة، نوّع بالصياغة.
+2. ترتب الإعلانات المرسلة لك من الأفضل للأقل مناسبة لطلبه، مع سبب مختصر (جملة وحدة) لكل واحد.
 
-اشرح باختصار بجملة واحدة لماذا كل إعلان مناسب.
+أرجع JSON فقط بهذا الشكل بالضبط، بدون أي نص قبله أو بعده:
 
-أرجع JSON فقط بهذا الشكل:
-
-[
-  {
-    "id": 3,
-    "reason": "أفضل سعر مع أقل ماشية ضمن الميزانية"
-  },
-  {
-    "id": 1,
-    "reason": "خيار جيد لكن السعر أعلى قليلاً"
-  }
-]
-
-رتب من الأفضل إلى الأقل مناسبة.
+{
+  "reply": "الرد الطبيعي هنا",
+  "items": [
+    {"id": 3, "reason": "أفضل سعر مع أقل ماشية ضمن ميزانيتك"},
+    {"id": 1, "reason": "خيار جيد لكن السعر أعلى شوي"}
+  ]
+}
 
 لا تضف أي إعلان غير موجود في القائمة المرسلة لك."""
 
@@ -185,40 +172,48 @@ def rank_listings(user_query, listings):
 {json.dumps(compact_listings, ensure_ascii=False)}"""
 
     messages = [
-        {
-            "role": "system",
-            "content": system_prompt
-        },
-        {
-            "role": "user",
-            "content": user_message
-        }
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_message}
     ]
 
     try:
         raw_text = _call_ai(messages, max_tokens=1500)
+        result = _extract_json_block(raw_text)
 
-        ranking = _extract_json_block(raw_text)
+        if not isinstance(result, dict) or "items" not in result:
+            raise ValueError("شكل الرد غير متوقع")
 
-    except (
-        json.JSONDecodeError,
-        AttributeError,
-        RuntimeError,
-        requests.RequestException,
-        KeyError,
-        re.error
-    ) as e:
-        print("RANK_LISTINGS FAILED:", type(e).__name__, str(e))
+        result.setdefault("reply", f"لقيت لك {len(compact_listings)} إعلان يطابق طلبك:")
+        return result
+
+    except (json.JSONDecodeError, AttributeError, RuntimeError, requests.RequestException, KeyError, re.error, ValueError) as e:
+        print("RESPOND_WITH_LISTINGS FAILED:", type(e).__name__, str(e))
         try:
             print("RAW MODEL OUTPUT WAS:", raw_text)
         except NameError:
             print("NO RESPONSE RECEIVED FROM OPENROUTER AT ALL")
-        ranking = [
-            {
-                "id": l["id"],
-                "reason": ""
-            }
-            for l in compact_listings
-        ]
+        return {
+            "reply": f"لقيت لك {len(compact_listings)} إعلان يطابق طلبك:",
+            "items": [{"id": l["id"], "reason": ""} for l in compact_listings],
+        }
 
-    return ranking
+
+def respond_no_results(user_query):
+    """رد طبيعي ودود لما ما تكون فيه نتائج مطابقة للطلب."""
+
+    system_prompt = """أنت مساعد مبيعات ودود بموقع إعلانات مبوبة سعودي اسمه لافرين، تتكلم باللهجة السعودية.
+العميل طلب شي وما فيه أي إعلان يطابق طلبه حالياً بالموقع.
+اكتب رد قصير ودود (جملة أو جملتين) يوضح له إنه ما فيه نتائج، ويقترح عليه يخفف شرط أو اثنين (زي الميزانية أو السنة أو المدينة) بدون ما تخترع تفاصيل مو موجودة بطلبه.
+أرجع نص عادي بس، بدون أي تنسيق JSON أو علامات اقتباس."""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"طلب العميل: {user_query}"}
+    ]
+
+    try:
+        raw_text = _call_ai(messages, max_tokens=200)
+        return raw_text.strip().strip('"')
+    except (RuntimeError, requests.RequestException) as e:
+        print("RESPOND_NO_RESULTS FAILED:", type(e).__name__, str(e))
+        return "ما لقيت إعلانات تطابق طلبك بالضبط، جرب تخفف الشروط شوي (زي الميزانية أو السنة)."

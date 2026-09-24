@@ -205,8 +205,11 @@ def ai():
                 turn_results = []
 
                 if listings:
-                    # 3) ترتيب وشرح من الذكاء
-                    ranking = ai_assistant.rank_listings(query, listings)
+                    # 3) رد طبيعي + ترتيب من الذكاء بنفس الطلب
+                    ai_result = ai_assistant.respond_with_listings(query, listings)
+                    ranking = ai_result.get("items", [])
+                    ai_message = ai_result.get("reply", "")
+
                     reason_by_id = {r["id"]: r.get("reason", "") for r in ranking if "id" in r}
                     ordered_ids = [r["id"] for r in ranking if "id" in r]
                     listings_by_id = {l["id"]: l for l in listings}
@@ -224,7 +227,6 @@ def ai():
 
                     # نعرض بالشات أول 5 نتائج بس عشان يضل الشكل مرتب
                     top_results = ordered_results[:5]
-                    ai_message = f"لقيت لك {len(ordered_results)} إعلان يطابق طلبك، هذي أفضلها:"
 
                     # نخزن بالسيشن أهم الحقول بس (اسم، سعر، مدينة، سبب، صورة) عشان الكوكي ما يكبر
                     turn_results = [
@@ -239,7 +241,7 @@ def ai():
                         for item in top_results
                     ]
                 else:
-                    ai_message = "ما لقيت إعلانات تطابق طلبك بالضبط، جرب تخفف الشروط شوي (زي الميزانية أو السنة)."
+                    ai_message = ai_assistant.respond_no_results(query)
 
                 history.append({
                     "query": query,
