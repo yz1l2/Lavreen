@@ -7,9 +7,11 @@
 
 تحتاج متغير بيئة OPENROUTER_API_KEY معرّف على الجهاز أو السيرفر.
 
-ملاحظة مهمة: أي فشل بالاتصال بـ OpenRouter (مفتاح غلط، ما فيه رصيد، النموذج مو موجود...)
-يطلع نصه الحقيقي مباشرة برد الشات نفسه (مسبوق بـ ⚠️) عشان تقدر تشخص المشكلة
-من الموقع مباشرة بدون ما تحتاج تفتح سجلات Render.
+ملاحظة عن النماذج المجانية: تتغير وتنقطع بدون سابق إنذار بـ OpenRouter، فالكود يجرب
+عدة نماذج بالترتيب تلقائياً (FALLBACK_MODELS)، وآخرهم "openrouter/free" كحل مضمون دايماً.
+
+ملاحظة عن الأخطاء: أي فشل نهائي بالاتصال يطلع نصه الحقيقي مباشرة برد الشات نفسه
+(مسبوق بـ ⚠️) عشان تقدر تشخص المشكلة من الموقع مباشرة بدون سجلات Render.
 """
 
 import os
@@ -17,52 +19,76 @@ import json
 import re
 import requests
 
-MODEL = os.environ.get("OPENROUTER_MODEL", "openai/gpt-4o-mini")
+MODEL = os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-4-maverick:free")
+
+# لو النموذج الأساسي فشل أو انقطع (شي شائع بالنماذج المجانية)، نجرب هذي بالترتيب تلقائياً
+FALLBACK_MODELS = [
+    "qwen/qwen3-coder:free",
+    "deepseek/deepseek-chat-v3.1:free",
+    "openrouter/free",  # حل أخير مضمون: راوتر يختار أي نموذج مجاني متوفر حالياً
+]
+
 API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 class AIError(Exception):
-    """خطأ واضح يحمل تفاصيل حقيقية عن سبب فشل الاتصال بـ OpenRouter."""
+    """خطأ واضح يحمل تفاصيل حقيقية عن سبب فشل الاتصال بـ OpenRouter (بعد تجربة كل النماذج)."""
     pass
 
 
+def _try_one_model(model_name, messages, max_tokens):
+    """يرسل طلب واحد لنموذج معين. يرفع استثناء عادي عند الفشل (يُلتقط من _call_ai)."""
+
+    response = requests.post(
+        OPENROUTER_URL,
+        headers={
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://lavreen.onrender.com",
+            "X-Title": "Lavreen",
+        },
+        json={
+            "model": model_name,
+            "messages": messages,
+            "max_tokens": max_tokens,
+        },
+        timeout=60,
+    )
+
+    if response.status_code != 200:
+        raise ValueError(f"HTTP {response.status_code}: {response.text[:300]}")
+
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
+
+
 def _call_ai(messages, max_tokens=500):
-    """إرسال طلب إلى OpenRouter وإرجاع النص الناتج. يرفع AIError بتفاصيل حقيقية عند أي فشل."""
+    """
+    يرسل الطلب للنموذج الأساسي، ولو فشل يجرب النماذج البديلة بالترتيب.
+    يرجع النص الناتج من أول نموذج ينجح. لو الكل فشل، يرفع AIError بتفاصيل آخر خطأ.
+    """
 
     if not API_KEY:
         raise AIError("مفتاح OPENROUTER_API_KEY غير موجود في متغيرات البيئة بـ Render")
 
-    try:
-        response = requests.post(
-            OPENROUTER_URL,
-            headers={
-                "Authorization": f"Bearer {API_KEY}",
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://lavreen.onrender.com",
-                "X-Title": "Lavreen",
-            },
-            json={
-                "model": MODEL,
-                "messages": messages,
-                "max_tokens": max_tokens,
-            },
-            timeout=60,
-        )
-    except requests.RequestException as e:
-        raise AIError(f"فشل الاتصال بـ OpenRouter: {type(e).__name__}: {e}")
+    models_to_try = [MODEL] + [m for m in FALLBACK_MODELS if m != MODEL]
+    last_error = None
 
-    if response.status_code != 200:
-        # نطبع ونرجع نص رسالة الخطأ الحقيقية من OpenRouter (تحتوي غالباً سبب دقيق)
-        body_preview = response.text[:400]
-        raise AIError(f"OpenRouter رجع خطأ HTTP {response.status_code}: {body_preview}")
+    for model_name in models_to_try:
+        try:
+            return _try_one_model(model_name, messages, max_tokens)
+        except requests.RequestException as e:
+            last_error = f"{model_name} → فشل الاتصال: {type(e).__name__}: {e}"
+            print("MODEL FAILED:", last_error)
+            continue
+        except (ValueError, KeyError, IndexError, json.JSONDecodeError) as e:
+            last_error = f"{model_name} → {e}"
+            print("MODEL FAILED:", last_error)
+            continue
 
-    try:
-        data = response.json()
-        return data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, json.JSONDecodeError) as e:
-        raise AIError(f"شكل رد OpenRouter غير متوقع: {type(e).__name__}: {e} | الرد الخام: {response.text[:300]}")
+    raise AIError(f"كل النماذج فشلت. آخر خطأ: {last_error}")
 
 
 def _extract_json_block(text):
