@@ -7,6 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
+    <!-- نطبق الوضع الليلي قبل ما ترسم الصفحة عشان ما يصير "ومضة" أبيض -->
+    <script>
+        (function () {
+            var saved = localStorage.getItem('lavreen-theme');
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <style>
         /* إضافات خاصة بالصفحة الرئيسية فقط، ما تأثر على باقي الصفحات */
 
@@ -99,6 +109,8 @@
         </nav>
 
         <div class="header-actions">
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="الوضع الليلي">🌙</button>
+
             {% if session.get('user_id') %}
                 <a href="/profile" class="profile-avatar">👤</a>
                 <a href="/my-listings" class="header-link">إعلاناتي</a>
@@ -117,6 +129,12 @@
 <section class="hero-section">
     <div class="hero-glow glow-one"></div>
     <div class="hero-glow glow-two"></div>
+
+    <!-- أشكال زخرفية -->
+    <div class="floating-decor decor-bag">🛍️<span>LAVREEN</span></div>
+    <div class="floating-decor decor-car">🚗</div>
+    <div class="floating-decor decor-phone">📱</div>
+    <div class="floating-decor decor-camera">📷</div>
 
     <div class="hero-content">
 
@@ -228,6 +246,29 @@
     </div>
     <div class="footer-bottom">© 2026 Lavreen — جميع الحقوق محفوظة</div>
 </footer>
+
+<script>
+    function updateThemeIcon() {
+        var btn = document.getElementById('themeToggleBtn');
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        btn.textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+        var root = document.documentElement;
+        var isDark = root.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+            root.removeAttribute('data-theme');
+            localStorage.setItem('lavreen-theme', 'light');
+        } else {
+            root.setAttribute('data-theme', 'dark');
+            localStorage.setItem('lavreen-theme', 'dark');
+        }
+        updateThemeIcon();
+    }
+
+    updateThemeIcon();
+</script>
 
 </body>
 </html>

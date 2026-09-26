@@ -23,13 +23,7 @@ html {
 
 body {
     font-family: "Cairo", sans-serif;
-    background:
-        radial-gradient(circle at 12% 8%, rgba(115, 87, 255, 0.14), transparent 32%),
-        radial-gradient(circle at 88% 15%, rgba(255, 154, 158, 0.10), transparent 30%),
-        radial-gradient(circle at 20% 85%, rgba(115, 87, 255, 0.10), transparent 32%),
-        radial-gradient(circle at 90% 90%, rgba(87, 199, 255, 0.10), transparent 30%),
-        var(--background);
-    background-attachment: fixed;
+    background: var(--background);
     color: var(--text);
     direction: rtl;
     line-height: 1.6;
@@ -47,18 +41,93 @@ input {
 
 
 /* =========================
+   DARK MODE
+========================= */
+
+:root[data-theme="dark"] {
+    --black: #f2f2f5;
+    --text: #f2f2f5;
+    --muted: #9a9aa5;
+    --border: #2a2a33;
+    --background: #0e0e12;
+    --purple-light: #241f3d;
+}
+
+:root[data-theme="dark"] .topbar,
+:root[data-theme="dark"] .main-search,
+:root[data-theme="dark"] .category-card,
+:root[data-theme="dark"] .listing-card,
+:root[data-theme="dark"] .empty-state,
+:root[data-theme="dark"] .quick-searches a,
+:root[data-theme="dark"] .listing-category,
+:root[data-theme="dark"] .favorite-btn,
+:root[data-theme="dark"] .floating-decor {
+    background: #17171c;
+    border-color: #2a2a33;
+    color: #f2f2f5;
+}
+
+:root[data-theme="dark"] .listing-image,
+:root[data-theme="dark"] .no-image {
+    background: #1c1c22;
+}
+
+:root[data-theme="dark"] .hero-section {
+    background: #0e0e12;
+}
+
+:root[data-theme="dark"] .main-nav a {
+    color: #c8c8d0;
+}
+
+:root[data-theme="dark"] .main-nav a:hover {
+    background: #222228;
+    color: #ffffff;
+}
+
+:root[data-theme="dark"] .header-link {
+    color: #c8c8d0;
+}
+
+:root[data-theme="dark"] .category-select {
+    color: #c8c8d0;
+}
+
+.theme-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 16px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+:root[data-theme="dark"] .theme-toggle-btn {
+    background: #17171c;
+    border-color: #2a2a33;
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--purple);
+}
+
+
+/* =========================
    HEADER
 ========================= */
 
 .topbar {
     height: 76px;
-    background: rgba(255, 255, 255, 0.55);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(22px) saturate(160%);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    box-shadow: 0 2px 12px rgba(20, 20, 30, 0.04);
 }
 
 .topbar-inner {
@@ -143,7 +212,7 @@ input {
 }
 
 .sell-btn {
-    background: var(--black);
+    background: linear-gradient(135deg, var(--purple), var(--purple-dark));
     color: white;
 
     padding: 11px 17px;
@@ -156,12 +225,14 @@ input {
     font-size: 14px;
     font-weight: 700;
 
+    box-shadow: 0 6px 16px rgba(115, 87, 255, 0.3);
+
     transition: 0.2s;
 }
 
 .sell-btn:hover {
     transform: translateY(-1px);
-    background: #292929;
+    filter: brightness(1.08);
 }
 
 
@@ -244,11 +315,9 @@ input {
 
     margin: auto;
 
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: white;
+    border: 1px solid #dedee3;
     border-radius: 16px;
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
 
     display: flex;
     align-items: center;
@@ -256,9 +325,8 @@ input {
     padding: 7px;
 
     box-shadow:
-        0 15px 40px rgba(20, 20, 30, 0.07),
-        0 2px 5px rgba(20, 20, 30, 0.03),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        0 15px 40px rgba(115, 87, 255, 0.12),
+        0 2px 5px rgba(20, 20, 30, 0.03);
 }
 
 .search-icon {
@@ -292,7 +360,7 @@ input {
     border: none;
     border-radius: 11px;
 
-    background: var(--black);
+    background: linear-gradient(135deg, var(--purple), var(--purple-dark));
     color: white;
 
     font-size: 14px;
@@ -305,10 +373,12 @@ input {
     gap: 12px;
 
     transition: 0.2s;
+    box-shadow: 0 8px 20px rgba(115, 87, 255, 0.35);
 }
 
 .main-search button:hover {
-    background: var(--purple);
+    filter: brightness(1.08);
+    transform: translateY(-1px);
 }
 
 .quick-searches {
@@ -326,10 +396,8 @@ input {
 .quick-searches a {
     padding: 5px 11px;
 
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px) saturate(160%);
-    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    background: white;
+    border: 1px solid #e7e7eb;
     border-radius: 100px;
 
     color: #696970;
@@ -360,6 +428,65 @@ input {
     background: #ebe7ff;
     left: -180px;
     bottom: -220px;
+}
+
+
+/* =========================
+   FLOATING DECOR (hero illustrations)
+========================= */
+
+.floating-decor {
+    position: absolute;
+    background: white;
+    border-radius: 18px;
+    padding: 12px 15px;
+    box-shadow: 0 15px 35px rgba(20,20,30,0.1);
+    font-size: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 1;
+    line-height: 1;
+}
+
+.floating-decor span {
+    font-size: 8px;
+    font-weight: 800;
+    color: var(--purple);
+    letter-spacing: 1px;
+    direction: ltr;
+}
+
+.decor-bag {
+    top: 55px;
+    right: 7%;
+    transform: rotate(-8deg);
+}
+
+.decor-car {
+    bottom: 35px;
+    left: 5%;
+    transform: rotate(6deg);
+    font-size: 26px;
+}
+
+.decor-phone {
+    top: 95px;
+    left: 8%;
+    transform: rotate(-10deg);
+}
+
+.decor-camera {
+    bottom: 70px;
+    right: 9%;
+    transform: rotate(10deg);
+}
+
+@media (max-width: 950px) {
+    .floating-decor {
+        display: none;
+    }
 }
 
 
@@ -426,11 +553,9 @@ input {
 
     padding: 19px;
 
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: white;
+    border: 1px solid var(--border);
     border-radius: 17px;
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
 
     display: flex;
     flex-direction: column;
@@ -628,11 +753,9 @@ input {
 }
 
 .listing-card {
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: white;
+    border: 1px solid var(--border);
     border-radius: 17px;
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
 
     overflow: hidden;
 
@@ -641,8 +764,8 @@ input {
 
 .listing-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 16px 35px rgba(20, 20, 30, 0.08);
-    border-color: #dcdce2;
+    box-shadow: 0 16px 35px rgba(115, 87, 255, 0.15);
+    border-color: #d8d2ff;
 }
 
 .listing-image {
@@ -681,10 +804,8 @@ input {
 
     padding: 5px 9px;
 
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(10px) saturate(160%);
-    -webkit-backdrop-filter: blur(10px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: white;
+    border: 1px solid var(--border);
 
     border-radius: 7px;
 
@@ -701,18 +822,21 @@ input {
     width: 34px;
     height: 34px;
 
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: none;
     border-radius: 50%;
 
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(10px) saturate(160%);
-    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    background: white;
+    box-shadow: 0 2px 8px rgba(20,20,30,0.1);
 
     font-size: 20px;
     line-height: 1;
 
     cursor: pointer;
     color: #55555d;
+}
+
+.favorite-btn:hover {
+    color: #ff5a7a;
 }
 
 .listing-info {
@@ -787,11 +911,9 @@ input {
 
     text-align: center;
 
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px dashed rgba(180, 170, 220, 0.5);
+    background: white;
+    border: 1px dashed #d8d2ff;
     border-radius: 18px;
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .empty-state > div {
