@@ -1,11 +1,79 @@
-import sqlite3
+"""
+هذا الملف يتصل بقاعدة بيانات Turso (بدل SQLite المحلي) عشان بياناتك تضل محفوظة
+حتى لو Render أعاد تشغيل السيرفر أو نام بسبب الخمول.
 
-DB_NAME = "lavreen.db"
+يحتاج متغيرين بيئة معرّفين على Render:
+- TURSO_DATABASE_URL
+- TURSO_AUTH_TOKEN
+"""
+
+import os
+import libsql_client
+
+TURSO_URL = os.environ.get("TURSO_DATABASE_URL")
+TURSO_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
+
+
+class Row(dict):
+    """يحاكي sqlite3.Row: يدعم row['col'] و row.col و row[0] بنفس الوقت."""
+
+    def __init__(self, columns, values):
+        super().__init__(zip(columns, values))
+        self._values = list(values)
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._values[key]
+        return dict.__getitem__(self, key)
+
+
+class Cursor:
+    def __init__(self, client):
+        self.client = client
+        self.lastrowid = None
+        self._result = None
+
+    def execute(self, sql, params=()):
+        self._result = self.client.execute(sql, list(params) if params else [])
+        return self
+
+    def fetchone(self):
+        if not self._result or not self._result.rows:
+            return None
+        return Row(self._result.columns, self._result.rows[0])
+
+    def fetchall(self):
+        if not self._result:
+            return []
+        return [Row(self._result.columns, r) for r in self._result.rows]
+
+
+class Connection:
+    def __init__(self):
+        self.client = libsql_client.create_client_sync(url=TURSO_URL, auth_token=TURSO_TOKEN)
+
+    def execute(self, sql, params=()):
+        return Cursor(self.client).execute(sql, params)
+
+    def cursor(self):
+        return Cursor(self.client)
+
+    def commit(self):
+        pass
+
+    def close(self):
+        self.client.close()
+
 
 def get_db():
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return Connection()
+
 
 def create_database():
     conn = get_db()
@@ -22,20 +90,15 @@ def create_database():
         )
     """)
 
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN phone TEXT")
-    except sqlite3.OperationalError:
-        pass
-
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN bio TEXT")
-    except sqlite3.OperationalError:
-        pass
-
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN avatar_path TEXT")
-    except sqlite3.OperationalError:
-        pass
+    for column_def in [
+        "ALTER TABLE users ADD COLUMN phone TEXT",
+        "ALTER TABLE users ADD COLUMN bio TEXT",
+        "ALTER TABLE users ADD COLUMN avatar_path TEXT",
+    ]:
+        try:
+            cursor.execute(column_def)
+        except Exception:
+            pass
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS listings (
@@ -50,8 +113,6 @@ def create_database():
         )
     """)
 
-    # ===== أعمدة جديدة لدعم البحث الذكي (خصوصاً السيارات) =====
-    # كل عمود نضيفه بـ try/except عشان ما يسبب خطأ لو موجود مسبقاً
     for column_def in [
         "ALTER TABLE listings ADD COLUMN year INTEGER",
         "ALTER TABLE listings ADD COLUMN mileage INTEGER",
@@ -60,7 +121,7 @@ def create_database():
     ]:
         try:
             cursor.execute(column_def)
-        except sqlite3.OperationalError:
+        except Exception:
             pass
 
     cursor.execute("""
@@ -92,6 +153,7 @@ def create_database():
     conn.commit()
     conn.close()
 
+
 def add_sample_listings():
     conn = get_db()
     cursor = conn.cursor()
@@ -102,22 +164,11 @@ def add_sample_listings():
         cursor.execute("""
             INSERT OR IGNORE INTO users (id, name, email, password_hash, phone, bio)
             VALUES (1, 'متجر لافريين', 'test@lavreen.com', '123456', '0500000000', 'أهلاً بك في متجري الشخصي')
-        """ )
+        """)
 
-        # (title, category, price, city, description, owner_id, year, mileage, make, model)
         sample_listings = [
             ("تويوتا كامري 2022 نظيفة جداً", "سيارات", 75000.0, "الرياض",
              "بنزين، قير أوتوماتيك، الموتر شرط الفحص والممشى معقول.", 1, 2022, 45000, "تويوتا", "كامري"),
-            ("تويوتا كامري 2023 فل كامل", "سيارات", 98000.0, "جدة",
-             "ماشية قليلة جداً، فحص كامل، لا حوادث.", 1, 2023, 12000, "تويوتا", "كامري"),
-            ("تويوتا كامري 2023 ستاندر", "سيارات", 88000.0, "الرياض",
-             "ماشية 20 ألف كم، صيانة الوكالة.", 1, 2023, 20000, "تويوتا", "كامري"),
-            ("آيفون 15 برو ماكس 256 جيجابايت", "جوالات", 4200.0, "جدة",
-             "الجهاز جديد بتغليف المصنع مع ضمان المشتري.", 1, None, None, None, None),
-            ("شقة مفروشة للإيجار السنوي", "عقار", 30000.0, "الدمام",
-             "غرفتين وصالة ومطبخ، مكيفات سبليت مطبخة بالكامل.", 1, None, None, None, None),
-            ("لابتوب الألعاب ASUS ROG Strix", "كمبيوتر", 5500.0, "الرياض",
-             "كرت شاشة RTX 4070 مع معالج قوي لأداء ممتاز في الألعاب والمنتجة.", 1, None, None, None, None),
         ]
         for title, category, price, city, description, owner_id, year, mileage, make, model in sample_listings:
             cursor.execute("""
@@ -127,17 +178,46 @@ def add_sample_listings():
         conn.commit()
     conn.close()
 
+
+def add_listing(title, category, price, city, description, owner_id,
+                 year=None, mileage=None, make=None, model=None):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO listings (title, category, price, city, description, owner_id, year, mileage, make, model)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
+    """, (title, category, price, city, description, owner_id, year, mileage, make, model))
+    listing_id = cursor.fetchone()['id']
+    conn.commit()
+    conn.close()
+    return listing_id
+
+
+def add_listing_media(listing_id, media_type, file_path):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO listing_media (listing_id, media_type, file_path)
+        VALUES (?, ?, ?)
+    """, (listing_id, media_type, file_path))
+    conn.commit()
+    conn.close()
+
+
 def get_user(user_id):
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     conn.close()
     return user
 
+
 def update_user_avatar(user_id, avatar_path):
     conn = get_db()
     conn.execute("UPDATE users SET avatar_path = ? WHERE id = ?", (avatar_path, user_id))
     conn.commit()
     conn.close()
+
 
 def get_listings_by_owner(owner_id):
     conn = get_db()
@@ -151,8 +231,8 @@ def get_listings_by_owner(owner_id):
     conn.close()
     return listings
 
+
 def remove_demo_listings():
-    """يحذف إعلانات العينة التجريبية (لو كانت انزرعت بقاعدة بياناتك سابقاً)."""
     demo_titles = [
         "تويوتا كامري 2022 نظيفة جداً",
         "تويوتا كامري 2023 فل كامل",
@@ -164,7 +244,6 @@ def remove_demo_listings():
     conn = get_db()
     cursor = conn.cursor()
     placeholders = ",".join("?" for _ in demo_titles)
-    # نحذف الوسائط المرتبطة أولاً، ثم الإعلانات نفسها
     cursor.execute(f"""
         DELETE FROM listing_media
         WHERE listing_id IN (SELECT id FROM listings WHERE title IN ({placeholders}))
@@ -173,28 +252,6 @@ def remove_demo_listings():
     conn.commit()
     conn.close()
 
-def add_listing(title, category, price, city, description, owner_id,
-                 year=None, mileage=None, make=None, model=None):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO listings (title, category, price, city, description, owner_id, year, mileage, make, model)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (title, category, price, city, description, owner_id, year, mileage, make, model))
-    listing_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
-    return listing_id
-
-def add_listing_media(listing_id, media_type, file_path):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO listing_media (listing_id, media_type, file_path)
-        VALUES (?, ?, ?)
-    """, (listing_id, media_type, file_path))
-    conn.commit()
-    conn.close()
 
 def get_listing(listing_id):
     conn = get_db()
@@ -206,6 +263,7 @@ def get_listing(listing_id):
     """, (listing_id,)).fetchone()
     conn.close()
     return listing
+
 
 def update_listing(listing_id, title, category, price, city, description,
                     year=None, mileage=None, make=None, model=None):
@@ -220,6 +278,7 @@ def update_listing(listing_id, title, category, price, city, description,
     conn.commit()
     conn.close()
 
+
 def delete_listing(listing_id):
     conn = get_db()
     cursor = conn.cursor()
@@ -229,11 +288,13 @@ def delete_listing(listing_id):
     conn.commit()
     conn.close()
 
+
 def get_listing_media(listing_id):
     conn = get_db()
     media = conn.execute("SELECT * FROM listing_media WHERE listing_id = ?", (listing_id,)).fetchall()
     conn.close()
     return media
+
 
 def get_all_listings_with_first_media():
     conn = get_db()
@@ -247,13 +308,8 @@ def get_all_listings_with_first_media():
     conn.close()
     return listings
 
-# ===== البحث الذكي: يبني استعلام SQL ديناميكي بناءً على الفلاتر اللي يستخرجها Claude =====
+
 def search_listings_smart(filters, limit=20):
-    """
-    filters: dict ممكن يحتوي على:
-      category, keywords (list[str]), city,
-      min_price, max_price, min_year, max_year, max_mileage
-    """
     conditions = []
     params = []
 
@@ -311,7 +367,7 @@ def search_listings_smart(filters, limit=20):
     conn.close()
     return rows
 
-# دوال الرسائل والدردشة
+
 def add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private):
     conn = get_db()
     cursor = conn.cursor()
@@ -322,6 +378,7 @@ def add_message(listing_id, sender_id, sender_name, receiver_id, message, is_pri
     conn.commit()
     conn.close()
 
+
 def get_messages_for_listing(listing_id):
     conn = get_db()
     messages = conn.execute("""
@@ -331,6 +388,7 @@ def get_messages_for_listing(listing_id):
     """, (listing_id,)).fetchall()
     conn.close()
     return messages
+
 
 def get_private_messages_for_user(user_id):
     conn = get_db()
