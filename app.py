@@ -26,16 +26,19 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         phone = request.form.get('phone', '')
-        
+
         try:
             conn = database.get_db()
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO users (name, email, password_hash, phone) VALUES (?, ?, ?, ?)", 
-                           (name, email, password, phone))
+            cursor.execute("""
+                INSERT INTO users (name, email, password_hash, phone)
+                VALUES (?, ?, ?, ?)
+                RETURNING id
+            """, (name, email, password, phone))
+            user_id = cursor.fetchone()['id']
             conn.commit()
-            user_id = cursor.lastrowid
             conn.close()
-            
+
             session['user_id'] = user_id
             session['user_name'] = name
             return redirect(url_for('index'))
@@ -47,19 +50,26 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+
         conn = database.get_db()
-        user = conn.execute("SELECT * FROM users WHERE email = ? AND password_hash = ?", (email, password)).fetchone()
+        user_by_email = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+
+        if not user_by_email:
+            conn.close()
+            print("LOGIN FAILED: no account found for email:", email)
+            return render_template('login.html', error=f"ما فيه حساب مسجل بهالبريد: {email}")
+
+        if user_by_email['password_hash'] != password:
+            conn.close()
+            print("LOGIN FAILED: wrong password for email:", email)
+            return render_template('login.html', error="كلمة المرور غير صحيحة.")
+
         conn.close()
-        
-        if user:
-            session['user_id'] = user['id']
-            session['user_name'] = user['name']
-            return redirect(url_for('index'))
-        else:
-            return render_template('login.html', error="البريد الإلكتروني أو كلمة المرور غير صحيحة.")
+        session['user_id'] = user_by_email['id']
+        session['user_name'] = user_by_email['name']
+        return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/logout')
@@ -71,7 +81,7 @@ def logout():
 def sell():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-        
+
     if request.method == 'POST':
         try:
             title = request.form.get('title', 'بدون عنوان')
@@ -81,7 +91,6 @@ def sell():
             description = request.form.get('description', '')
             owner_id = session['user_id']
 
-            # حقول اختيارية جديدة (مفيدة خصوصاً لتصنيف السيارات)
             year = request.form.get('year') or None
             mileage = request.form.get('mileage') or None
             make = request.form.get('make') or None
@@ -93,24 +102,22 @@ def sell():
                 title, category, float(price) if price else 0.0, city, description, owner_id,
                 year=year, mileage=mileage, make=make, model=model
             )
-            
-            # استقبال حتى 30 صورة و 5 فيديوهات دفعة وحدة
+
             upload_path = os.path.join(app.root_path, 'static', 'uploads')
             os.makedirs(upload_path, exist_ok=True)
-            
+
             files = request.files.getlist('images')
             for file in files:
                 if file and file.filename != '':
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(upload_path, filename)
                     file.save(file_path)
-                    
-                    # تحديد نوع الوسائط (صورة أو فيديو بناء على الامتداد)
+
                     ext = filename.lower().split('.')[-1]
                     media_type = 'video' if ext in ['mp4', 'mov', 'avi', 'mkv', 'webm'] else 'image'
-                    
+
                     database.add_listing_media(listing_id, media_type, f'uploads/{filename}')
-                    
+
             return redirect(url_for('index'))
         except Exception as e:
             print("SELL ERROR:", str(e))
@@ -120,7 +127,7 @@ def sell():
 @app.route('/listing/<int:item_id>')
 def view_item(item_id):
     listing = database.get_listing(item_id)
-    if not listing: 
+    if not listing:
         return "الإعلان غير موجود", 404
     media = database.get_listing_media(item_id)
     messages = database.get_messages_for_listing(item_id)
@@ -130,21 +137,21 @@ def view_item(item_id):
 def send_message():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-        
+
     listing_id = request.form.get('listing_id')
     sender_id = session['user_id']
     sender_name = session['user_name']
     message = request.form.get('message')
     is_private = int(request.form.get('is_private', 0))
-    
+
     receiver_id = request.form.get('receiver_id')
     if not receiver_id:
         listing = database.get_listing(listing_id)
         receiver_id = listing['owner_id'] if listing else 1
-    
+
     if message:
         database.add_message(listing_id, sender_id, sender_name, receiver_id, message, is_private)
-        
+
     if is_private == 1:
         return redirect(url_for('messages_inbox'))
     return redirect(url_for('view_item', item_id=listing_id))
@@ -153,7 +160,7 @@ def send_message():
 def messages_inbox():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
+
     messages = database.get_private_messages_for_user(session['user_id'])
     return render_template('messages.html', messages=messages)
 
@@ -181,7 +188,7 @@ def ai():
     """
     مساعد بحث ذكي بشكل محادثة (شات):
     1. العميل يكتب طلبه بكلامه العادي
-    2. Claude/الذكاء يستخرج فلاتر منظمة (سعر، سنة، ماشية، مدينة...)
+    2. الذكاء يستخرج فلاتر منظمة (سعر، سنة، ماشية، مدينة...)
     3. نفلتر قاعدة البيانات فعلياً بهالفلاتر (SQL)
     4. الذكاء يرتب النتائج ويشرح ليش كل خيار مناسب
     5. كل سؤال ورد يضاف كفقاعة محادثة، ويبقى محفوظ بالسيشن
@@ -194,23 +201,19 @@ def ai():
 
         if query:
             try:
-                # 1) استخراج الفلاتر من كلام العميل (ويحدد هل هذا أصلاً طلب بحث)
                 filters = ai_assistant.extract_filters(query)
 
                 ai_message = ""
                 turn_results = []
 
                 if not filters.get("is_search", False):
-                    # مو طلب بحث (سلام، شكر، كلام عادي) - نرد بشكل طبيعي بدون ما نطلع أي منتجات
                     ai_message = ai_assistant.respond_general(query)
 
                 else:
-                    # 2) فلترة فعلية من قاعدة البيانات
                     rows = database.search_listings_smart(filters, limit=20)
                     listings = [dict(row) for row in rows]
 
                     if listings:
-                        # 3) رد طبيعي + ترتيب من الذكاء بنفس الطلب
                         ai_result = ai_assistant.respond_with_listings(query, listings)
                         ranking = ai_result.get("items", [])
                         ai_message = ai_result.get("reply", "")
@@ -230,10 +233,8 @@ def ai():
                                 l["ai_reason"] = ""
                                 ordered_results.append(l)
 
-                        # نعرض بالشات أول 5 نتائج بس عشان يضل الشكل مرتب
                         top_results = ordered_results[:5]
 
-                        # نخزن بالسيشن أهم الحقول بس (اسم، سعر، مدينة، سبب، صورة) عشان الكوكي ما يكبر
                         turn_results = [
                             {
                                 "id": item["id"],
@@ -347,7 +348,6 @@ def update_profile():
     phone = request.form.get('phone', '')
     bio = request.form.get('bio', '')
 
-    # رفع صورة البروفايل/المتجر لو المستخدم اختار صورة جديدة
     avatar_file = request.files.get('avatar')
     if avatar_file and avatar_file.filename != '':
         upload_path = os.path.join(app.root_path, 'static', 'uploads')
