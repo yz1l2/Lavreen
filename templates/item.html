@@ -3,169 +3,814 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ listing.title }} | Lavreen</title>
+
+    <title>{{ listing.title }} - Lavreen</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Cairo', sans-serif; }</style>
-</head>
-<body class="bg-gray-50 text-gray-800 pb-12">
 
-    <!-- Navbar -->
-    <nav class="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <a href="/" class="text-xl font-bold text-black">Lavreen ✦</a>
-        <div class="flex gap-4 items-center">
-            <a href="/messages" class="text-sm bg-gray-100 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition">الرسائل الخاصة</a>
-            <a href="/" class="text-sm text-gray-600 hover:text-black">الرئيسية ←</a>
-        </div>
-    </nav>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
-    <!-- Main Details Container -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-6">
-            
-            <!-- معرض الصور والفيديوهات مع الأسهم والترقيم -->
-            <div class="mb-6">
-                {% if media and media|length > 0 %}
-                    <div class="relative w-full h-80 bg-black rounded-xl overflow-hidden flex items-center justify-center">
-                        {% for m in media %}
-                            <div class="slide-item absolute inset-0 transition-opacity duration-300 {% if not loop.first %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}" data-index="{{ loop.index0 }}">
-                                {% if m.media_type == 'video' %}
-                                    <video src="{{ url_for('static', filename=m.file_path) }}" controls class="w-full h-full object-contain"></video>
-                                {% else %}
-                                    <img src="{{ url_for('static', filename=m.file_path) }}" alt="الإعلان" class="w-full h-full object-contain">
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        
-                        <!-- أزرار الأسهم تظهر فقط لو فيه أكثر من وسائط -->
-                        {% if media|length > 1 %}
-                            <button onclick="prevSlide()" class="absolute left-3 bg-black/60 hover:bg-black text-white p-3 rounded-full transition shadow-md">❮</button>
-                            <button onclick="nextSlide()" class="absolute right-3 bg-black/60 hover:bg-black text-white p-3 rounded-full transition shadow-md">❯</button>
-                            
-                            <!-- عداد أرقام الصور (مثلاً 1 من 5) -->
-                            <div class="absolute bottom-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
-                                <span id="current-slide-num">1</span> من {{ media|length }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <div class="w-full h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">لا توجد صورة متاحة</div>
-                {% endif %}
-            </div>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
-            <!-- معلومات الإعلان -->
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <span class="text-xs font-semibold bg-gray-100 px-3 py-1 rounded-full text-gray-600">{{ listing.category }}</span>
-                    <h1 class="text-2xl font-bold mt-2">{{ listing.title }}</h1>
-                    <p class="text-gray-500 text-sm mt-1">المدينة: {{ listing.city }}</p>
-                </div>
-                <div class="text-2xl font-bold text-black">{{ listing.price }} ر.س</div>
-            </div>
+    <style>
+        * {
+            font-family: "Cairo", sans-serif;
+        }
 
-            <!-- كرت البائع - يربط على متجره العام -->
-            <a href="/store/{{ listing.owner_id }}" class="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 transition rounded-2xl p-3 mb-4 border border-gray-100">
-                {% if listing.owner_avatar %}
-                <img src="{{ url_for('static', filename=listing.owner_avatar) }}" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
-                {% else %}
-                <div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-bold flex-shrink-0">
-                    {{ listing.owner_name[0] if listing.owner_name else '؟' }}
-                </div>
-                {% endif %}
-                <div class="flex-1 min-w-0">
-                    <p class="text-[11px] text-gray-400">البائع</p>
-                    <p class="font-bold text-sm truncate">{{ listing.owner_name or 'مستخدم لافريين' }}</p>
-                </div>
-                <span class="text-xs text-blue-600 font-bold whitespace-nowrap">زيارة المتجر ←</span>
-            </a>
+        body {
+            min-height: 100vh;
+        }
 
-            <hr class="my-4">
+        .item-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 25px 16px 60px;
+        }
 
-            <!-- الوصف -->
-            <div class="mb-8">
-                <h3 class="font-bold text-lg mb-2">تفاصيل الإعلان</h3>
-                <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ listing.description }}</p>
-            </div>
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 18px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
 
-            <hr class="my-4">
+        .back-link:hover {
+            color: #4f46e5;
+        }
 
-            <!-- قسم المراسلة الخاصة للمعلن (بدون طلب اسم يدوي) -->
-            <div class="mb-8 bg-blue-50 border border-blue-100 p-4 rounded-2xl">
-                <h3 class="font-bold text-lg mb-2 text-blue-900">تواصل خاص مع المعلن</h3>
-                <form action="/send-message" method="POST" class="space-y-3">
-                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                    <input type="hidden" name="is_private" value="1">
-                    <input type="hidden" name="receiver_name" value="المعلن">
-                    <div>
-                        <textarea name="message" rows="2" placeholder="اكتب رسالة خاصة للمعلن..." class="w-full p-3 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                    </div>
-                    <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition">إرسال رسالة خاصة</button>
-                </form>
-            </div>
+        .item-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+            gap: 20px;
+            align-items: start;
+        }
 
-            <!-- الشات العام أسفل الإعلان -->
-            <div>
-                <h3 class="font-bold text-lg mb-4">التعليقات والمحادثة العامة</h3>
-                
-                <div id="chat-box" class="bg-gray-50 h-56 rounded-xl p-4 mb-4 overflow-y-auto border border-gray-200 flex flex-col gap-3">
-                    {% if messages and messages|length > 0 %}
-                        {% for msg in messages %}
-                            <div class="bg-white p-3 rounded-xl shadow-sm max-w-md border border-gray-100">
-                                <span class="text-xs font-bold text-blue-600 block mb-1">{{ msg.sender_name }}</span>
-                                <p class="text-sm text-gray-800">{{ msg.message }}</p>
-                                <span class="text-[10px] text-gray-400 mt-1 block text-left">{{ msg.created_at }}</span>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-gray-400 text-sm text-center my-auto">كن أول من يشارك بتعليق أو سؤال حول هذا الإعلان!</p>
-                    {% endif %}
-                </div>
+        .card {
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 24px;
+            background: var(--card-bg, #fff);
+            overflow: hidden;
+        }
 
-                <!-- نموذج إرسال تعليق عام متجاوب للجوال والكمبيوتر -->
-                <form action="/send-message" method="POST" class="flex flex-col sm:flex-row gap-2">
-                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                    <input type="hidden" name="is_private" value="0">
-                    <input type="text" name="message" placeholder="اكتب تعليقك العام هنا..." class="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-black" required>
-                    <button type="submit" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl text-sm font-medium transition">إرسال</button>
-                </form>
-            </div>
+        /* الصور */
+        .media-card {
+            overflow: hidden;
+        }
 
-        </div>
-    </div>
+        .main-media {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #f1f5f9;
+        }
 
-    <!-- سكربت التنقل بين الصور والوسائط -->
-    <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide-item');
-        const totalSlides = slides.length;
-        const counterNum = document.getElementById('current-slide-num');
+        .main-media img,
+        .main-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
-        function updateSlide(index) {
-            slides.forEach((slide, i) => {
-                if (i === index) {
-                    slide.classList.remove('opacity-0', 'pointer-events-none');
-                    slide.classList.add('opacity-100');
-                } else {
-                    slide.classList.remove('opacity-100');
-                    slide.classList.add('opacity-0', 'pointer-events-none');
-                }
-            });
-            if (counterNum) {
-                counterNum.textContent = index + 1;
+        .media-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 65px;
+        }
+
+        .media-count {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            padding: 7px 11px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, .72);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .media-thumbnails {
+            display: flex;
+            gap: 9px;
+            overflow-x: auto;
+            padding: 12px;
+            border-top: 1px solid var(--border-color, #e5e7eb);
+        }
+
+        .media-thumb {
+            width: 74px;
+            height: 62px;
+            flex: 0 0 auto;
+            overflow: hidden;
+            border: 2px solid transparent;
+            border-radius: 11px;
+            background: #f1f5f9;
+            cursor: pointer;
+        }
+
+        .media-thumb.active {
+            border-color: #4f46e5;
+        }
+
+        .media-thumb img,
+        .media-thumb video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* معلومات الإعلان */
+        .details-card {
+            padding: 25px;
+        }
+
+        .category-label {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 9px;
+            background: rgba(99, 102, 241, .09);
+            color: #4f46e5;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .item-title {
+            margin: 13px 0 0;
+            font-size: 27px;
+            line-height: 1.55;
+            font-weight: 800;
+        }
+
+        .item-price {
+            margin-top: 13px;
+            color: #4f46e5;
+            font-size: 27px;
+            font-weight: 800;
+        }
+
+        .item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 17px;
+        }
+
+        .meta-pill {
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: rgba(100, 116, 139, .08);
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .divider {
+            height: 1px;
+            margin: 22px 0;
+            background: var(--border-color, #e5e7eb);
+        }
+
+        .description-title {
+            margin: 0 0 9px;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .description {
+            color: #64748b;
+            line-height: 2;
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        /* البائع */
+        .seller-card {
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .seller-title {
+            margin: 0 0 15px;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .seller-info {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .seller-avatar {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #eef2ff;
+        }
+
+        .seller-placeholder {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 50%;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .seller-name {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .seller-link {
+            display: inline-block;
+            margin-top: 3px;
+            color: #4f46e5;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* التواصل */
+        .contact-card {
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .contact-title {
+            margin: 0 0 14px;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .message-form {
+            display: grid;
+            gap: 10px;
+        }
+
+        .message-input {
+            width: 100%;
+            min-height: 105px;
+            box-sizing: border-box;
+            resize: vertical;
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: var(--input-bg, #f8fafc);
+            color: inherit;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.10);
+        }
+
+        .send-button {
+            width: 100%;
+            min-height: 46px;
+            border: 0;
+            border-radius: 14px;
+            background: #4f46e5;
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .send-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 9px 22px rgba(79,70,229,.20);
+        }
+
+        .login-note {
+            padding: 13px;
+            border-radius: 13px;
+            background: rgba(99,102,241,.07);
+            color: #64748b;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .login-note a {
+            color: #4f46e5;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .owner-note {
+            padding: 13px;
+            border-radius: 13px;
+            background: rgba(100,116,139,.08);
+            color: #64748b;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @media (max-width: 850px) {
+            .item-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .main-media {
+                height: 430px;
             }
         }
 
-        function nextSlide() {
-            if (totalSlides === 0) return;
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateSlide(currentSlide);
+        @media (max-width: 550px) {
+            .details-card {
+                padding: 20px;
+            }
+
+            .main-media {
+                height: 330px;
+            }
+
+            .item-title {
+                font-size: 22px;
+            }
+
+            .item-price {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- شريط التنقل -->
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="brand"
+            >
+                Lavreen
+            </a>
+
+            <nav class="nav-links">
+
+                <a href="{{ url_for('index') }}">
+                    الرئيسية
+                </a>
+
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('my_listings') }}">
+                        إعلاناتي
+                    </a>
+
+                    <a href="{{ url_for('messages') }}">
+                        الرسائل
+                    </a>
+
+                    <a href="{{ url_for('profile') }}">
+                        حسابي
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">
+                        تسجيل الدخول
+                    </a>
+                {% endif %}
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <main class="item-page">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="back-link"
+        >
+            → العودة للإعلانات
+        </a>
+
+
+        <div class="item-layout">
+
+            <!-- القسم الرئيسي -->
+            <div>
+
+                <!-- الصور -->
+                <section class="card media-card">
+
+                    <div
+                        class="main-media"
+                        id="mainMedia"
+                    >
+
+                        {% if media %}
+
+                            {% set first_media = media[0] %}
+
+                            {% if first_media.media_type == 'video' %}
+
+                                <video
+                                    id="mainMediaVideo"
+                                    controls
+                                    playsinline
+                                >
+                                    <source
+                                        src="{{ url_for('static', filename=first_media.file_path) }}"
+                                    >
+                                </video>
+
+                            {% else %}
+
+                                <img
+                                    id="mainMediaImage"
+                                    src="{{ url_for('static', filename=first_media.file_path) }}"
+                                    alt="{{ listing.title }}"
+                                >
+
+                            {% endif %}
+
+                            <div class="media-count">
+                                {{ media|length }} ملف
+                            </div>
+
+                        {% else %}
+
+                            <div class="media-placeholder">
+                                📦
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    {% if media|length > 1 %}
+
+                        <div class="media-thumbnails">
+
+                            {% for item in media %}
+
+                                <button
+                                    type="button"
+                                    class="media-thumb {% if loop.first %}active{% endif %}"
+                                    onclick="changeMedia(
+                                        '{{ url_for('static', filename=item.file_path) }}',
+                                        '{{ item.media_type }}',
+                                        this
+                                    )"
+                                    aria-label="عرض الوسائط {{ loop.index }}"
+                                >
+
+                                    {% if item.media_type == 'video' %}
+
+                                        <video
+                                            muted
+                                            preload="metadata"
+                                        >
+                                            <source
+                                                src="{{ url_for('static', filename=item.file_path) }}"
+                                            >
+                                        </video>
+
+                                    {% else %}
+
+                                        <img
+                                            src="{{ url_for('static', filename=item.file_path) }}"
+                                            alt=""
+                                            loading="lazy"
+                                        >
+
+                                    {% endif %}
+
+                                </button>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- وصف الإعلان -->
+                <section class="card details-card" style="margin-top: 20px;">
+
+                    {% if listing.category %}
+                        <span class="category-label">
+                            {{ listing.category }}
+                        </span>
+                    {% endif %}
+
+                    <h1 class="item-title">
+                        {{ listing.title }}
+                    </h1>
+
+
+                    {% if listing.price is not none %}
+
+                        <div class="item-price">
+                            {{ "{:,.0f}".format(listing.price) }} ريال
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="item-meta">
+
+                        {% if listing.city %}
+                            <span class="meta-pill">
+                                📍 {{ listing.city }}
+                            </span>
+                        {% endif %}
+
+                        {% if listing.year %}
+                            <span class="meta-pill">
+                                📅 {{ listing.year }}
+                            </span>
+                        {% endif %}
+
+                        {% if listing.make %}
+                            <span class="meta-pill">
+                                🏷️ {{ listing.make }}
+                            </span>
+                        {% endif %}
+
+                        {% if listing.model %}
+                            <span class="meta-pill">
+                                🚗 {{ listing.model }}
+                            </span>
+                        {% endif %}
+
+                        {% if listing.mileage %}
+                            <span class="meta-pill">
+                                🛣️ {{ "{:,.0f}".format(listing.mileage) }} كم
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="divider"></div>
+
+
+                    <h2 class="description-title">
+                        وصف الإعلان
+                    </h2>
+
+                    {% if listing.description %}
+
+                        <div class="description">
+                            {{ listing.description }}
+                        </div>
+
+                    {% else %}
+
+                        <div class="description">
+                            لا يوجد وصف لهذا الإعلان.
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+            </div>
+
+
+            <!-- الجانب -->
+            <aside>
+
+                <!-- البائع -->
+                <section class="card seller-card">
+
+                    <h2 class="seller-title">
+                        👤 صاحب الإعلان
+                    </h2>
+
+                    <div class="seller-info">
+
+                        {% if seller.avatar_path %}
+
+                            <img
+                                src="{{ url_for('static', filename=seller.avatar_path) }}"
+                                alt="{{ seller.name }}"
+                                class="seller-avatar"
+                            >
+
+                        {% else %}
+
+                            <div class="seller-placeholder">
+                                {{ seller.name[:1] }}
+                            </div>
+
+                        {% endif %}
+
+
+                        <div>
+
+                            <div class="seller-name">
+                                {{ seller.name }}
+                            </div>
+
+                            <a
+                                href="{{ url_for('store', user_id=seller.id) }}"
+                                class="seller-link"
+                            >
+                                مشاهدة متجره ←
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- التواصل -->
+                <section class="card contact-card">
+
+                    <h2 class="contact-title">
+                        💬 تواصل مع البائع
+                    </h2>
+
+
+                    {% if not session.get('user_id') %}
+
+                        <div class="login-note">
+
+                            يجب تسجيل الدخول حتى تتمكن من إرسال رسالة.
+
+                            <br>
+
+                            <a href="{{ url_for('login') }}">
+                                تسجيل الدخول
+                            </a>
+
+                        </div>
+
+
+                    {% elif session.get('user_id') == listing.owner_id %}
+
+                        <div class="owner-note">
+                            هذا إعلانك، لا يمكنك إرسال رسالة إلى نفسك.
+                        </div>
+
+
+                    {% else %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('send_message') }}"
+                            class="message-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="listing_id"
+                                value="{{ listing.id }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="is_private"
+                                value="1"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="receiver_id"
+                                value="{{ seller.id }}"
+                            >
+
+                            <textarea
+                                name="message"
+                                class="message-input"
+                                placeholder="السلام عليكم، هل الإعلان لا يزال متاحاً؟"
+                                required
+                                maxlength="2000"
+                            ></textarea>
+
+
+                            <button
+                                type="submit"
+                                class="send-button"
+                            >
+                                إرسال الرسالة
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+    <script>
+        function changeMedia(src, type, button) {
+
+            const container = document.getElementById("mainMedia");
+
+            const oldImage = document.getElementById("mainMediaImage");
+            const oldVideo = document.getElementById("mainMediaVideo");
+
+            if (oldImage) {
+                oldImage.remove();
+            }
+
+            if (oldVideo) {
+                oldVideo.pause();
+                oldVideo.remove();
+            }
+
+            if (type === "video") {
+
+                const video = document.createElement("video");
+
+                video.id = "mainMediaVideo";
+                video.controls = true;
+                video.playsInline = true;
+
+                const source = document.createElement("source");
+
+                source.src = src;
+
+                video.appendChild(source);
+
+                container.insertBefore(
+                    video,
+                    container.querySelector(".media-count")
+                );
+
+            } else {
+
+                const image = document.createElement("img");
+
+                image.id = "mainMediaImage";
+                image.src = src;
+                image.alt = "{{ listing.title }}";
+
+                container.insertBefore(
+                    image,
+                    container.querySelector(".media-count")
+                );
+            }
+
+
+            document
+                .querySelectorAll(".media-thumb")
+                .forEach(function (thumb) {
+                    thumb.classList.remove("active");
+                });
+
+            button.classList.add("active");
         }
 
-        function prevSlide() {
-            if (totalSlides === 0) return;
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            updateSlide(currentSlide);
-        }
+
+        (function () {
+
+            const savedTheme =
+                localStorage.getItem("lavreen-theme");
+
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+            }
+
+        })();
     </script>
+
 </body>
 </html>
