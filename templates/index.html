@@ -3,272 +3,858 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lavreen | لافرين</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- نطبق الوضع الليلي قبل ما ترسم الصفحة عشان ما يصير "ومضة" أبيض -->
-    <script>
-        (function () {
-            var saved = localStorage.getItem('lavreen-theme');
-            if (saved === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        })();
-    </script>
+    <title>Lavreen - السوق السعودي</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
-        /* إضافات خاصة بالصفحة الرئيسية فقط، ما تأثر على باقي الصفحات */
-
-        .logo-purple {
-            color: var(--purple);
-            font-size: 24px;
-            letter-spacing: -0.5px;
+        .home-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 25px 16px 60px;
         }
 
-        .profile-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--purple-light);
-            color: var(--purple);
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 55px 35px;
+            border-radius: 30px;
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(129, 140, 248, .30),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(56, 189, 248, .20),
+                    transparent 35%
+                ),
+                linear-gradient(135deg, #111827, #312e81);
+            color: white;
+        }
+
+        .hero h1 {
+            max-width: 700px;
+            margin: 0;
+            font-size: clamp(30px, 5vw, 48px);
+            line-height: 1.35;
+            font-weight: 800;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 14px 0 0;
+            color: rgba(255,255,255,.78);
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .hero-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            padding: 0 20px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .hero-button.primary {
+            background: white;
+            color: #312e81;
+        }
+
+        .hero-button.secondary {
+            border: 1px solid rgba(255,255,255,.25);
+            background: rgba(255,255,255,.10);
+            color: white;
+        }
+
+        .search-card {
+            position: relative;
+            margin-top: -25px;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 18px;
+            border-radius: 22px;
+            background: var(--card-bg, #fff);
+            border: 1px solid var(--border-color, #e5e7eb);
+            box-shadow: 0 15px 35px rgba(15,23,42,.10);
+        }
+
+        .search-form {
             display: grid;
-            place-items: center;
-            font-size: 17px;
+            grid-template-columns: 1fr 180px 120px;
+            gap: 10px;
         }
 
-        .main-search {
-            gap: 4px;
-        }
-
-        .category-select {
-            border: none;
-            outline: none;
-            background: transparent;
+        .search-input,
+        .search-select {
+            width: 100%;
+            min-height: 46px;
+            box-sizing: border-box;
+            padding: 0 14px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 13px;
+            background: var(--input-bg, #f8fafc);
+            color: inherit;
             font-family: inherit;
             font-size: 13px;
-            color: var(--muted);
-            padding: 0 16px 0 14px;
-            border-left: 1px solid var(--border);
-            height: 40px;
+        }
+
+        .search-input:focus,
+        .search-select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.10);
+        }
+
+        .search-button {
+            min-height: 46px;
+            border: 0;
+            border-radius: 13px;
+            background: #4f46e5;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 800;
             cursor: pointer;
         }
 
-        .listing-cat {
-            text-align: center;
-            color: #a5a5ad;
-            font-size: 11px;
-            margin-bottom: 6px;
+        .section {
+            margin-top: 30px;
         }
 
-        .listing-info h3 {
-            text-align: center;
-        }
-
-        .listing-price {
-            text-align: center;
-            color: var(--purple);
-            font-weight: 800;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .listing-location-row {
-            border-top: 1px solid var(--border);
-            padding-top: 10px;
-            text-align: center;
-            color: #96969d;
-            font-size: 11px;
-        }
-
-        .load-more-btn {
-            display: inline-flex;
+        .section-header {
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 13px 22px;
-            border-radius: 100px;
-            background: var(--purple-light);
-            color: var(--purple-dark);
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 17px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .section-header a {
+            color: #4f46e5;
+            text-decoration: none;
             font-size: 13px;
             font-weight: 700;
         }
+
+        .ai-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 22px 24px;
+            border-radius: 22px;
+            background: rgba(99,102,241,.08);
+            border: 1px solid rgba(99,102,241,.14);
+        }
+
+        .ai-banner h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .ai-banner p {
+            margin: 5px 0 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .ai-button {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 17px;
+            border-radius: 12px;
+            background: #4f46e5;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .listing-card {
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(15,23,42,.09);
+        }
+
+        .listing-image-wrap {
+            position: relative;
+            height: 190px;
+            background: #f1f5f9;
+        }
+
+        .listing-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .listing-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 42px;
+        }
+
+        .favorite-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,.92);
+            color: #475569;
+            font-size: 19px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(15,23,42,.10);
+        }
+
+        .favorite-button.active {
+            color: #e11d48;
+        }
+
+        .listing-content {
+            padding: 14px;
+        }
+
+        .listing-category {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 7px;
+            background: rgba(99,102,241,.08);
+            color: #4f46e5;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .listing-title {
+            display: -webkit-box;
+            overflow: hidden;
+            margin: 8px 0 0;
+            color: inherit;
+            text-decoration: none;
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 800;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .listing-price {
+            margin-top: 8px;
+            color: #4f46e5;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .listing-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .listing-meta span {
+            padding: 3px 6px;
+            border-radius: 6px;
+            background: rgba(100,116,139,.07);
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            border-radius: 22px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+            text-align: center;
+        }
+
+        .empty-state .icon {
+            font-size: 45px;
+        }
+
+        .empty-state h3 {
+            margin: 10px 0 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .empty-state p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1000px) {
+            .listings-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 750px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .listings-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .ai-banner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .hero {
+                padding: 35px 22px;
+                border-radius: 24px;
+            }
+
+            .search-card {
+                margin-left: 8px;
+                margin-right: 8px;
+            }
+
+            .listings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .listing-image-wrap {
+                height: 220px;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="topbar-inner">
+    <!-- شريط التنقل -->
+    <header class="topbar">
 
-        <a href="/" class="logo">
-            <span class="logo-text logo-purple">LAVREEN</span>
-        </a>
+        <div class="topbar-inner">
 
-        <nav class="main-nav">
-            <a href="/">الرئيسية</a>
-            <a href="/ai" class="ai-nav"><span>✦</span> مساعد AI</a>
-        </nav>
+            <a
+                href="{{ url_for('index') }}"
+                class="brand"
+            >
+                Lavreen
+            </a>
 
-        <div class="header-actions">
-            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="الوضع الليلي">🌙</button>
+            <nav class="nav-links">
 
-            {% if session.get('user_id') %}
-                <a href="/profile" class="profile-avatar">👤</a>
-                <a href="/my-listings" class="header-link">إعلاناتي</a>
-                <a href="/sell" class="sell-btn">+ أضف إعلان</a>
-                <a href="/logout" class="header-link">خروج</a>
-            {% else %}
-                <a href="/profile" class="profile-avatar">👤</a>
-                <a href="/login" class="header-link">إعلاناتي</a>
-                <a href="/sell" class="sell-btn">+ أضف إعلان</a>
-            {% endif %}
-        </div>
+                <a href="{{ url_for('index') }}">
+                    الرئيسية
+                </a>
 
-    </div>
-</header>
+                <a href="{{ url_for('ai') }}">
+                    🤖 مساعد Lavreen
+                </a>
 
-<section class="hero-section">
-    <div class="hero-glow glow-one"></div>
-    <div class="hero-glow glow-two"></div>
+                {% if session.get('user_id') %}
 
-    <!-- أشكال زخرفية -->
-    <div class="floating-decor decor-bag">🛍️<span>LAVREEN</span></div>
-    <div class="floating-decor decor-car">🚗</div>
-    <div class="floating-decor decor-phone">📱</div>
-    <div class="floating-decor decor-camera">📷</div>
+                    <a href="{{ url_for('my_listings') }}">
+                        إعلاناتي
+                    </a>
 
-    <div class="hero-content">
+                    <a href="{{ url_for('messages') }}">
+                        الرسائل
+                    </a>
 
-        <h1>
-            وش تدور عليه؟<br>
-            <span>لافرين يلقاه لك</span>
-        </h1>
+                    <a href="{{ url_for('profile') }}">
+                        حسابي
+                    </a>
 
-        <form action="/search" method="GET" class="main-search">
-            <select name="category" class="category-select">
-                <option value="">كل التصنيفات</option>
-                <option value="سيارات">سيارات</option>
-                <option value="جوالات">جوالات</option>
-                <option value="عقار">عقار</option>
-                <option value="كمبيوتر">كمبيوتر</option>
-                <option value="أثاث">أثاث</option>
-            </select>
-            <input type="text" name="q" placeholder="ابحث عن أي شيء...">
-            <button type="submit">⌕</button>
-        </form>
+                    <a href="{{ url_for('logout') }}">
+                        خروج
+                    </a>
 
-    </div>
-</section>
-
-<div class="ai-banner">
-    <div class="ai-pattern"></div>
-    <div class="ai-content">
-        <div class="ai-symbol">Ai</div>
-        <div>
-            <h2>مساعد لافرين الذكي ✨</h2>
-            <p>
-                ساعدك الذكي في البحث والمفاضلة واختيار الأفضل!<br>
-                ابحث بشكل طبيعي، قارن الأسعار، واحصل على توصيات ذكية تناسبك.
-            </p>
-        </div>
-    </div>
-    <a href="/ai" class="ai-button">جرب المساعد AI <span>←</span></a>
-</div>
-
-<section class="page-section listings-section">
-
-    <div class="section-head">
-        <div>
-            <span class="section-kicker">جديد السوق</span>
-            <h2>المعروض حديثاً</h2>
-        </div>
-        <a href="/search" class="view-all">عرض الكل ←</a>
-    </div>
-
-    {% if listings %}
-
-    <div class="listing-grid">
-        {% for listing in listings %}
-        <a href="/listing/{{ listing['id'] }}" class="listing-card">
-
-            <div class="listing-image">
-                {% if listing['first_image'] %}
-                <img src="{{ url_for('static', filename=listing['first_image']) }}" alt="{{ listing['title'] }}">
                 {% else %}
-                <div class="no-image">📦</div>
+
+                    <a href="{{ url_for('login') }}">
+                        تسجيل الدخول
+                    </a>
+
+                    <a href="{{ url_for('register') }}">
+                        إنشاء حساب
+                    </a>
+
                 {% endif %}
-                <button class="favorite-btn" type="button" onclick="event.preventDefault()">♡</button>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <main class="home-page">
+
+        <!-- الواجهة الرئيسية -->
+        <section class="hero">
+
+            <h1>
+                السوق السعودي،
+                <br>
+                بطريقة أذكى.
+            </h1>
+
+            <p>
+                ابحث عن اللي تبيه، قارن الأسعار، وانشر إعلانك بسهولة
+                مع مساعد Lavreen الذكي.
+            </p>
+
+
+            <div class="hero-actions">
+
+                {% if session.get('user_id') %}
+
+                    <a
+                        href="{{ url_for('sell') }}"
+                        class="hero-button primary"
+                    >
+                        + أضف إعلانك
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for('register') }}"
+                        class="hero-button primary"
+                    >
+                        ابدأ الآن
+                    </a>
+
+                {% endif %}
+
+
+                <a
+                    href="{{ url_for('ai') }}"
+                    class="hero-button secondary"
+                >
+                    🤖 جرّب المساعد الذكي
+                </a>
+
             </div>
 
-            <div class="listing-info">
-                <div class="listing-cat">{{ listing['category'] }}</div>
-                <h3>{{ listing['title'] }}</h3>
-                <div class="listing-price">{{ "{:,.0f}".format(listing['price']) }} ر.س</div>
-                <div class="listing-location-row">
-                    📍 {{ listing['city'] }}
+        </section>
+
+
+        <!-- البحث -->
+        <section class="search-card">
+
+            <form
+                method="GET"
+                action="{{ url_for('search') }}"
+                class="search-form"
+            >
+
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ request.args.get('q', '') }}"
+                    placeholder="وش تدور عليه؟ مثال: كامري 2020، آيفون، شقة..."
+                    class="search-input"
+                >
+
+
+                <select
+                    name="category"
+                    class="search-select"
+                >
+
+                    <option value="">
+                        كل الأقسام
+                    </option>
+
+                    <option
+                        value="سيارات"
+                        {% if request.args.get('category') == 'سيارات' %}selected{% endif %}
+                    >
+                        سيارات
+                    </option>
+
+                    <option
+                        value="عقارات"
+                        {% if request.args.get('category') == 'عقارات' %}selected{% endif %}
+                    >
+                        عقارات
+                    </option>
+
+                    <option
+                        value="جوالات"
+                        {% if request.args.get('category') == 'جوالات' %}selected{% endif %}
+                    >
+                        جوالات
+                    </option>
+
+                    <option
+                        value="إلكترونيات"
+                        {% if request.args.get('category') == 'إلكترونيات' %}selected{% endif %}
+                    >
+                        إلكترونيات
+                    </option>
+
+                    <option
+                        value="أثاث"
+                        {% if request.args.get('category') == 'أثاث' %}selected{% endif %}
+                    >
+                        أثاث
+                    </option>
+
+                    <option
+                        value="أخرى"
+                        {% if request.args.get('category') == 'أخرى' %}selected{% endif %}
+                    >
+                        أخرى
+                    </option>
+
+                </select>
+
+
+                <button
+                    type="submit"
+                    class="search-button"
+                >
+                    🔍 بحث
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- مساعد الذكاء الاصطناعي -->
+        <section class="section">
+
+            <div class="ai-banner">
+
+                <div>
+
+                    <h3>
+                        🤖 لا تعرف وش تبحث عنه؟
+                    </h3>
+
+                    <p>
+                        اكتب طلبك بطريقتك الطبيعية، وخلي مساعد Lavreen
+                        يحاول يفهمك ويطلع لك الإعلانات المناسبة.
+                    </p>
+
                 </div>
+
+                <a
+                    href="{{ url_for('ai') }}"
+                    class="ai-button"
+                >
+                    افتح المساعد
+                </a>
+
             </div>
 
-        </a>
-        {% endfor %}
-    </div>
+        </section>
 
-    <div style="text-align:center; margin-top:45px;">
-        <a href="/search" class="load-more-btn">⊞ عرض المزيد</a>
-    </div>
 
-    {% else %}
+        <!-- الإعلانات -->
+        <section class="section">
 
-    <div class="empty-state">
-        <div>📦</div>
-        <h3>ما فيه إعلانات حالياً</h3>
-        <p>كن أول شخص ينزل إعلان في لافرين.</p>
-        <a href="/sell">أضف إعلانك</a>
-    </div>
+            <div class="section-header">
 
-    {% endif %}
+                <h2>
+                    أحدث الإعلانات
+                </h2>
 
-</section>
-
-<footer class="footer">
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <div class="logo">
-                <span class="logo-text logo-purple">LAVREEN</span>
             </div>
-            <p>سوقك الذكي. ابحث، قارن، وبع بسهولة.</p>
-        </div>
-        <div class="footer-links">
-            <a href="/">الرئيسية</a>
-            <a href="/ai">مساعد AI</a>
-            <a href="/sell">أضف إعلان</a>
-            <a href="/my-listings">إعلاناتي</a>
-        </div>
-    </div>
-    <div class="footer-bottom">© 2026 Lavreen — جميع الحقوق محفوظة</div>
-</footer>
 
-<script>
-    function updateThemeIcon() {
-        var btn = document.getElementById('themeToggleBtn');
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        btn.textContent = isDark ? '☀️' : '🌙';
-    }
 
-    function toggleTheme() {
-        var root = document.documentElement;
-        var isDark = root.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-            root.removeAttribute('data-theme');
-            localStorage.setItem('lavreen-theme', 'light');
-        } else {
-            root.setAttribute('data-theme', 'dark');
-            localStorage.setItem('lavreen-theme', 'dark');
+            {% if listings %}
+
+                <div class="listings-grid">
+
+                    {% for listing in listings %}
+
+                        <article class="listing-card">
+
+                            <div class="listing-image-wrap">
+
+                                <a
+                                    href="{{ url_for('listing', listing_id=listing.id) }}"
+                                >
+
+                                    {% if listing.image_path %}
+
+                                        <img
+                                            src="{{ url_for('static', filename=listing.image_path) }}"
+                                            alt="{{ listing.title }}"
+                                            class="listing-image"
+                                            loading="lazy"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="listing-placeholder">
+                                            📦
+                                        </div>
+
+                                    {% endif %}
+
+                                </a>
+
+
+                                <button
+                                    type="button"
+                                    class="favorite-button"
+                                    onclick="toggleFavorite(this, {{ listing.id }})"
+                                    aria-label="إضافة للمفضلة"
+                                >
+                                    ♡
+                                </button>
+
+                            </div>
+
+
+                            <div class="listing-content">
+
+                                {% if listing.category %}
+
+                                    <span class="listing-category">
+                                        {{ listing.category }}
+                                    </span>
+
+                                {% endif %}
+
+
+                                <a
+                                    href="{{ url_for('listing', listing_id=listing.id) }}"
+                                    class="listing-title"
+                                >
+                                    {{ listing.title }}
+                                </a>
+
+
+                                {% if listing.price is not none %}
+
+                                    <div class="listing-price">
+                                        {{ "{:,.0f}".format(listing.price) }} ريال
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="listing-meta">
+
+                                    {% if listing.city %}
+                                        <span>
+                                            📍 {{ listing.city }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if listing.year %}
+                                        <span>
+                                            {{ listing.year }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if listing.mileage %}
+                                        <span>
+                                            {{ "{:,.0f}".format(listing.mileage) }} كم
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="icon">
+                        📦
+                    </div>
+
+                    <h3>
+                        ما فيه إعلانات حالياً
+                    </h3>
+
+                    <p>
+                        كن أول شخص ينشر إعلان في Lavreen.
+                    </p>
+
+                    {% if session.get('user_id') %}
+
+                        <div style="margin-top:18px;">
+
+                            <a
+                                href="{{ url_for('sell') }}"
+                                class="hero-button primary"
+                                style="display:inline-flex;background:#4f46e5;color:#fff;"
+                            >
+                                + أضف إعلان
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <script>
+        function toggleFavorite(button, listingId) {
+
+            const key = "lavreen-favorites";
+            let favorites = [];
+
+            try {
+                favorites =
+                    JSON.parse(localStorage.getItem(key)) || [];
+            } catch (error) {
+                favorites = [];
+            }
+
+            const index = favorites.indexOf(listingId);
+
+            if (index === -1) {
+
+                favorites.push(listingId);
+
+                button.classList.add("active");
+                button.textContent = "♥";
+
+            } else {
+
+                favorites.splice(index, 1);
+
+                button.classList.remove("active");
+                button.textContent = "♡";
+
+            }
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(favorites)
+            );
         }
-        updateThemeIcon();
-    }
 
-    updateThemeIcon();
-</script>
+
+        function restoreFavorites() {
+
+            const key = "lavreen-favorites";
+            let favorites = [];
+
+            try {
+                favorites =
+                    JSON.parse(localStorage.getItem(key)) || [];
+            } catch (error) {
+                favorites = [];
+            }
+
+            document
+                .querySelectorAll(".favorite-button")
+                .forEach(function (button) {
+
+                    const onclick =
+                        button.getAttribute("onclick") || "";
+
+                    const match =
+                        onclick.match(/toggleFavorite\(this,\s*(\d+)\)/);
+
+                    if (!match) {
+                        return;
+                    }
+
+                    const listingId =
+                        Number(match[1]);
+
+                    if (favorites.includes(listingId)) {
+
+                        button.classList.add("active");
+                        button.textContent = "♥";
+
+                    }
+
+                });
+        }
+
+
+        (function () {
+
+            const savedTheme =
+                localStorage.getItem("lavreen-theme");
+
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+            }
+
+            restoreFavorites();
+
+        })();
+    </script>
 
 </body>
 </html>
