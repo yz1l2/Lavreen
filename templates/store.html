@@ -3,166 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر {{ seller['name'] }} | لافريين</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>متجر {{ user.name }} - Lavreen</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
-        .store-hero {
-            background: linear-gradient(120deg, #17151f, #28233b);
-            color: white;
-            padding: 45px 20px;
-            text-align: center;
+        .store-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 25px 16px 60px;
+        }
+
+        .store-header {
+            overflow: hidden;
+            border-radius: 28px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+        }
+
+        .store-cover {
+            height: 190px;
+            background:
+                radial-gradient(circle at 15% 30%, rgba(129,140,248,.35), transparent 35%),
+                radial-gradient(circle at 85% 70%, rgba(56,189,248,.25), transparent 35%),
+                linear-gradient(135deg, #111827, #3730a3);
+        }
+
+        .store-info {
+            position: relative;
+            padding: 0 30px 30px;
+        }
+
+        .store-avatar-wrap {
+            margin-top: -58px;
         }
 
         .store-avatar {
-            width: 90px;
-            height: 90px;
+            width: 116px;
+            height: 116px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.2);
-            margin: 0 auto 14px;
-            display: block;
+            border: 5px solid var(--card-bg, #fff);
+            background: #e5e7eb;
         }
 
-        .store-avatar-fallback {
-            width: 90px;
-            height: 90px;
+        .store-avatar-placeholder {
+            width: 116px;
+            height: 116px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
-            display: grid;
-            place-items: center;
-            font-size: 32px;
+            border: 5px solid var(--card-bg, #fff);
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
             font-weight: 800;
-            margin: 0 auto 14px;
+            color: #4f46e5;
         }
 
-        .store-hero h1 {
-            font-size: 22px;
-            margin-bottom: 6px;
+        .store-name {
+            margin: 16px 0 0;
+            font-size: 27px;
+            font-weight: 800;
         }
 
-        .store-hero p {
-            color: #aaa7b4;
+        .store-email {
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .store-bio {
+            max-width: 700px;
+            margin-top: 13px;
+            color: #64748b;
+            line-height: 1.9;
+            white-space: pre-line;
+        }
+
+        .store-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .store-stat {
+            padding: 10px 16px;
+            border-radius: 14px;
+            background: rgba(99,102,241,.08);
             font-size: 13px;
-            max-width: 420px;
-            margin: auto;
+            font-weight: 700;
         }
 
-        .store-badge {
-            display: inline-block;
-            margin-top: 14px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 6px 14px;
-            border-radius: 100px;
-            font-size: 11px;
-            color: #b8aaff;
+        .listings-section {
+            margin-top: 22px;
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
         }
 
-        .listing-cat {
-            text-align: center;
-            color: #a5a5ad;
-            font-size: 11px;
-            margin-bottom: 6px;
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .listing-info h3 {
-            text-align: center;
+        .section-heading h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .listing-count {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .listing-card {
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(15,23,42,.09);
+        }
+
+        .listing-image-wrap {
+            height: 190px;
+            background: #f1f5f9;
+        }
+
+        .listing-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .listing-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 38px;
+        }
+
+        .listing-content {
+            padding: 15px;
+        }
+
+        .listing-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.6;
+        }
+
+        .listing-title a {
+            color: inherit;
+            text-decoration: none;
         }
 
         .listing-price {
-            text-align: center;
-            color: var(--purple);
+            margin-top: 9px;
+            color: #4f46e5;
+            font-size: 18px;
             font-weight: 800;
-            font-size: 16px;
+        }
+
+        .listing-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 9px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .listing-meta span {
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(100,116,139,.08);
+        }
+
+        .empty-store {
+            padding: 55px 20px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 45px;
             margin-bottom: 10px;
         }
 
-        .listing-location-row {
-            border-top: 1px solid var(--border);
-            padding-top: 10px;
-            text-align: center;
-            color: #96969d;
-            font-size: 11px;
+        .empty-store h3 {
+            margin: 0;
+            color: inherit;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .empty-store p {
+            margin: 7px 0 0;
+            font-size: 14px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 16px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .back-button:hover {
+            color: #4f46e5;
+        }
+
+        @media (max-width: 850px) {
+            .listings-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 560px) {
+            .store-cover {
+                height: 140px;
+            }
+
+            .store-info {
+                padding: 0 18px 22px;
+            }
+
+            .listings-section {
+                padding: 18px;
+            }
+
+            .listings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .listing-image-wrap {
+                height: 210px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="topbar-inner">
-        <a href="/" class="logo">
-            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
-        </a>
-        <nav class="main-nav">
-            <a href="/">الرئيسية</a>
-            <a href="/ai">✨ مساعد AI</a>
-        </nav>
-        <div class="header-actions">
-            <a href="/sell" class="sell-btn">+ أضف إعلان</a>
-        </div>
-    </div>
-</header>
+    <!-- شريط التنقل -->
+    <header class="topbar">
 
-<section class="store-hero">
-    {% if seller['avatar_path'] %}
-    <img class="store-avatar" src="{{ url_for('static', filename=seller['avatar_path']) }}" alt="{{ seller['name'] }}">
-    {% else %}
-    <div class="store-avatar-fallback">{{ seller['name'][0] if seller['name'] else '؟' }}</div>
-    {% endif %}
+        <div class="topbar-inner">
 
-    <h1>متجر {{ seller['name'] }}</h1>
-    <p>{{ seller['bio'] or 'بائع موثوق على لافريين' }}</p>
+            <a
+                href="{{ url_for('index') }}"
+                class="brand"
+            >
+                Lavreen
+            </a>
 
-    <div class="store-badge">📦 {{ listings|length }} إعلان معروض</div>
-</section>
+            <nav class="nav-links">
 
-<section class="page-section listings-section">
+                <a href="{{ url_for('index') }}">
+                    الرئيسية
+                </a>
 
-    {% if listings %}
-    <div class="listing-grid">
-        {% for listing in listings %}
-        <a href="{{ url_for('view_item', item_id=listing['id']) }}" class="listing-card">
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('my_listings') }}">
+                        إعلاناتي
+                    </a>
 
-            <div class="listing-image">
-                {% if listing['first_image'] %}
-                <img src="{{ url_for('static', filename=listing['first_image']) }}" alt="{{ listing['title'] }}">
+                    <a href="{{ url_for('messages') }}">
+                        الرسائل
+                    </a>
+
+                    <a href="{{ url_for('profile') }}">
+                        حسابي
+                    </a>
                 {% else %}
-                <div class="no-image">📦</div>
+                    <a href="{{ url_for('login') }}">
+                        تسجيل الدخول
+                    </a>
                 {% endif %}
-            </div>
 
-            <div class="listing-info">
-                <div class="listing-cat">{{ listing['category'] }}</div>
-                <h3>{{ listing['title'] }}</h3>
-                <div class="listing-price">{{ "{:,.0f}".format(listing['price']) }} ر.س</div>
-                <div class="listing-location-row">
-                    📍 {{ listing['city'] }}
-                </div>
-            </div>
+            </nav>
 
-        </a>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <div>📦</div>
-        <h3>ما فيه إعلانات لهذا البائع حالياً</h3>
-        <p>تابع المتجر وترجع تشوف جديد قريباً.</p>
-    </div>
-    {% endif %}
-
-</section>
-
-<footer class="footer">
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <span class="logo-text" style="color:white;">LAVREEN</span>
-            <p>سوقك الذكي. ابحث، قارن، وبع بسهولة.</p>
         </div>
-    </div>
-    <div class="footer-bottom">© 2026 Lavreen — جميع الحقوق محفوظة</div>
-</footer>
+
+    </header>
+
+
+    <main class="store-page">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="back-button"
+        >
+            → العودة للرئيسية
+        </a>
+
+
+        <!-- معلومات المتجر -->
+        <section class="store-header">
+
+            <div class="store-cover"></div>
+
+            <div class="store-info">
+
+                <div class="store-avatar-wrap">
+
+                    {% if user.avatar_path %}
+
+                        <img
+                            src="{{ url_for('static', filename=user.avatar_path) }}"
+                            alt="صورة {{ user.name }}"
+                            class="store-avatar"
+                        >
+
+                    {% else %}
+
+                        <div class="store-avatar-placeholder">
+                            {{ user.name[:1] }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <h1 class="store-name">
+                    {{ user.name }}
+                </h1>
+
+
+                {% if user.email %}
+                    <div class="store-email">
+                        {{ user.email }}
+                    </div>
+                {% endif %}
+
+
+                {% if user.bio %}
+                    <div class="store-bio">
+                        {{ user.bio }}
+                    </div>
+                {% endif %}
+
+
+                <div class="store-stats">
+
+                    <div class="store-stat">
+                        📦 {{ listings|length }} إعلان
+                    </div>
+
+                    {% if user.phone %}
+                        <div class="store-stat">
+                            📱 رقم جوال موثق بالحساب
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- الإعلانات -->
+        <section class="listings-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    إعلانات {{ user.name }}
+                </h2>
+
+                <span class="listing-count">
+                    {{ listings|length }} إعلان
+                </span>
+
+            </div>
+
+
+            {% if listings %}
+
+                <div class="listings-grid">
+
+                    {% for listing in listings %}
+
+                        <article class="listing-card">
+
+                            <a
+                                href="{{ url_for('listing', listing_id=listing.id) }}"
+                                aria-label="{{ listing.title }}"
+                            >
+
+                                <div class="listing-image-wrap">
+
+                                    {% if listing.image_path %}
+
+                                        <img
+                                            src="{{ url_for('static', filename=listing.image_path) }}"
+                                            alt="{{ listing.title }}"
+                                            class="listing-image"
+                                            loading="lazy"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="listing-placeholder">
+                                            📦
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </a>
+
+
+                            <div class="listing-content">
+
+                                <h3 class="listing-title">
+
+                                    <a
+                                        href="{{ url_for('listing', listing_id=listing.id) }}"
+                                    >
+                                        {{ listing.title }}
+                                    </a>
+
+                                </h3>
+
+
+                                {% if listing.price is not none %}
+
+                                    <div class="listing-price">
+                                        {{ "{:,.0f}".format(listing.price) }} ريال
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="listing-meta">
+
+                                    {% if listing.city %}
+                                        <span>
+                                            📍 {{ listing.city }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if listing.year %}
+                                        <span>
+                                            {{ listing.year }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if listing.category %}
+                                        <span>
+                                            {{ listing.category }}
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-store">
+
+                    <div class="empty-icon">
+                        📦
+                    </div>
+
+                    <h3>
+                        لا توجد إعلانات حالياً
+                    </h3>
+
+                    <p>
+                        لم يقم هذا المستخدم بنشر أي إعلانات بعد.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <!-- الوضع الداكن -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("lavreen-theme");
+
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+            }
+        })();
+    </script>
 
 </body>
 </html>
