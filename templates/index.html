@@ -4,857 +4,962 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Lavreen - السوق السعودي</title>
+    <title>لافريين - سوقك السعودي</title>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        body {
+            font-family: "Cairo", sans-serif;
+        }
+
         .home-page {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 25px 16px 60px;
+            padding: 0 16px 100px;
         }
 
-        .hero {
-            position: relative;
-            overflow: hidden;
-            padding: 55px 35px;
-            border-radius: 30px;
-            background:
-                radial-gradient(
-                    circle at 15% 20%,
-                    rgba(129, 140, 248, .30),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 85% 80%,
-                    rgba(56, 189, 248, .20),
-                    transparent 35%
-                ),
-                linear-gradient(135deg, #111827, #312e81);
+        /* =========================
+           HEADER
+        ========================= */
+
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 0;
+            margin-bottom: 15px;
+        }
+
+        .brand {
+            text-decoration: none;
+            color: inherit;
+            font-size: 25px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 10px;
+            padding: 8px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: .2s;
+        }
+
+        .header-btn:hover {
+            background: rgba(128,128,128,.08);
+        }
+
+        .header-btn.primary {
+            background: #111827;
             color: white;
+            border-color: #111827;
+        }
+
+        .header-btn.primary:hover {
+            opacity: .9;
+        }
+
+        .theme-btn {
+            border: 1px solid rgba(128,128,128,.25);
+            background: transparent;
+            color: inherit;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .theme-btn:hover {
+            background: rgba(128,128,128,.08);
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            text-align: center;
+            padding: 55px 15px 40px;
         }
 
         .hero h1 {
-            max-width: 700px;
             margin: 0;
-            font-size: clamp(30px, 5vw, 48px);
-            line-height: 1.35;
+            font-size: 42px;
             font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .hero h1 span {
+            display: block;
+            font-size: 18px;
+            font-weight: 500;
+            opacity: .6;
+            margin-top: 7px;
         }
 
         .hero p {
             max-width: 650px;
-            margin: 14px 0 0;
-            color: rgba(255,255,255,.78);
-            font-size: 15px;
+            margin: 15px auto 25px;
+            font-size: 14px;
+            opacity: .65;
             line-height: 1.9;
         }
 
-        .hero-actions {
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .search-box {
+            max-width: 850px;
+            margin: 0 auto 30px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 25px;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid rgba(128,128,128,.22);
+            border-radius: 16px;
+            background: var(--card-bg, white);
+            box-shadow: 0 8px 30px rgba(0,0,0,.05);
         }
 
-        .hero-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 46px;
-            padding: 0 20px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 800;
-        }
-
-        .hero-button.primary {
-            background: white;
-            color: #312e81;
-        }
-
-        .hero-button.secondary {
-            border: 1px solid rgba(255,255,255,.25);
-            background: rgba(255,255,255,.10);
-            color: white;
-        }
-
-        .search-card {
-            position: relative;
-            margin-top: -25px;
-            margin-left: 20px;
-            margin-right: 20px;
-            padding: 18px;
-            border-radius: 22px;
-            background: var(--card-bg, #fff);
-            border: 1px solid var(--border-color, #e5e7eb);
-            box-shadow: 0 15px 35px rgba(15,23,42,.10);
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: 1fr 180px 120px;
-            gap: 10px;
-        }
-
-        .search-input,
-        .search-select {
-            width: 100%;
-            min-height: 46px;
-            box-sizing: border-box;
-            padding: 0 14px;
-            border: 1px solid var(--border-color, #e5e7eb);
-            border-radius: 13px;
-            background: var(--input-bg, #f8fafc);
+        .search-box input,
+        .search-box select {
+            border: 0;
+            outline: none;
+            background: transparent;
             color: inherit;
             font-family: inherit;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 11px;
+            min-width: 0;
             font-size: 13px;
         }
 
-        .search-input:focus,
-        .search-select:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,.10);
+        .search-box select {
+            padding: 0 10px;
+            font-size: 12px;
+            max-width: 150px;
         }
 
-        .search-button {
-            min-height: 46px;
+        .search-btn {
             border: 0;
-            border-radius: 13px;
-            background: #4f46e5;
+            background: #111827;
             color: white;
+            border-radius: 11px;
+            padding: 10px 18px;
             font-family: inherit;
-            font-size: 14px;
-            font-weight: 800;
+            font-weight: 700;
             cursor: pointer;
         }
 
-        .section {
-            margin-top: 30px;
+        .search-btn:hover {
+            opacity: .9;
         }
 
-        .section-header {
+        /* =========================
+           QUICK ACTIONS
+        ========================= */
+
+        .quick-actions {
             display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-bottom: 35px;
+        }
+
+        .quick-btn {
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 17px;
-        }
-
-        .section-header h2 {
-            margin: 0;
-            font-size: 21px;
-            font-weight: 800;
-        }
-
-        .section-header a {
-            color: #4f46e5;
+            gap: 5px;
             text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
+            color: inherit;
+            border: 1px solid rgba(128,128,128,.2);
+            border-radius: 11px;
+            padding: 9px 13px;
+            font-size: 12px;
+            font-weight: 600;
         }
+
+        .quick-btn:hover {
+            background: rgba(128,128,128,.07);
+        }
+
+        /* =========================
+           AI BANNER
+        ========================= */
 
         .ai-banner {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 20px;
-            padding: 22px 24px;
-            border-radius: 22px;
-            background: rgba(99,102,241,.08);
-            border: 1px solid rgba(99,102,241,.14);
+            padding: 20px;
+            margin-bottom: 35px;
+            border-radius: 18px;
+            border: 1px solid rgba(128,128,128,.18);
+            background: rgba(128,128,128,.045);
         }
 
-        .ai-banner h3 {
+        .ai-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .ai-banner-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111827;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .ai-banner h2 {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
         }
 
         .ai-banner p {
-            margin: 5px 0 0;
-            color: #64748b;
-            font-size: 13px;
-            line-height: 1.8;
+            margin: 3px 0 0;
+            font-size: 12px;
+            opacity: .6;
         }
 
-        .ai-button {
-            flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 42px;
-            padding: 0 17px;
-            border-radius: 12px;
-            background: #4f46e5;
-            color: white;
+        .ai-banner-btn {
             text-decoration: none;
-            font-size: 13px;
+            background: #111827;
+            color: white;
+            padding: 9px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           LISTINGS
+        ========================= */
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 20px;
             font-weight: 800;
         }
 
         .listings-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
         }
 
         .listing-card {
+            position: relative;
             overflow: hidden;
-            border-radius: 20px;
-            border: 1px solid var(--border-color, #e5e7eb);
-            background: var(--card-bg, #fff);
-            transition: transform .2s ease, box-shadow .2s ease;
+            border: 1px solid rgba(128,128,128,.18);
+            border-radius: 16px;
+            background: var(--card-bg, white);
+            transition: transform .2s, box-shadow .2s;
         }
 
         .listing-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(15,23,42,.09);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.07);
         }
 
-        .listing-image-wrap {
-            position: relative;
-            height: 190px;
-            background: #f1f5f9;
+        .listing-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
         }
 
         .listing-image {
             width: 100%;
-            height: 100%;
+            aspect-ratio: 4 / 3;
             object-fit: cover;
+            display: block;
+            background: rgba(128,128,128,.08);
         }
 
-        .listing-placeholder {
+        .no-image {
             width: 100%;
-            height: 100%;
+            aspect-ratio: 4 / 3;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #94a3b8;
-            font-size: 42px;
-        }
-
-        .favorite-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 38px;
-            height: 38px;
-            border: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,.92);
-            color: #475569;
-            font-size: 19px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(15,23,42,.10);
-        }
-
-        .favorite-button.active {
-            color: #e11d48;
+            background: rgba(128,128,128,.08);
+            font-size: 35px;
+            opacity: .45;
         }
 
         .listing-content {
-            padding: 14px;
-        }
-
-        .listing-category {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 7px;
-            background: rgba(99,102,241,.08);
-            color: #4f46e5;
-            font-size: 10px;
-            font-weight: 800;
+            padding: 12px;
         }
 
         .listing-title {
-            display: -webkit-box;
-            overflow: hidden;
-            margin: 8px 0 0;
-            color: inherit;
-            text-decoration: none;
-            font-size: 15px;
+            margin: 0 0 6px;
+            font-size: 14px;
+            font-weight: 700;
             line-height: 1.6;
-            font-weight: 800;
+
+            display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .listing-price {
-            margin-top: 8px;
-            color: #4f46e5;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 800;
+            margin-bottom: 5px;
         }
 
-        .listing-meta {
+        .listing-info {
             display: flex;
+            gap: 6px;
             flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 8px;
-            color: #64748b;
-            font-size: 11px;
+            font-size: 10px;
+            opacity: .55;
         }
 
-        .listing-meta span {
-            padding: 3px 6px;
-            border-radius: 6px;
-            background: rgba(100,116,139,.07);
+        .favorite-btn {
+            position: absolute;
+            top: 9px;
+            left: 9px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,.92);
+            cursor: pointer;
+            font-size: 17px;
+            z-index: 3;
         }
+
+        .favorite-btn.active {
+            color: #e11d48;
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
 
         .empty-state {
-            padding: 60px 20px;
-            border-radius: 22px;
-            border: 1px solid var(--border-color, #e5e7eb);
-            background: var(--card-bg, #fff);
             text-align: center;
+            padding: 65px 20px;
+            border: 1px dashed rgba(128,128,128,.25);
+            border-radius: 18px;
         }
 
         .empty-state .icon {
-            font-size: 45px;
+            font-size: 40px;
+            margin-bottom: 8px;
         }
 
         .empty-state h3 {
-            margin: 10px 0 0;
+            margin: 0 0 5px;
             font-size: 18px;
-            font-weight: 800;
         }
 
         .empty-state p {
-            margin: 6px 0 0;
-            color: #64748b;
-            font-size: 13px;
+            margin: 0;
+            font-size: 12px;
+            opacity: .6;
         }
 
-        @media (max-width: 1000px) {
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 950px) {
             .listings-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
-        @media (max-width: 750px) {
-            .search-form {
-                grid-template-columns: 1fr;
+        @media (max-width: 700px) {
+
+            .home-page {
+                padding: 0 10px 90px;
             }
 
-            .listings-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+            .main-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .brand {
+                font-size: 22px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .header-btn {
+                padding: 7px 10px;
+                font-size: 10px;
+            }
+
+            .theme-btn {
+                width: 34px;
+                height: 34px;
+            }
+
+            .hero {
+                padding: 35px 5px 25px;
+            }
+
+            .hero h1 {
+                font-size: 31px;
+            }
+
+            .hero h1 span {
+                font-size: 15px;
+            }
+
+            .hero p {
+                font-size: 12px;
+            }
+
+            .search-box {
+                flex-wrap: wrap;
+                border-radius: 14px;
+            }
+
+            .search-box input {
+                width: 100%;
+                flex-basis: 100%;
+            }
+
+            .search-box select {
+                flex: 1;
+                max-width: none;
+                min-height: 38px;
+            }
+
+            .search-btn {
+                flex: 1;
             }
 
             .ai-banner {
                 align-items: flex-start;
                 flex-direction: column;
             }
-        }
 
-        @media (max-width: 520px) {
-            .hero {
-                padding: 35px 22px;
-                border-radius: 24px;
-            }
-
-            .search-card {
-                margin-left: 8px;
-                margin-right: 8px;
+            .ai-banner-btn {
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
             }
 
             .listings-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
 
-            .listing-image-wrap {
-                height: 220px;
+            .listing-content {
+                padding: 10px;
+            }
+
+            .listing-title {
+                font-size: 12px;
+            }
+
+            .listing-price {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .header-actions {
+                gap: 4px;
+            }
+
+            .header-btn {
+                padding: 6px 7px;
+                font-size: 9px;
+            }
+
+            .listings-grid {
+                gap: 8px;
             }
         }
     </style>
 </head>
 
+
 <body>
 
-    <!-- شريط التنقل -->
-    <header class="topbar">
+<div class="home-page">
 
-        <div class="topbar-inner">
+    <!-- ================= HEADER ================= -->
 
-            <a
-                href="{{ url_for('index') }}"
-                class="brand"
-            >
-                Lavreen
-            </a>
+    <header class="main-header">
 
-            <nav class="nav-links">
+        <a href="{{ url_for('home') }}" class="brand">
+            لافريين
+        </a>
 
-                <a href="{{ url_for('index') }}">
-                    الرئيسية
+
+        <div class="header-actions">
+
+            {% if session.get('user_id') %}
+
+                <a
+                    href="{{ url_for('profile') }}"
+                    class="header-btn">
+                    حسابي
                 </a>
 
-                <a href="{{ url_for('ai') }}">
-                    🤖 مساعد Lavreen
+                <a
+                    href="{{ url_for('my_listings') }}"
+                    class="header-btn">
+                    إعلاناتي
                 </a>
 
-                {% if session.get('user_id') %}
+                <a
+                    href="{{ url_for('messages') }}"
+                    class="header-btn">
+                    الرسائل
+                </a>
 
-                    <a href="{{ url_for('my_listings') }}">
-                        إعلاناتي
-                    </a>
+                <a
+                    href="{{ url_for('sell') }}"
+                    class="header-btn primary">
+                    + أضف إعلان
+                </a>
 
-                    <a href="{{ url_for('messages') }}">
-                        الرسائل
-                    </a>
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="header-btn">
+                    خروج
+                </a>
 
-                    <a href="{{ url_for('profile') }}">
-                        حسابي
-                    </a>
+            {% else %}
 
-                    <a href="{{ url_for('logout') }}">
-                        خروج
-                    </a>
+                <a
+                    href="{{ url_for('login') }}"
+                    class="header-btn">
+                    تسجيل الدخول
+                </a>
 
-                {% else %}
+                <a
+                    href="{{ url_for('register') }}"
+                    class="header-btn primary">
+                    إنشاء حساب
+                </a>
 
-                    <a href="{{ url_for('login') }}">
-                        تسجيل الدخول
-                    </a>
+            {% endif %}
 
-                    <a href="{{ url_for('register') }}">
-                        إنشاء حساب
-                    </a>
 
-                {% endif %}
-
-            </nav>
+            <button
+                type="button"
+                class="theme-btn"
+                id="themeToggle"
+                aria-label="تغيير الوضع">
+                🌙
+            </button>
 
         </div>
 
     </header>
 
 
-    <main class="home-page">
+    <!-- ================= HERO ================= -->
 
-        <!-- الواجهة الرئيسية -->
-        <section class="hero">
+    <section class="hero">
 
-            <h1>
-                السوق السعودي،
-                <br>
-                بطريقة أذكى.
-            </h1>
+        <h1>
+            سوقك في لافريين
+            <span>بيع، اشترِ، وابحث بطريقة أذكى</span>
+        </h1>
 
-            <p>
-                ابحث عن اللي تبيه، قارن الأسعار، وانشر إعلانك بسهولة
-                مع مساعد Lavreen الذكي.
-            </p>
+        <p>
+            منصة سعودية تجمع الإعلانات والبحث الذكي في مكان واحد،
+            مع مساعد ذكاء اصطناعي يساعدك في العثور على ما تبحث عنه.
+        </p>
 
 
-            <div class="hero-actions">
+        <!-- SEARCH -->
 
-                {% if session.get('user_id') %}
+        <form
+            class="search-box"
+            method="GET"
+            action="{{ url_for('search') }}">
 
-                    <a
-                        href="{{ url_for('sell') }}"
-                        class="hero-button primary"
-                    >
-                        + أضف إعلانك
-                    </a>
-
-                {% else %}
-
-                    <a
-                        href="{{ url_for('register') }}"
-                        class="hero-button primary"
-                    >
-                        ابدأ الآن
-                    </a>
-
-                {% endif %}
+            <input
+                type="text"
+                name="q"
+                placeholder="وش تدور عليه؟ مثال: كامري 2022"
+                autocomplete="off">
 
 
-                <a
-                    href="{{ url_for('ai') }}"
-                    class="hero-button secondary"
-                >
-                    🤖 جرّب المساعد الذكي
-                </a>
+            <select name="category">
 
+                <option value="">كل الأقسام</option>
+
+                <option value="سيارات">سيارات</option>
+                <option value="عقار">عقار</option>
+                <option value="جوالات">جوالات</option>
+                <option value="كمبيوتر">كمبيوتر</option>
+                <option value="إلكترونيات">إلكترونيات</option>
+                <option value="أثاث">أثاث</option>
+                <option value="ملابس">ملابس</option>
+                <option value="أخرى">أخرى</option>
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="search-btn">
+                بحث
+            </button>
+
+        </form>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="quick-actions">
+
+            <a
+                href="{{ url_for('search') }}?category=سيارات"
+                class="quick-btn">
+                🚗 سيارات
+            </a>
+
+            <a
+                href="{{ url_for('search') }}?category=عقار"
+                class="quick-btn">
+                🏠 عقار
+            </a>
+
+            <a
+                href="{{ url_for('search') }}?category=جوالات"
+                class="quick-btn">
+                📱 جوالات
+            </a>
+
+            <a
+                href="{{ url_for('search') }}?category=كمبيوتر"
+                class="quick-btn">
+                🖥️ كمبيوتر
+            </a>
+
+            <a
+                href="{{ url_for('search') }}?category=إلكترونيات"
+                class="quick-btn">
+                🎧 إلكترونيات
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= AI ================= -->
+
+    <section class="ai-banner">
+
+        <div class="ai-banner-content">
+
+            <div class="ai-banner-icon">
+                ✦
             </div>
 
-        </section>
-
-
-        <!-- البحث -->
-        <section class="search-card">
-
-            <form
-                method="GET"
-                action="{{ url_for('search') }}"
-                class="search-form"
-            >
-
-                <input
-                    type="search"
-                    name="q"
-                    value="{{ request.args.get('q', '') }}"
-                    placeholder="وش تدور عليه؟ مثال: كامري 2020، آيفون، شقة..."
-                    class="search-input"
-                >
-
-
-                <select
-                    name="category"
-                    class="search-select"
-                >
-
-                    <option value="">
-                        كل الأقسام
-                    </option>
-
-                    <option
-                        value="سيارات"
-                        {% if request.args.get('category') == 'سيارات' %}selected{% endif %}
-                    >
-                        سيارات
-                    </option>
-
-                    <option
-                        value="عقارات"
-                        {% if request.args.get('category') == 'عقارات' %}selected{% endif %}
-                    >
-                        عقارات
-                    </option>
-
-                    <option
-                        value="جوالات"
-                        {% if request.args.get('category') == 'جوالات' %}selected{% endif %}
-                    >
-                        جوالات
-                    </option>
-
-                    <option
-                        value="إلكترونيات"
-                        {% if request.args.get('category') == 'إلكترونيات' %}selected{% endif %}
-                    >
-                        إلكترونيات
-                    </option>
-
-                    <option
-                        value="أثاث"
-                        {% if request.args.get('category') == 'أثاث' %}selected{% endif %}
-                    >
-                        أثاث
-                    </option>
-
-                    <option
-                        value="أخرى"
-                        {% if request.args.get('category') == 'أخرى' %}selected{% endif %}
-                    >
-                        أخرى
-                    </option>
-
-                </select>
-
-
-                <button
-                    type="submit"
-                    class="search-button"
-                >
-                    🔍 بحث
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- مساعد الذكاء الاصطناعي -->
-        <section class="section">
-
-            <div class="ai-banner">
-
-                <div>
-
-                    <h3>
-                        🤖 لا تعرف وش تبحث عنه؟
-                    </h3>
-
-                    <p>
-                        اكتب طلبك بطريقتك الطبيعية، وخلي مساعد Lavreen
-                        يحاول يفهمك ويطلع لك الإعلانات المناسبة.
-                    </p>
-
-                </div>
-
-                <a
-                    href="{{ url_for('ai') }}"
-                    class="ai-button"
-                >
-                    افتح المساعد
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <!-- الإعلانات -->
-        <section class="section">
-
-            <div class="section-header">
+            <div>
 
                 <h2>
-                    أحدث الإعلانات
+                    جرّب مساعد لافريين
                 </h2>
+
+                <p>
+                    قل له وش تبي، وهو يساعدك في البحث عن الإعلانات.
+                </p>
 
             </div>
 
-
-            {% if listings %}
-
-                <div class="listings-grid">
-
-                    {% for listing in listings %}
-
-                        <article class="listing-card">
-
-                            <div class="listing-image-wrap">
-
-                                <a
-                                    href="{{ url_for('listing', listing_id=listing.id) }}"
-                                >
-
-                                    {% if listing.image_path %}
-
-                                        <img
-                                            src="{{ url_for('static', filename=listing.image_path) }}"
-                                            alt="{{ listing.title }}"
-                                            class="listing-image"
-                                            loading="lazy"
-                                        >
-
-                                    {% else %}
-
-                                        <div class="listing-placeholder">
-                                            📦
-                                        </div>
-
-                                    {% endif %}
-
-                                </a>
+        </div>
 
 
-                                <button
-                                    type="button"
-                                    class="favorite-button"
-                                    onclick="toggleFavorite(this, {{ listing.id }})"
-                                    aria-label="إضافة للمفضلة"
-                                >
-                                    ♡
-                                </button>
+        <a
+            href="{{ url_for('ai') }}"
+            class="ai-banner-btn">
+            تحدث مع المساعد
+        </a>
 
+    </section>
+
+
+    <!-- ================= LISTINGS ================= -->
+
+    <div class="section-header">
+
+        <h2>
+            أحدث الإعلانات
+        </h2>
+
+    </div>
+
+
+    {% if listings %}
+
+        <div class="listings-grid">
+
+            {% for listing in listings %}
+
+                <article
+                    class="listing-card"
+                    data-listing-id="{{ listing.id }}">
+
+                    <button
+                        type="button"
+                        class="favorite-btn"
+                        data-id="{{ listing.id }}"
+                        onclick="toggleFavorite(event, '{{ listing.id }}')"
+                        aria-label="إضافة للمفضلة">
+                        ♡
+                    </button>
+
+
+                    <a
+                        href="{{ url_for('listing_page', listing_id=listing.id) }}"
+                        class="listing-link">
+
+
+                        {% if listing.image_path %}
+
+                            <img
+                                src="{{ url_for('static', filename=listing.image_path.replace('static/', '')) }}"
+                                alt="{{ listing.title }}"
+                                class="listing-image"
+                                loading="lazy">
+
+                        {% else %}
+
+                            <div class="no-image">
+                                📦
+                            </div>
+
+                        {% endif %}
+
+
+                        <div class="listing-content">
+
+                            <h3 class="listing-title">
+                                {{ listing.title }}
+                            </h3>
+
+
+                            <div class="listing-price">
+                                {{ "{:,.0f}".format(listing.price or 0) }} ريال
                             </div>
 
 
-                            <div class="listing-content">
+                            <div class="listing-info">
 
                                 {% if listing.category %}
-
-                                    <span class="listing-category">
-                                        {{ listing.category }}
-                                    </span>
-
+                                    <span>{{ listing.category }}</span>
                                 {% endif %}
 
-
-                                <a
-                                    href="{{ url_for('listing', listing_id=listing.id) }}"
-                                    class="listing-title"
-                                >
-                                    {{ listing.title }}
-                                </a>
-
-
-                                {% if listing.price is not none %}
-
-                                    <div class="listing-price">
-                                        {{ "{:,.0f}".format(listing.price) }} ريال
-                                    </div>
-
+                                {% if listing.city %}
+                                    <span>• {{ listing.city }}</span>
                                 {% endif %}
 
-
-                                <div class="listing-meta">
-
-                                    {% if listing.city %}
-                                        <span>
-                                            📍 {{ listing.city }}
-                                        </span>
-                                    {% endif %}
-
-                                    {% if listing.year %}
-                                        <span>
-                                            {{ listing.year }}
-                                        </span>
-                                    {% endif %}
-
-                                    {% if listing.mileage %}
-                                        <span>
-                                            {{ "{:,.0f}".format(listing.mileage) }} كم
-                                        </span>
-                                    {% endif %}
-
-                                </div>
+                                {% if listing.year %}
+                                    <span>• {{ listing.year }}</span>
+                                {% endif %}
 
                             </div>
-
-                        </article>
-
-                    {% endfor %}
-
-                </div>
-
-            {% else %}
-
-                <div class="empty-state">
-
-                    <div class="icon">
-                        📦
-                    </div>
-
-                    <h3>
-                        ما فيه إعلانات حالياً
-                    </h3>
-
-                    <p>
-                        كن أول شخص ينشر إعلان في Lavreen.
-                    </p>
-
-                    {% if session.get('user_id') %}
-
-                        <div style="margin-top:18px;">
-
-                            <a
-                                href="{{ url_for('sell') }}"
-                                class="hero-button primary"
-                                style="display:inline-flex;background:#4f46e5;color:#fff;"
-                            >
-                                + أضف إعلان
-                            </a>
 
                         </div>
 
-                    {% endif %}
+                    </a>
 
-                </div>
+                </article>
 
-            {% endif %}
+            {% endfor %}
 
-        </section>
-
-    </main>
+        </div>
 
 
-    <script>
-        function toggleFavorite(button, listingId) {
+    {% else %}
 
-            const key = "lavreen-favorites";
-            let favorites = [];
+        <div class="empty-state">
 
-            try {
-                favorites =
-                    JSON.parse(localStorage.getItem(key)) || [];
-            } catch (error) {
-                favorites = [];
-            }
+            <div class="icon">
+                📦
+            </div>
 
-            const index = favorites.indexOf(listingId);
+            <h3>
+                لا توجد إعلانات حاليًا
+            </h3>
 
-            if (index === -1) {
+            <p>
+                كن أول شخص ينشر إعلانًا على لافريين.
+            </p>
 
-                favorites.push(listingId);
+        </div>
 
-                button.classList.add("active");
-                button.textContent = "♥";
+    {% endif %}
 
-            } else {
+</div>
 
-                favorites.splice(index, 1);
 
-                button.classList.remove("active");
-                button.textContent = "♡";
+<script>
 
-            }
+    /* =========================
+       THEME
+    ========================= */
 
-            localStorage.setItem(
-                key,
-                JSON.stringify(favorites)
-            );
+    const themeToggle = document.getElementById("themeToggle");
+
+    function applyTheme(theme) {
+
+        if (theme === "dark") {
+
+            document.body.classList.add("dark-mode");
+
+            themeToggle.textContent = "☀️";
+
+        } else {
+
+            document.body.classList.remove("dark-mode");
+
+            themeToggle.textContent = "🌙";
         }
+    }
 
 
-        function restoreFavorites() {
+    const savedTheme = localStorage.getItem("lavreen-theme") || "light";
 
-            const key = "lavreen-favorites";
-            let favorites = [];
+    applyTheme(savedTheme);
 
-            try {
-                favorites =
-                    JSON.parse(localStorage.getItem(key)) || [];
-            } catch (error) {
-                favorites = [];
-            }
 
-            document
-                .querySelectorAll(".favorite-button")
-                .forEach(function (button) {
+    themeToggle.addEventListener("click", function () {
 
-                    const onclick =
-                        button.getAttribute("onclick") || "";
+        const currentTheme =
+            document.body.classList.contains("dark-mode")
+                ? "dark"
+                : "light";
 
-                    const match =
-                        onclick.match(/toggleFavorite\(this,\s*(\d+)\)/);
+        const newTheme =
+            currentTheme === "dark"
+                ? "light"
+                : "dark";
 
-                    if (!match) {
-                        return;
-                    }
+        localStorage.setItem("lavreen-theme", newTheme);
 
-                    const listingId =
-                        Number(match[1]);
+        applyTheme(newTheme);
 
-                    if (favorites.includes(listingId)) {
+    });
 
-                        button.classList.add("active");
-                        button.textContent = "♥";
 
-                    }
+    /* =========================
+       FAVORITES
+    ========================= */
 
+    let favorites =
+        JSON.parse(localStorage.getItem("lavreen-favorites") || "[]");
+
+
+    function updateFavoriteButtons() {
+
+        document
+            .querySelectorAll(".favorite-btn")
+            .forEach(function(button) {
+
+                const id = button.dataset.id;
+
+                if (favorites.includes(String(id))) {
+
+                    button.classList.add("active");
+                    button.textContent = "♥";
+
+                } else {
+
+                    button.classList.remove("active");
+                    button.textContent = "♡";
+                }
+
+            });
+    }
+
+
+    function toggleFavorite(event, id) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        id = String(id);
+
+        if (favorites.includes(id)) {
+
+            favorites =
+                favorites.filter(function(item) {
+                    return item !== id;
                 });
+
+        } else {
+
+            favorites.push(id);
         }
 
 
-        (function () {
+        localStorage.setItem(
+            "lavreen-favorites",
+            JSON.stringify(favorites)
+        );
 
-            const savedTheme =
-                localStorage.getItem("lavreen-theme");
 
-            if (savedTheme === "dark") {
-                document.body.classList.add("dark-mode");
-            }
+        updateFavoriteButtons();
+    }
 
-            restoreFavorites();
 
-        })();
-    </script>
+    updateFavoriteButtons();
+
+</script>
 
 </body>
 </html>
