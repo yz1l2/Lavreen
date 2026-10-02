@@ -3,275 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة إعلان جديد - Lvreen</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>أضف إعلانك - لافريين</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Cairo", sans-serif;
+        }
+
+        .sell-page {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 30px 16px 100px;
+        }
+
+        .sell-header {
+            margin-bottom: 25px;
+        }
+
+        .sell-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .sell-header p {
+            margin: 5px 0 0;
+            opacity: .65;
+            font-size: 14px;
+        }
+
+        .sell-card {
+            border: 1px solid rgba(128,128,128,.18);
+            border-radius: 20px;
+            padding: 24px;
+            background: var(--card-bg, white);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 11px;
+            padding: 12px 13px;
+            background: transparent;
+            color: inherit;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #111827;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .media-box {
+            border: 1.5px dashed rgba(128,128,128,.35);
+            border-radius: 15px;
+            padding: 22px;
+            text-align: center;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .media-box:hover {
+            background: rgba(128,128,128,.05);
+        }
+
+        .media-icon {
+            font-size: 35px;
+            margin-bottom: 5px;
+        }
+
+        .media-box strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .media-box span {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            opacity: .6;
+        }
+
+        #media {
+            display: none;
+        }
+
+        #preview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #eee;
+        }
+
+        .preview-item img,
+        .preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(0,0,0,.7);
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            border: 0;
+            border-radius: 13px;
+            padding: 13px;
+            background: #111827;
+            color: white;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .submit-btn:hover {
+            opacity: .9;
+        }
+
+        .hint {
+            font-size: 11px;
+            opacity: .6;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .sell-page {
+                padding: 20px 10px 80px;
+            }
+
+            .sell-card {
+                padding: 17px;
+                border-radius: 17px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            #preview {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .sell-header h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 font-sans">
 
-    <!-- شريط التنقل العلوي -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
-      <div class="max-w-6xl mx-auto px-4">
-        <div class="flex justify-between items-center h-20">
-          <div class="text-2xl font-bold text-blue-600">
-            <a href="/">Lvreen</a>
-          </div>
-          <div class="hidden md:flex items-center space-x-6 space-x-reverse">
-            <a href="/ai" class="flex items-center text-gray-700 hover:text-blue-600 transition font-medium">
-              <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold ml-2">AI</span>
-              Lvreen AI
-            </a>
-            <a href="/my-listings" class="text-gray-700 hover:text-blue-600 transition font-medium">إعلاناتي</a>
-            <a href="/" class="text-gray-700 hover:text-blue-600 transition font-medium">الرئيسية</a>
-          </div>
-        </div>
-      </div>
-    </nav>
+<body>
 
-    <!-- نموذج إضافة الإعلان -->
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-100 my-8">
-      
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="mb-6 p-4 rounded-xl text-sm font-semibold {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+<div class="sell-page">
 
-      <div class="mb-8 border-b pb-4">
-        <h2 class="text-2xl font-bold text-gray-800">أضف إعلانك الذكي</h2>
-        <p class="text-sm text-gray-500 mt-1">اختر التصنيفات لتظهر لك الخيارات المخصصة تدريجياً</p>
-      </div>
-
-      <form action="/sell" method="POST" enctype="multipart/form-data" class="space-y-6">
-        
-        <!-- عنوان الإعلان -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">عنوان الإعلان <span class="text-red-500">*</span></label>
-          <input type="text" name="title" placeholder="مثال: تويوتا كامري موديل 2023 نظيفة جداً" 
-                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
-        </div>
-
-        <!-- 1. التصنيف الرئيسي (شامل لكل الأقسام) -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">التصنيف الرئيسي <span class="text-red-500">*</span></label>
-          <select id="mainCategory" name="category" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white" required>
-            <option value="">اختر التصنيف الرئيسي...</option>
-            <option value="سيارات">سيارات</option>
-            <option value="عقار">عقار</option>
-            <option value="جوالات">جوالات</option>
-            <option value="كمبيوتر">كمبيوتر</option>
-            <option value="ألعاب">ألعاب</option>
-            <option value="إلكترونيات">إلكترونيات</option>
-            <option value="أثاث">أثاث</option>
-            <option value="أخرى">أخرى</option>
-          </select>
-        </div>
-
-        <!-- 2. الشركة أو القسم الفرعي -->
-        <div id="subCategoryContainer" class="hidden">
-          <label class="block text-sm font-semibold text-gray-700 mb-2">الشركة أو القسم الفرعي <span class="text-red-500">*</span></label>
-          <select id="subCategory" name="sub_category" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <option value="">اختر الشركة أو القسم...</option>
-          </select>
-        </div>
-
-        <!-- 3. الموديل أو الفئة -->
-        <div id="modelContainer" class="hidden">
-          <label class="block text-sm font-semibold text-gray-700 mb-2">الموديل أو الفئة <span class="text-red-500">*</span></label>
-          <select id="modelSelect" name="model" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <option value="">اختر الموديل...</option>
-          </select>
-        </div>
-
-        <!-- السعر والمدينة -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">السعر (ريال سعودي) <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input type="number" name="price" placeholder="0.00" step="any"
-                     class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none pl-16" required>
-              <span class="absolute left-4 top-3 text-gray-400 font-medium">ر.س</span>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">المدينة <span class="text-red-500">*</span></label>
-            <input type="text" name="city" placeholder="مثال: الرياض، جدة..." 
-                   class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" required>
-          </div>
-        </div>
-
-        <!-- وصف الإعلان -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">تفاصيل ووصف الإعلان</label>
-          <textarea name="description" rows="5" placeholder="اكتب تفاصيل السلعة..." 
-                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
-        </div>
-
-        <!-- رفع الصور والفيديوهات (محدث ليدعم حتى 30 صورة و 5 فيديوهات) -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">صور وفيديوهات الإعلان (حتى 30 صورة و 5 فيديوهات)</label>
-          <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center bg-gray-50">
-            <input type="file" name="images" multiple accept="image/*,video/*" class="text-sm text-gray-500">
-          </div>
-        </div>
-
-        <!-- زر الإرسال -->
-        <div class="pt-4">
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200">
-            نشر الإعلان الآن
-          </button>
-        </div>
-
-      </form>
+    <div class="sell-header">
+        <h1>أضف إعلانك</h1>
+        <p>اعرض منتجك أو سيارتك أو عقارك على لافريين</p>
     </div>
 
-    <!-- كود الجافاسكريبت الموسع والشامل -->
-    <script>
-        const hierarchyData = {
-            "سيارات": {
-                // ياباني
-                "تويوتا": ["كامري", "أفالون", "كورولا", "يارس", "أوريون", "لاندكروزر", "راوفور", "فورتشنر", "برادو", "سكويا", "رايز", "هايلكس", "تندرا", "هايلاندر", "سيينا"],
-                "نيسان": ["التيما", "ماكسيما", "صني", "سنترا", "باترول", "إكس تريل", "باثفايندر", "كيكس", "نافارا", "الجراند", "ارماذا"],
-                "هوندا": ["أكورد", "سيفيك", "سيتي", "CR-V", "Pilot", "HR-V", "زيت"],
-                "مازدا": ["مازدا 6", "مازدا 3", "CX-3", "CX-5", "CX-9", "CX-30", "CX-90"],
-                "ميتسوبيشي": ["لانسر", "باجيرو", "مونتيرو", "إكسباندر", "إل 200"],
-                "سوبارو": ["إمبريزا", "ليجاسي", "فورستر", "أوتباك", "بي آر زد"],
-                "إيسوزو": ["ديماكس", "تراجر"],
-                // كوري
-                "هيونداي": ["سوناتا", "النترا", "أكسنت", "ازيرا", "توسان", "سنتافي", "كونا", "كريتا", "باليسايد", "ستاريا"],
-                "كيا": ["كادينزا", "أوبتيما", "سيراتو", "ريو", "K5", "K8", "سبورتاج", "سورينتو", "تلورايد", "سيلتوس", "كارنيفال", "بيجاس"],
-                "جينيسيس": ["G70", "G80", "G90", "GV70", "GV80"],
-                // أمريكي
-                "شيفروليه": ["ماليبو", "كابريس", "إمبالا", "كروز", "تاهو", "سوبربان", "ترافرس", "بليزر", "تراكس", "سلفرادو", "كولورادو"],
-                "جمس (GMC)": ["يوكن", "يوكن دينالي", "ترين", "أكاديا", "سييرا", "سافانا"],
-                "فورد": ["تورس", "فيوجن", "موستانج", "اكسبلورر", "إكسبيديشن", "إيدج", "ترتري", "رنجر", "فورد F-150"],
-                "دودج": ["تشارجر", "تشالنجر", "دورانجو", "هورنت"],
-                "رام": ["رام 1500", "رام 2500"],
-                "كرايسلر": ["كريسيلر 300"],
-                "جيب": ["رانجلر", "جراند شيروكي", "رينيجيد", "كمباس"],
-                "لينكون": ["نافيجيتور", "كورسير", "نوتيلوس", "أفياتور"],
-                "كاديلاك": ["اسكاليد", "اتس", "كتس", "XT4", "XT5", "XT6", "ليريك"],
-                // أوروبي (ألماني وإنجليزي وإيطالي وفرنساوي)
-                "مرسيدس": ["الفئة C", "الفئة E", "الفئة S", "G-Class", "GLE", "GLC", "GLS", "A-Class"],
-                "بي إم دبليو (BMW)": ["الفئة الثالثة", "الفئة الخامسة", "الفئة السابعة", "X3", "X5", "X6", "X7", "M Series"],
-                "أودي": ["A3", "A4", "A6", "A8", "Q3", "Q5", "Q7", "Q8"],
-                "فولكس واجن": ["جيتا", "باسات", "تيغوان", "طوارق", "جولف"],
-                "بورشه": ["كايين", "ماكان", "باناميرا", "911", "تايكان"],
-                "رينج روفر (لاند روفر)": ["رينج روفر", "سبورت", "فيلار", "إيفوك", "ديفندر", "ديسكفري"],
-                "بيجو": ["3008", "5008", "2008", "508"],
-                "رينو": ["داستر", "سيمبول", "كوليوس", "ميجان"],
-                "فيات": ["500", "دوبلو"],
-                "ألفا روميو": ["جوليا", "ستيلفيو"],
-                // صيني
-                "هافال": ["H6", "H9", "جوليان", "دارجو"],
-                "جريت وول (GWM)": ["بوير", "وينجل"],
-                "شانجان": ["الترس", "CS35", "CS75", "يدو", "UNI-T", "UNI-K", "UNI-V"],
-                "جيلي": ["مونجارو", "أوكاانجو", "كولراي", "إمجراند", "ستاري"],
-                "شيري": ["تيجو 2", "تيجو 4", "تيجو 7", "تيجو 8", "أريزو 6"],
-                "إم جي (MG)": ["MG 5", "MG 6", "MG ZS", "MG RX5", "MG Whale", "MG HS"],
-                "بايك": ["BJ40", "X3", "X5", "X7"],
-                "فاو": ["T77", "X40"],
-                "بيستون": ["T77", "T55", "B70"],
-                "جاك": ["JS3", "JS4", "J7"],
-                "بي واي دي (BYD)": ["سون", "هان", "تاتغ"],
-                "تيسلا": ["موديل 3", "موديل Y", "موديل S", "موديل X"],
-                "نيو": ["ET7", "ES6"],
-                "زييكر": ["001", "X", "009"],
-                "هونشي": ["H9", "HS5", "E-HS9"]
-            },
-            "عقار": {
-                "شقق": ["إيجار سنوي", "إيجار شهري", "تمليك"],
-                "أراضي": ["سكني", "تجاري", "زراعي", "صناعي"],
-                "فلل": ["درج صالة", "مفصوله", "قصر", "توبريكس"],
-                "بيوت شعبية": ["للبيع", "للايجار"],
-                "استراحات وشاليهات": ["يومي", "سنوي"],
-                "مخازن ومحلات تجارية": ["معارض", "مستودعات", "محل تجاري"]
-            },
-            "جوالات": {
-                "آبل (آيفون)": ["آيفون 15 بروماكس", "آيفون 15", "آيفون 14 بروماكس", "آيفون 14", "آيفون 13", "آيفون 12", "آيفون SE"],
-                "سامسونج": ["جالاكسي S24 Ultra", "جالاكسي S24+", "جالاكسي S24", "جالاكسي S23", "جالاكسي A54", "جالاكسي A34", "جالاكسي Z Fold", "جالاكسي Z Flip"],
-                "هواوي": ["Pura 70", "Mate 60", "Nova 11", "Nova 12"],
-                "شاومي": ["Xiaomi 14", "Redmi Note 13", "POCO X6"],
-                "أونر": ["Honor Magic 6", "Honor 90", "Honor X9b"]
-            },
-            "كمبيوتر": {
-                "أجهزة لابتوب": ["ماك بوك آير", "ماك بوك برو", "لابتوب ألعاب (Gaming)", "لابتوب مكتبي عادي"],
-                "قطع تجميعات PC": ["معالجات (CPU)", "كرت شاشة (GPU)", "لوحة أم (Motherboard)", "رامات (RAM)", "تخزين (SSD/HDD)"],
-                "شاشات كمبيوتر": ["شاشات ألعاب 144Hz+", "شاشات عمل وعرض عادي"]
-            },
-            "ألعاب": {
-                "بلايستيشن (PlayStation)": ["بلايستيشن 5", "بلايستيشن 4", "ألعاب PS5", "ألعاب PS4"],
-                "إكس بوكس (Xbox)": ["إكس بوكس سيريس إكس", "إكس بوكس سيريس إس"],
-                "نينتندو (Nintendo)": ["نينتندو سويتش"],
-                "ألعاب إلكترونية أخرى": ["حسابات ألعاب", "بطاقات شحن ورصيد"]
-            },
-            "إلكترونيات": {
-                "شاشات منزلية": ["شاشات ذكية 4K", "شاشات ليد عادية"],
-                "أجهزة صوتية": ["سماعات بلوتوث", "مسرح منزلي", "سماعات ألعاب رأسية"],
-                "كاميرات": ["كاميرات مراقبة", "كاميرات احترافية"]
-            },
-            "أثاث": {
-                "غرف نوم": ["رئيسية", "أطفال", "فرود مفردة"],
-                "مجالس وتفصيل": ["كنب متصل", "مجالس عربي", "طاولات طعام"],
-                "أجهزة منزلية": ["مكيفات", "ثلاجات", "غسالات ومجففات"]
-            },
-            "أخرى": {
-                "مستلزمات شخصية": ["عطور", "ساعات", "ملابس"],
-                "أعلاف ومواشي": ["إبل", "غنم", "أعلاف"],
-                "خدمات": ["مقاولات وتصميم", "نقل وتوصيل", "برمجة وتصميم مواقع"]
-            }
-        };
 
-        const mainCategory = document.getElementById('mainCategory');
-        const subCategoryContainer = document.getElementById('subCategoryContainer');
-        const subCategory = document.getElementById('subCategory');
-        const modelContainer = document.getElementById('modelContainer');
-        const modelSelect = document.getElementById('modelSelect');
+    <div class="sell-card">
 
-        mainCategory.addEventListener('change', function() {
-            const selectedMain = this.value;
-            subCategory.innerHTML = '<option value="">اختر الشركة أو القسم الفرعي...</option>';
-            modelSelect.innerHTML = '<option value="">اختر الموديل...</option>';
-            modelContainer.classList.add('hidden');
+        <form method="POST"
+              action="{{ url_for('sell') }}"
+              enctype="multipart/form-data">
 
-            if (selectedMain && hierarchyData[selectedMain]) {
-                const subs = Object.keys(hierarchyData[selectedMain]);
-                subs.forEach(sub => {
-                    const opt = document.createElement('option');
-                    opt.value = sub;
-                    opt.textContent = sub;
-                    subCategory.appendChild(opt);
-                });
-                subCategoryContainer.classList.remove('hidden');
-            } else {
-                subCategoryContainer.classList.add('hidden');
-            }
+            <div class="form-group">
+                <label for="title">عنوان الإعلان</label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="مثال: كامري 2022 للبيع"
+                    maxlength="150"
+                    required
+                >
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="category">القسم</label>
+
+                    <select id="category" name="category" required>
+                        <option value="">اختر القسم</option>
+
+                        <option value="سيارات">سيارات</option>
+                        <option value="عقار">عقار</option>
+                        <option value="جوالات">جوالات</option>
+                        <option value="كمبيوتر">كمبيوتر</option>
+                        <option value="إلكترونيات">إلكترونيات</option>
+                        <option value="أثاث">أثاث</option>
+                        <option value="ملابس">ملابس</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="sub_category">التصنيف الفرعي</label>
+
+                    <select id="sub_category" name="sub_category">
+                        <option value="">اختر التصنيف الفرعي</option>
+                    </select>
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+                <label for="price">السعر</label>
+
+                <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    placeholder="مثال: 60000"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="city">المدينة</label>
+
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        placeholder="مثال: الرياض"
+                        maxlength="80"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="year">السنة</label>
+
+                    <input
+                        type="number"
+                        id="year"
+                        name="year"
+                        placeholder="مثال: 2022"
+                        min="1900"
+                        max="2100"
+                    >
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="make">الشركة / الماركة</label>
+
+                    <input
+                        type="text"
+                        id="make"
+                        name="make"
+                        placeholder="مثال: تويوتا"
+                        maxlength="80"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="model">الموديل</label>
+
+                    <input
+                        type="text"
+                        id="model"
+                        name="model"
+                        placeholder="مثال: كامري"
+                        maxlength="80"
+                    >
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+                <label for="mileage">الممشى</label>
+
+                <input
+                    type="number"
+                    id="mileage"
+                    name="mileage"
+                    placeholder="مثال: 85000"
+                    min="0"
+                >
+
+                <div class="hint">
+                    للسيارات فقط، اتركه فارغًا إذا كان غير مناسب.
+                </div>
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">وصف الإعلان</label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    maxlength="5000"
+                    placeholder="اكتب تفاصيل المنتج، حالته، المواصفات، سبب البيع، وأي معلومات مهمة..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>الصور والفيديو</label>
+
+                <label class="media-box" for="media">
+
+                    <div class="media-icon">📷</div>
+
+                    <strong>اضغط لاختيار الصور أو الفيديوهات</strong>
+
+                    <span>
+                        يمكنك اختيار أكثر من ملف
+                    </span>
+
+                </label>
+
+                <input
+                    type="file"
+                    id="media"
+                    name="media"
+                    accept="image/*,video/*"
+                    multiple
+                >
+
+                <div id="preview"></div>
+
+            </div>
+
+
+            <button type="submit" class="submit-btn">
+                نشر الإعلان
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+    const category = document.getElementById("category");
+    const subCategory = document.getElementById("sub_category");
+
+    const hierarchyData = {
+        "سيارات": [
+            "سيارات",
+            "قطع غيار",
+            "دراجات",
+            "شاحنات"
+        ],
+
+        "عقار": [
+            "شقق",
+            "فلل",
+            "أراضي",
+            "عمائر",
+            "مكاتب",
+            "محلات"
+        ],
+
+        "جوالات": [
+            "آيفون",
+            "سامسونج",
+            "أندرويد",
+            "أجهزة لوحية",
+            "إكسسوارات"
+        ],
+
+        "كمبيوتر": [
+            "كمبيوتر مكتبي",
+            "لابتوب",
+            "قطع كمبيوتر",
+            "شاشات",
+            "إكسسوارات"
+        ],
+
+        "إلكترونيات": [
+            "تلفزيونات",
+            "ألعاب",
+            "كاميرات",
+            "سماعات",
+            "أجهزة منزلية"
+        ],
+
+        "أثاث": [
+            "غرف نوم",
+            "مجالس",
+            "كنب",
+            "طاولات",
+            "مكاتب"
+        ],
+
+        "ملابس": [
+            "رجالية",
+            "نسائية",
+            "أطفال",
+            "أحذية",
+            "إكسسوارات"
+        ],
+
+        "أخرى": [
+            "أخرى"
+        ]
+    };
+
+
+    category.addEventListener("change", function () {
+
+        const selected = this.value;
+
+        subCategory.innerHTML =
+            '<option value="">اختر التصنيف الفرعي</option>';
+
+        if (!hierarchyData[selected]) {
+            return;
+        }
+
+        hierarchyData[selected].forEach(function (item) {
+
+            const option = document.createElement("option");
+
+            option.value = item;
+            option.textContent = item;
+
+            subCategory.appendChild(option);
+
         });
 
-        subCategory.addEventListener('change', function() {
-            const selectedMain = mainCategory.value;
-            const selectedSub = this.value;
-            modelSelect.innerHTML = '<option value="">اختر الموديل...</option>';
+    });
 
-            if (selectedMain && selectedSub && hierarchyData[selectedMain][selectedSub]) {
-                const models = hierarchyData[selectedMain][selectedSub];
-                models.forEach(model => {
-                    const opt = document.createElement('option');
-                    opt.value = model;
-                    opt.textContent = model;
-                    modelSelect.appendChild(opt);
-                });
-                modelContainer.classList.remove('hidden');
-            } else {
-                modelContainer.classList.add('hidden');
+
+    const mediaInput = document.getElementById("media");
+    const preview = document.getElementById("preview");
+
+    mediaInput.addEventListener("change", function () {
+
+        preview.innerHTML = "";
+
+        Array.from(this.files).forEach(function (file) {
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "preview-item";
+
+            if (file.type.startsWith("image/")) {
+
+                const img = document.createElement("img");
+
+                img.src = URL.createObjectURL(file);
+
+                wrapper.appendChild(img);
+
+            } else if (file.type.startsWith("video/")) {
+
+                const video = document.createElement("video");
+
+                video.src = URL.createObjectURL(file);
+                video.controls = true;
+
+                wrapper.appendChild(video);
+
             }
-        });
-    </script>
 
+            preview.appendChild(wrapper);
+
+        });
+
+    });
+</script>
 
 </body>
 </html>
