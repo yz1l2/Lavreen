@@ -1,5 +1,4 @@
-﻿Flask==3.1.3
+Flask==3.1.3
 Werkzeug==3.1.8
 gunicorn
 requests
-libsql-client>=0.3.0
