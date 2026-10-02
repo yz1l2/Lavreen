@@ -1,366 +1,393 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>مساعد لافرين الذكي</title>
+    <title>مساعد لافريين</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        .chat-page {
-            max-width: 720px;
-            margin: auto;
-            padding: 24px 16px 100px;
-            min-height: calc(100vh - 76px);
-            display: flex;
-            flex-direction: column;
+        body {
+            font-family: "Cairo", sans-serif;
         }
 
-        .chat-top {
+        .ai-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 16px 120px;
+        }
+
+        .ai-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 18px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .chat-top h1 {
-            font-size: 18px;
+        .ai-title {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
-        .chat-top h1 span.badge-ai {
-            width: 30px;
-            height: 30px;
-            border-radius: 9px;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111827;
             color: white;
-            font-size: 13px;
-            font-weight: 800;
-            display: grid;
-            place-items: center;
+            font-size: 23px;
         }
 
-        .chat-new {
-            font-size: 12px;
-            font-weight: 700;
-            color: #7357ff;
-            background: #f1efff;
-            padding: 8px 13px;
-            border-radius: 100px;
+        .ai-title h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .ai-title p {
+            margin: 2px 0 0;
+            opacity: .65;
+            font-size: 13px;
+        }
+
+        .ai-reset {
+            text-decoration: none;
+            border: 1px solid rgba(128,128,128,.25);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: inherit;
+        }
+
+        .ai-reset:hover {
+            background: rgba(128,128,128,.08);
+        }
+
+        .chat-box {
+            min-height: 520px;
+            max-height: 650px;
+            overflow-y: auto;
+            padding: 20px;
+            border: 1px solid rgba(128,128,128,.18);
+            border-radius: 22px;
+            background: rgba(128,128,128,.035);
+        }
+
+        .empty-ai {
+            min-height: 470px;
             display: flex;
             align-items: center;
-            gap: 5px;
-        }
-
-        .chat-log {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .chat-empty {
+            justify-content: center;
             text-align: center;
-            color: #999;
+            flex-direction: column;
+            gap: 8px;
+            opacity: .7;
+        }
+
+        .empty-ai .big-icon {
+            font-size: 45px;
+            margin-bottom: 5px;
+        }
+
+        .empty-ai h2 {
+            margin: 0;
+            font-size: 19px;
+        }
+
+        .empty-ai p {
+            margin: 0;
             font-size: 13px;
-            padding: 60px 20px;
-            background: white;
-            border: 1px dashed #d8d2ff;
-            border-radius: 18px;
         }
 
-        .chat-empty strong {
-            display: block;
-            font-size: 15px;
-            color: #333;
-            margin-bottom: 6px;
-        }
-
-        .chat-row {
+        .message-row {
             display: flex;
-            gap: 10px;
+            margin-bottom: 16px;
         }
 
-        .user-row {
-            justify-content: flex-end;
-        }
-
-        .assistant-row {
+        .message-row.user {
             justify-content: flex-start;
         }
 
-        .chat-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
-            color: white;
-            font-size: 12px;
-            font-weight: 800;
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
+        .message-row.assistant {
+            justify-content: flex-end;
         }
 
-        .chat-bubble {
+        .message-bubble {
             max-width: 78%;
-            padding: 13px 16px;
-            border-radius: 18px;
-            font-size: 14px;
+            padding: 12px 16px;
+            border-radius: 17px;
             line-height: 1.8;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
-        .user-bubble {
-            background: linear-gradient(135deg, #7357ff, #6045ed);
+        .message-row.user .message-bubble {
+            background: #111827;
             color: white;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 8px 18px rgba(115,87,255,0.25);
-        }
-
-        .assistant-bubble {
-            background: white;
-            border: 1px solid #e7e7eb;
-            color: var(--text);
             border-bottom-right-radius: 5px;
         }
 
-        .chat-results {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .chat-result-card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #fafaff;
-            border: 1px solid #eeecff;
-            border-radius: 13px;
-            padding: 8px;
-            transition: 0.2s;
-        }
-
-        .chat-result-card:hover {
-            border-color: #d8d2ff;
-            background: #f5f3ff;
-        }
-
-        .crc-image {
-            width: 52px;
-            height: 52px;
-            border-radius: 10px;
-            background: #f1f1f3;
-            flex-shrink: 0;
-            overflow: hidden;
-            display: grid;
-            place-items: center;
-            font-size: 18px;
-            color: #aaa;
-        }
-
-        .crc-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .crc-body {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .crc-title {
-            font-size: 12.5px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .crc-meta {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .crc-price {
-            font-size: 12.5px;
-            font-weight: 800;
-            color: #7357ff;
-            margin-top: 2px;
-        }
-
-        .crc-reason {
-            margin-top: 5px;
-            display: inline-block;
-            background: #f1efff;
-            color: #5a48c9;
-            font-size: 10.5px;
-            padding: 4px 9px;
-            border-radius: 8px;
-        }
-
-        .chat-input-bar {
-            position: sticky;
-            bottom: 14px;
-            margin-top: 20px;
-
-            display: flex;
-            gap: 8px;
-
+        .message-row.assistant .message-bubble {
             background: white;
-            border: 1px solid #e7e7eb;
-            border-radius: 16px;
-            padding: 8px;
-
-            box-shadow: 0 15px 35px rgba(20,20,30,0.1);
+            color: #111827;
+            border: 1px solid rgba(128,128,128,.18);
+            border-bottom-left-radius: 5px;
         }
 
-        .chat-input-bar input {
+        .ai-input-area {
+            margin-top: 15px;
+            position: sticky;
+            bottom: 10px;
+        }
+
+        .ai-form {
+            display: flex;
+            gap: 10px;
+            padding: 8px;
+            border: 1px solid rgba(128,128,128,.22);
+            border-radius: 18px;
+            background: var(--card-bg, white);
+            box-shadow: 0 8px 30px rgba(0,0,0,.08);
+        }
+
+        .ai-form textarea {
             flex: 1;
-            border: none;
+            resize: none;
+            min-height: 48px;
+            max-height: 140px;
+            border: 0;
             outline: none;
+            background: transparent;
+            color: inherit;
+            padding: 12px;
             font-family: inherit;
             font-size: 14px;
-            padding: 10px 12px;
         }
 
-        .chat-input-bar button {
+        .ai-form button {
+            align-self: flex-end;
             border: 0;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
+            border-radius: 13px;
+            padding: 11px 18px;
+            background: #111827;
             color: white;
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            font-size: 16px;
+            font-family: inherit;
+            font-weight: 700;
             cursor: pointer;
-            flex-shrink: 0;
         }
 
-        .chat-error {
+        .ai-form button:hover {
+            opacity: .9;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-top: 12px;
-            background: #ffecec;
-            border: 1px solid #ffcaca;
-            color: #a33;
-            border-radius: 14px;
-            padding: 12px 16px;
-            font-size: 13px;
+        }
+
+        .suggestion {
+            border: 1px solid rgba(128,128,128,.2);
+            background: transparent;
+            color: inherit;
+            padding: 7px 11px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .suggestion:hover {
+            background: rgba(128,128,128,.08);
         }
 
         @media (max-width: 600px) {
-            .chat-page {
-                padding: 18px 12px 90px;
+            .ai-page {
+                padding: 20px 10px 100px;
             }
-            .chat-bubble {
+
+            .ai-header {
+                align-items: flex-start;
+            }
+
+            .ai-title h1 {
+                font-size: 20px;
+            }
+
+            .ai-reset {
+                font-size: 11px;
+                padding: 7px 10px;
+            }
+
+            .chat-box {
+                min-height: 480px;
+                padding: 13px;
+                border-radius: 18px;
+            }
+
+            .message-bubble {
                 max-width: 88%;
+                font-size: 13px;
+            }
+
+            .ai-form {
+                border-radius: 15px;
+            }
+
+            .ai-form button {
+                padding: 10px 13px;
             }
         }
     </style>
-
 </head>
 
 <body>
 
-<header class="topbar">
-    <div class="topbar-inner">
+<div class="ai-page">
 
-        <a href="/" class="logo">
-            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
+    <div class="ai-header">
+
+        <div class="ai-title">
+            <div class="ai-icon">✦</div>
+
+            <div>
+                <h1>مساعد لافريين</h1>
+                <p>ابحث، قارن، واسأل عن المنتجات والأسعار</p>
+            </div>
+        </div>
+
+        <a href="/ai/reset" class="ai-reset">
+            مسح المحادثة
         </a>
 
-        <nav class="main-nav">
-            <a href="/">الرئيسية</a>
-            <a href="/ai" class="ai-nav active"><span>✦</span> مساعد AI</a>
-        </nav>
-
-        <div class="header-actions">
-            {% if session.get('user_id') %}
-                <a href="/my-listings" class="header-link">إعلاناتي</a>
-                <a href="/sell" class="sell-btn">+ أضف إعلان</a>
-            {% else %}
-                <a href="/login" class="header-link">تسجيل الدخول</a>
-                <a href="/sell" class="sell-btn">+ أضف إعلان</a>
-            {% endif %}
-        </div>
-
-    </div>
-</header>
-
-<main class="chat-page">
-
-    <div class="chat-top">
-        <h1><span class="badge-ai">Ai</span> مساعد لافرين</h1>
-        <a href="/ai/reset" class="chat-new">↻ محادثة جديدة</a>
     </div>
 
-    <div class="chat-log">
 
-        {% if not history %}
-        <div class="chat-empty">
-            <strong>👋 أهلاً فيك</strong>
-            وش تدور عليه؟ اكتب طلبك بأي صيغة، مثلاً:<br>
-            "كامري 2023 بميزانية 90 ألف وماشية قليلة"
-        </div>
+    <div class="chat-box" id="chatBox">
+
+        {% set history = session.get('ai_history', []) %}
+
+        {% if history %}
+
+            {% for msg in history %}
+
+                {% if msg.role == 'user' %}
+
+                    <div class="message-row user">
+                        <div class="message-bubble">{{ msg.content }}</div>
+                    </div>
+
+                {% else %}
+
+                    <div class="message-row assistant">
+                        <div class="message-bubble">{{ msg.content }}</div>
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-ai">
+
+                <div class="big-icon">🤖</div>
+
+                <h2>هلا بك في مساعد لافريين</h2>
+
+                <p>
+                    اكتب طلبك، وأنا أساعدك في البحث داخل الإعلانات.
+                </p>
+
+                <div class="suggestions">
+
+                    <button class="suggestion" type="button"
+                            onclick="setSuggestion('أبي كامري بحدود 60000 ريال')">
+                        🚗 كامري بحدود 60 ألف
+                    </button>
+
+                    <button class="suggestion" type="button"
+                            onclick="setSuggestion('أبي كمبيوتر ألعاب بسعر 3000 ريال')">
+                        🖥️ كمبيوتر ألعاب بـ 3000
+                    </button>
+
+                    <button class="suggestion" type="button"
+                            onclick="setSuggestion('وش أفضل سعر لهذا المنتج؟')">
+                        💰 ساعدني بالسعر
+                    </button>
+
+                </div>
+
+            </div>
+
         {% endif %}
 
-        {% for turn in history %}
+    </div>
 
-            <div class="chat-row user-row">
-                <div class="chat-bubble user-bubble">{{ turn.query }}</div>
-            </div>
 
-            <div class="chat-row assistant-row">
-                <div class="chat-avatar">Ai</div>
-                <div class="chat-bubble assistant-bubble">
-                    <div>{{ turn.ai_message }}</div>
+    <div class="ai-input-area">
 
-                    {% if turn.results %}
-                    <div class="chat-results">
-                        {% for item in turn.results %}
-                        <a href="/listing/{{ item.id }}" class="chat-result-card">
-                            <div class="crc-image">
-                                {% if item.first_image %}
-                                <img src="{{ url_for('static', filename=item.first_image) }}" alt="{{ item.title }}">
-                                {% else %}
-                                📦
-                                {% endif %}
-                            </div>
-                            <div class="crc-body">
-                                <div class="crc-title">{{ item.title }}</div>
-                                <div class="crc-meta">📍 {{ item.city }}</div>
-                                <div class="crc-price">{{ "{:,.0f}".format(item.price) }} ر.س</div>
-                                {% if item.ai_reason %}
-                                <div class="crc-reason">✨ {{ item.ai_reason }}</div>
-                                {% endif %}
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        <form method="POST"
+              action="{{ url_for('ai') }}"
+              class="ai-form">
 
-        {% endfor %}
+            <textarea
+                id="messageInput"
+                name="message"
+                placeholder="اكتب سؤالك هنا..."
+                autocomplete="off"
+                required
+            ></textarea>
+
+            <button type="submit">
+                إرسال
+            </button>
+
+        </form>
 
     </div>
 
-    {% if error %}
-    <div class="chat-error">⚠️ {{ error }}</div>
-    {% endif %}
+</div>
 
-    <form method="POST" action="/ai" class="chat-input-bar">
-        <input type="text" name="query" placeholder="اكتب طلبك هنا..." required autofocus>
-        <button type="submit">➤</button>
-    </form>
 
-</main>
+<script>
+    const input = document.getElementById("messageInput");
+    const chatBox = document.getElementById("chatBox");
+
+    function setSuggestion(text) {
+        input.value = text;
+        input.focus();
+    }
+
+    input.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = Math.min(this.scrollHeight, 140) + "px";
+    });
+
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            this.form.submit();
+        }
+    });
+
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
 
 </body>
 </html>
