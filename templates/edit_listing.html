@@ -3,166 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تعديل الإعلان | لافريين</title>
+
+    <title>تعديل الإعلان - لافريين</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        .edit-page {
-            max-width: 640px;
-            margin: auto;
-            padding: 60px 20px;
+        body {
+            font-family: "Cairo", sans-serif;
         }
 
-        .edit-page h1 {
-            font-size: 28px;
+        .edit-page {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 30px 16px 100px;
+        }
+
+        .edit-header {
             margin-bottom: 25px;
         }
 
-        .edit-box {
-            background: white;
-            border: 1px solid #e5e6eb;
-            border-radius: 22px;
-            padding: 25px;
+        .edit-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .edit-header p {
+            margin: 5px 0 0;
+            opacity: .65;
+            font-size: 14px;
+        }
+
+        .edit-card {
+            border: 1px solid rgba(128,128,128,.18);
+            border-radius: 20px;
+            padding: 24px;
+            background: var(--card-bg, white);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 11px;
+            padding: 12px 13px;
+            background: transparent;
+            color: inherit;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #111827;
+        }
+
+        .form-group textarea {
+            min-height: 160px;
+            resize: vertical;
+            line-height: 1.8;
         }
 
         .form-row {
-            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
 
-        .form-row label {
-            display: block;
+        .current-media {
+            margin-bottom: 22px;
+        }
+
+        .current-media-title {
             font-size: 13px;
             font-weight: 700;
-            margin-bottom: 6px;
-            color: #444;
+            margin-bottom: 10px;
         }
 
-        .form-row input,
-        .form-row select,
-        .form-row textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .form-row textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .form-grid-2 {
+        .media-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .media-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(128,128,128,.1);
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .no-media {
+            font-size: 12px;
+            opacity: .6;
+            padding: 12px;
+            border: 1px dashed rgba(128,128,128,.25);
+            border-radius: 10px;
         }
 
         .save-btn {
             width: 100%;
             border: 0;
-            padding: 15px;
             border-radius: 13px;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
+            padding: 13px;
+            background: #111827;
             color: white;
+            font-family: inherit;
             font-size: 15px;
-            font-weight: 800;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 5px;
         }
 
-        .cancel-link {
-            display: block;
+        .save-btn:hover {
+            opacity: .9;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .back-btn {
+            flex: 1;
             text-align: center;
-            margin-top: 14px;
-            color: #888;
-            font-size: 13px;
+            text-decoration: none;
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 13px;
+            padding: 12px;
+            color: inherit;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(128,128,128,.06);
+        }
+
+        .hint {
+            font-size: 11px;
+            opacity: .6;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .edit-page {
+                padding: 20px 10px 80px;
+            }
+
+            .edit-card {
+                padding: 17px;
+                border-radius: 17px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .media-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .edit-header h1 {
+                font-size: 23px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="topbar-inner">
-        <a href="/" class="logo">
-            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
-        </a>
-        <nav class="main-nav">
-            <a href="/">الرئيسية</a>
-            <a href="/ai">✨ مساعد AI</a>
-        </nav>
-        <div class="header-actions">
-            <a href="/my-listings" class="header-link">إعلاناتي</a>
-        </div>
+<div class="edit-page">
+
+    <div class="edit-header">
+        <h1>تعديل الإعلان</h1>
+        <p>حدّث معلومات إعلانك ثم احفظ التغييرات</p>
     </div>
-</header>
 
-<main class="edit-page">
-    <h1>تعديل الإعلان</h1>
 
-    <div class="edit-box">
-        <form method="POST" action="{{ url_for('edit_listing', listing_id=listing['id']) }}">
+    <div class="edit-card">
 
-            <div class="form-row">
-                <label>عنوان الإعلان</label>
-                <input type="text" name="title" value="{{ listing['title'] }}" required>
+        {% if media %}
+
+        <div class="current-media">
+
+            <div class="current-media-title">
+                الصور والفيديوهات الحالية
             </div>
 
-            <div class="form-row">
-                <label>التصنيف</label>
-                <select name="category">
-                    {% for cat in ['سيارات', 'جوالات', 'عقار', 'كمبيوتر', 'أثاث'] %}
-                    <option value="{{ cat }}" {% if listing['category'] == cat %}selected{% endif %}>{{ cat }}</option>
-                    {% endfor %}
+            <div class="media-grid">
+
+                {% for item in media %}
+
+                    <div class="media-item">
+
+                        {% if item.media_type == 'video' %}
+
+                            <video
+                                src="{{ url_for('static', filename=item.file_path.replace('static/', '')) }}"
+                                controls>
+                            </video>
+
+                        {% else %}
+
+                            <img
+                                src="{{ url_for('static', filename=item.file_path.replace('static/', '')) }}"
+                                alt="صورة الإعلان">
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <form method="POST"
+              action="{{ url_for('edit_listing', listing_id=listing.id) }}">
+
+            <div class="form-group">
+
+                <label for="title">عنوان الإعلان</label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="{{ listing.title or '' }}"
+                    maxlength="150"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="category">القسم</label>
+
+                <select id="category" name="category" required>
+
+                    <option value="">اختر القسم</option>
+
+                    <option value="سيارات"
+                        {% if listing.category == 'سيارات' %}selected{% endif %}>
+                        سيارات
+                    </option>
+
+                    <option value="عقار"
+                        {% if listing.category == 'عقار' %}selected{% endif %}>
+                        عقار
+                    </option>
+
+                    <option value="جوالات"
+                        {% if listing.category == 'جوالات' %}selected{% endif %}>
+                        جوالات
+                    </option>
+
+                    <option value="كمبيوتر"
+                        {% if listing.category == 'كمبيوتر' %}selected{% endif %}>
+                        كمبيوتر
+                    </option>
+
+                    <option value="إلكترونيات"
+                        {% if listing.category == 'إلكترونيات' %}selected{% endif %}>
+                        إلكترونيات
+                    </option>
+
+                    <option value="أثاث"
+                        {% if listing.category == 'أثاث' %}selected{% endif %}>
+                        أثاث
+                    </option>
+
+                    <option value="ملابس"
+                        {% if listing.category == 'ملابس' %}selected{% endif %}>
+                        ملابس
+                    </option>
+
+                    <option value="أخرى"
+                        {% if listing.category == 'أخرى' %}selected{% endif %}>
+                        أخرى
+                    </option>
+
                 </select>
+
             </div>
 
-            <div class="form-grid-2">
-                <div class="form-row">
-                    <label>السعر (ريال)</label>
-                    <input type="number" name="price" value="{{ listing['price']|int }}" required>
-                </div>
-                <div class="form-row">
-                    <label>المدينة</label>
-                    <input type="text" name="city" value="{{ listing['city'] }}" required>
-                </div>
+
+            <div class="form-group">
+
+                <label for="price">السعر</label>
+
+                <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value="{{ listing.price or '' }}"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+
             </div>
 
-            <div class="form-grid-2">
-                <div class="form-row">
-                    <label>سنة الصنع (اختياري)</label>
-                    <input type="number" name="year" value="{{ listing['year'] or '' }}">
-                </div>
-                <div class="form-row">
-                    <label>الممشى / كم (اختياري)</label>
-                    <input type="number" name="mileage" value="{{ listing['mileage'] or '' }}">
-                </div>
-            </div>
-
-            <div class="form-grid-2">
-                <div class="form-row">
-                    <label>الماركة (اختياري)</label>
-                    <input type="text" name="make" value="{{ listing['make'] or '' }}">
-                </div>
-                <div class="form-row">
-                    <label>الموديل (اختياري)</label>
-                    <input type="text" name="model" value="{{ listing['model'] or '' }}">
-                </div>
-            </div>
 
             <div class="form-row">
-                <label>الوصف</label>
-                <textarea name="description">{{ listing['description'] or '' }}</textarea>
+
+                <div class="form-group">
+
+                    <label for="city">المدينة</label>
+
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value="{{ listing.city or '' }}"
+                        maxlength="80"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="year">السنة</label>
+
+                    <input
+                        type="number"
+                        id="year"
+                        name="year"
+                        value="{{ listing.year or '' }}"
+                        min="1900"
+                        max="2100"
+                    >
+
+                </div>
+
             </div>
 
-            <button type="submit" class="save-btn">💾 حفظ التعديلات</button>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="make">الشركة / الماركة</label>
+
+                    <input
+                        type="text"
+                        id="make"
+                        name="make"
+                        value="{{ listing.make or '' }}"
+                        maxlength="80"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="model">الموديل</label>
+
+                    <input
+                        type="text"
+                        id="model"
+                        name="model"
+                        value="{{ listing.model or '' }}"
+                        maxlength="80"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="mileage">الممشى</label>
+
+                <input
+                    type="number"
+                    id="mileage"
+                    name="mileage"
+                    value="{{ listing.mileage or '' }}"
+                    min="0"
+                >
+
+                <div class="hint">
+                    للسيارات، ويمكن تركه فارغًا لبقية الأقسام.
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">الوصف</label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    maxlength="5000"
+                    required
+                >{{ listing.description or '' }}</textarea>
+
+            </div>
+
+
+            <button type="submit" class="save-btn">
+                حفظ التعديلات
+            </button>
+
         </form>
 
-        <a href="{{ url_for('my_listings') }}" class="cancel-link">إلغاء والرجوع</a>
+
+        <div class="actions">
+
+            <a
+                href="{{ url_for('listing_page', listing_id=listing.id) }}"
+                class="back-btn">
+                العودة للإعلان
+            </a>
+
+            <a
+                href="{{ url_for('my_listings') }}"
+                class="back-btn">
+                إعلاناتي
+            </a>
+
+        </div>
+
     </div>
-</main>
+
+</div>
 
 </body>
 </html>
