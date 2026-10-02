@@ -1,465 +1,357 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>إعلاناتي | لافريين</title>
+    <title>إعلاناتي - لافريين</title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-
-        .my-page {
-            max-width: 1150px;
-            margin: auto;
-            padding: 60px 20px;
+        body {
+            font-family: "Cairo", sans-serif;
         }
 
-        .my-hero {
+        .my-listings-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 16px 100px;
+        }
+
+        .page-header {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 35px;
-        }
-
-        .my-hero h1 {
-            margin: 0 0 8px;
-            font-size: 42px;
-            letter-spacing: -1px;
-        }
-
-        .my-hero p {
-            margin: 0;
-            color: #777;
-        }
-
-        .my-stats {
-            display: flex;
-            gap: 10px;
-        }
-
-        .stat-box {
-            background: white;
-            border: 1px solid #e5e6eb;
-            border-radius: 16px;
-            padding: 15px 20px;
-            text-align: center;
-            min-width: 100px;
-        }
-
-        .stat-box strong {
-            display: block;
-            font-size: 22px;
-        }
-
-        .stat-box span {
-            color: #777;
-            font-size: 11px;
-        }
-
-        .my-list {
-            display: grid;
             gap: 15px;
-        }
-
-        .my-ad {
-            background: white;
-            border: 1px solid #e5e6eb;
-            border-radius: 21px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            transition: .25s;
-        }
-
-        .my-ad:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0,0,0,.07);
-        }
-
-        .my-ad-image {
-            width: 145px;
-            height: 115px;
-            flex-shrink: 0;
-            border-radius: 15px;
-            overflow: hidden;
-            background: #f0f1f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-
-        .my-ad-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .my-ad-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .my-ad-category {
-            display: inline-block;
-            background: #f2f3f6;
-            padding: 6px 10px;
-            border-radius: 9px;
-            font-size: 11px;
-            margin-bottom: 8px;
-        }
-
-        .my-ad-info h2 {
-            margin: 0 0 8px;
-            font-size: 18px;
-        }
-
-        .my-ad-price {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .my-ad-meta {
-            margin-top: 8px;
-            color: #777;
-            font-size: 12px;
-        }
-
-        .my-ad-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .my-ad-actions a,
-        .my-ad-actions button {
-            min-width: 95px;
-            padding: 10px 13px;
-            border-radius: 11px;
-            border: 0;
-            text-align: center;
-            background: #111;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .my-ad-actions .delete-button {
-            background: #f1f2f4;
-            color: #222;
-        }
-
-        .my-empty {
-            background: white;
-            border: 1px solid #e5e6eb;
-            border-radius: 25px;
-            padding: 85px 20px;
-            text-align: center;
-        }
-
-        .my-empty-icon {
-            font-size: 55px;
-            margin-bottom: 15px;
-        }
-
-        .my-empty h2 {
-            margin: 0 0 8px;
-        }
-
-        .my-empty p {
-            color: #777;
             margin-bottom: 25px;
         }
 
-        @media (max-width: 700px) {
-
-            .my-page {
-                padding: 40px 15px;
-            }
-
-            .my-hero {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .my-hero h1 {
-                font-size: 34px;
-            }
-
-            .my-stats {
-                width: 100%;
-            }
-
-            .stat-box {
-                flex: 1;
-            }
-
-            .my-ad {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .my-ad-image {
-                width: 100%;
-                height: 210px;
-            }
-
-            .my-ad-info {
-                width: 100%;
-            }
-
-            .my-ad-actions {
-                width: 100%;
-                flex-direction: row;
-            }
-
-            .my-ad-actions a,
-            .my-ad-actions button {
-                flex: 1;
-            }
-
+        .page-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
         }
 
+        .page-header p {
+            margin: 5px 0 0;
+            font-size: 13px;
+            opacity: .6;
+        }
+
+        .add-btn {
+            text-decoration: none;
+            background: #111827;
+            color: white;
+            padding: 10px 17px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .add-btn:hover {
+            opacity: .9;
+        }
+
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .listing-card {
+            overflow: hidden;
+            border: 1px solid rgba(128,128,128,.18);
+            border-radius: 17px;
+            background: var(--card-bg, white);
+        }
+
+        .listing-image {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            display: block;
+            background: rgba(128,128,128,.08);
+        }
+
+        .no-image {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(128,128,128,.08);
+            font-size: 35px;
+            opacity: .45;
+        }
+
+        .listing-content {
+            padding: 14px;
+        }
+
+        .listing-title {
+            margin: 0 0 7px;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        .listing-price {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .listing-info {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            opacity: .6;
+            margin-bottom: 13px;
+        }
+
+        .listing-actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .action-btn {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 9px;
+            padding: 8px 5px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(128,128,128,.22);
+            color: inherit;
+            background: transparent;
+        }
+
+        .action-btn:hover {
+            background: rgba(128,128,128,.07);
+        }
+
+        .delete-btn {
+            cursor: pointer;
+            font-family: inherit;
+            color: #b42318;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 70px 20px;
+            border: 1px dashed rgba(128,128,128,.25);
+            border-radius: 20px;
+        }
+
+        .empty-icon {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h2 {
+            margin: 0 0 6px;
+            font-size: 20px;
+        }
+
+        .empty-state p {
+            margin: 0 0 18px;
+            font-size: 13px;
+            opacity: .6;
+        }
+
+        .empty-add-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #111827;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 850px) {
+            .listings-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .my-listings-page {
+                padding: 20px 10px 80px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+            }
+
+            .page-header h1 {
+                font-size: 23px;
+            }
+
+            .add-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+
+            .listings-grid {
+                grid-template-columns: 1fr;
+                gap: 13px;
+            }
+
+            .listing-card {
+                border-radius: 15px;
+            }
+        }
     </style>
-
 </head>
-
 
 <body>
 
+<div class="my-listings-page">
 
-<header class="topbar">
-
-    <div class="topbar-inner">
-
-        <a href="/" class="logo">
-            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
-        </a>
-
-        <nav class="main-nav">
-
-            <a href="/">
-                الرئيسية
-            </a>
-
-            <a href="/ai">
-                ✨ مساعد AI
-            </a>
-
-        </nav>
-
-        <div class="header-actions">
-            <a href="/sell" class="sell-btn">
-                + بيع الآن
-            </a>
-        </div>
-
-    </div>
-
-</header>
-
-
-
-<main class="my-page">
-
-
-    <section class="my-hero">
+    <div class="page-header">
 
         <div>
-
-            <h1>
-                إعلاناتي
-            </h1>
-
-            <p>
-                تحكم بإعلاناتك من مكان واحد.
-            </p>
-
+            <h1>إعلاناتي</h1>
+            <p>إدارة جميع الإعلانات التي نشرتها على لافريين</p>
         </div>
 
+        <a
+            href="{{ url_for('sell') }}"
+            class="add-btn">
+            + إضافة إعلان
+        </a>
 
-        <div class="my-stats">
-
-            <div class="stat-box">
-
-                <strong>
-                    {{ listings|length }}
-                </strong>
-
-                <span>
-                    إعلان
-                </span>
-
-            </div>
-
-        </div>
-
-    </section>
-
+    </div>
 
 
     {% if listings %}
 
+        <div class="listings-grid">
 
-    <section class="my-list">
+            {% for listing in listings %}
+
+                <div class="listing-card">
+
+                    {% if listing.image_path %}
+
+                        <img
+                            class="listing-image"
+                            src="{{ url_for('static', filename=listing.image_path.replace('static/', '')) }}"
+                            alt="{{ listing.title }}"
+                            loading="lazy">
+
+                    {% else %}
+
+                        <div class="no-image">
+                            📦
+                        </div>
+
+                    {% endif %}
 
 
-        {% for item in listings %}
+                    <div class="listing-content">
+
+                        <h2 class="listing-title">
+                            {{ listing.title }}
+                        </h2>
 
 
-        <article class="my-ad">
+                        <div class="listing-price">
+                            {{ "{:,.0f}".format(listing.price or 0) }} ريال
+                        </div>
 
 
-            <div class="my-ad-image">
-                {% if item['first_image'] %}
-                <img src="{{ url_for('static', filename=item['first_image']) }}" alt="{{ item['title'] }}">
-                {% else %}
-                <div>
-                    📦
+                        <div class="listing-info">
+
+                            {% if listing.category %}
+                                <span>{{ listing.category }}</span>
+                            {% endif %}
+
+                            {% if listing.city %}
+                                <span>• {{ listing.city }}</span>
+                            {% endif %}
+
+                            {% if listing.year %}
+                                <span>• {{ listing.year }}</span>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="listing-actions">
+
+                            <a
+                                href="{{ url_for('listing_page', listing_id=listing.id) }}"
+                                class="action-btn">
+                                عرض
+                            </a>
+
+                            <a
+                                href="{{ url_for('edit_listing', listing_id=listing.id) }}"
+                                class="action-btn">
+                                تعديل
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('delete_listing', listing_id=listing.id) }}"
+                                style="flex:1; margin:0;"
+                                onsubmit="return confirm('هل أنت متأكد من حذف هذا الإعلان؟');">
+
+                                <button
+                                    type="submit"
+                                    class="action-btn delete-btn"
+                                    style="width:100%;">
+                                    حذف
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
                 </div>
-                {% endif %}
-            </div>
 
+            {% endfor %}
 
-
-            <div class="my-ad-info">
-
-
-                <span class="my-ad-category">
-                    {{ item["category"] }}
-                </span>
-
-
-                <h2>
-                    {{ item["title"] }}
-                </h2>
-
-
-                <div class="my-ad-price">
-
-                    {{ "{:,.0f}".format(item["price"]) }}
-
-                    ريال
-
-                </div>
-
-
-                <div class="my-ad-meta">
-
-                    📍 {{ item["city"] }}
-
-                </div>
-
-
-            </div>
-
-
-
-            <div class="my-ad-actions">
-
-
-                <a
-                    href="{{ url_for('view_item', item_id=item['id']) }}"
-                >
-                    عرض
-                </a>
-
-
-                <a
-                    href="{{ url_for('edit_listing', listing_id=item['id']) }}"
-                >
-                    تعديل
-                </a>
-
-
-                <form
-                    action="{{ url_for('remove_listing', listing_id=item['id']) }}"
-                    method="POST"
-                    onsubmit="return confirm('هل أنت متأكد من حذف الإعلان؟');"
-                >
-
-                    <button
-                        type="submit"
-                        class="delete-button"
-                    >
-                        حذف
-                    </button>
-
-                </form>
-
-
-            </div>
-
-
-        </article>
-
-
-        {% endfor %}
-
-
-    </section>
-
+        </div>
 
     {% else %}
 
+        <div class="empty-state">
 
-    <section class="my-empty">
+            <div class="empty-icon">
+                📦
+            </div>
 
+            <h2>ما عندك إعلانات حتى الآن</h2>
 
-        <div class="my-empty-icon">
-            📦
+            <p>
+                أضف أول إعلان لك وابدأ البيع على لافريين.
+            </p>
+
+            <a
+                href="{{ url_for('sell') }}"
+                class="empty-add-btn">
+                أضف أول إعلان
+            </a>
+
         </div>
-
-
-        <h2>
-            ما عندك إعلانات للحين
-        </h2>
-
-
-        <p>
-            انشر أول إعلان لك وابدأ البيع في لافريين.
-        </p>
-
-
-        <a
-            href="/sell"
-            class="sell-button"
-        >
-            🚀 بيع الآن
-        </a>
-
-
-    </section>
-
 
     {% endif %}
 
-
-</main>
-
-
-
-<footer class="footer">
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <strong>لافريين</strong>
-            <p>السوق الذكي 🚀</p>
-        </div>
-    </div>
-    <div class="footer-bottom">جميع الحقوق محفوظة © لافريين</div>
-</footer>
-
+</div>
 
 </body>
 </html>
