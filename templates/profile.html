@@ -3,262 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ملفي الشخصي | لافريين</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>الملف الشخصي - Lavreen</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
         .profile-page {
-            max-width: 640px;
-            margin: auto;
-            padding: 50px 20px 80px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 16px 60px;
         }
 
-        .profile-hero {
-            text-align: center;
-            margin-bottom: 30px;
+        .profile-card {
+            overflow: hidden;
+            border-radius: 28px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
         }
 
-        .avatar-wrap {
+        .profile-cover {
+            height: 180px;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(99,102,241,.35), transparent 35%),
+                radial-gradient(circle at 80% 80%, rgba(14,165,233,.25), transparent 35%),
+                linear-gradient(135deg, #111827, #3730a3);
+        }
+
+        .profile-info {
             position: relative;
-            width: 110px;
-            height: 110px;
-            margin: 0 auto 16px;
+            padding: 0 28px 28px;
         }
 
-        .avatar-img {
-            width: 110px;
-            height: 110px;
+        .avatar-wrapper {
+            width: 120px;
+            height: 120px;
+            margin-top: -60px;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            background: var(--purple-light);
-            border: 3px solid white;
-            box-shadow: 0 8px 25px rgba(115,87,255,0.25);
+            border: 5px solid var(--card-bg, #fff);
+            background: #e5e7eb;
         }
 
-        .avatar-fallback {
-            width: 110px;
-            height: 110px;
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
-            color: white;
-            display: grid;
-            place-items: center;
-            font-size: 38px;
+            border: 5px solid var(--card-bg, #fff);
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
             font-weight: 800;
-            border: 3px solid white;
-            box-shadow: 0 8px 25px rgba(115,87,255,0.25);
+            color: #6366f1;
         }
 
-        .avatar-edit-btn {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: #111;
-            color: white;
-            display: grid;
-            place-items: center;
+        .profile-name {
+            margin-top: 16px;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .profile-email {
+            margin-top: 3px;
+            color: #64748b;
             font-size: 14px;
-            cursor: pointer;
-            border: 3px solid white;
         }
 
-        .profile-hero h1 {
-            font-size: 24px;
-            margin-bottom: 4px;
+        .profile-bio {
+            margin-top: 14px;
+            line-height: 1.8;
+            color: #64748b;
+            white-space: pre-line;
         }
 
-        .profile-hero p {
-            color: #888;
-            font-size: 13px;
+        .profile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
         }
 
-        .store-link-btn {
+        .profile-action {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            margin-top: 14px;
-            padding: 10px 18px;
-            border-radius: 100px;
-            background: var(--purple-light);
-            color: var(--purple-dark);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .profile-stats {
-            display: flex;
             justify-content: center;
-            gap: 12px;
-            margin: 22px 0 30px;
+            gap: 7px;
+            min-height: 44px;
+            padding: 0 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+            color: inherit;
+            transition: .2s ease;
         }
 
-        .p-stat {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 22px;
+        .profile-action:hover {
+            transform: translateY(-1px);
+        }
+
+        .profile-action.primary {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .profile-action.danger {
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .profile-section {
+            margin-top: 20px;
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+        }
+
+        .section-title {
+            margin: 0 0 18px;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-box {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(99, 102, 241, .07);
             text-align: center;
         }
 
-        .p-stat strong {
+        .stat-number {
             display: block;
-            font-size: 20px;
+            font-size: 24px;
+            font-weight: 800;
         }
 
-        .p-stat span {
-            font-size: 11px;
-            color: #888;
-        }
-
-        .settings-box {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            padding: 25px;
-        }
-
-        .settings-box h2 {
-            font-size: 16px;
-            margin-bottom: 18px;
-        }
-
-        .form-row {
-            margin-bottom: 16px;
-        }
-
-        .form-row label {
+        .stat-label {
             display: block;
+            margin-top: 3px;
+            color: #64748b;
             font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: #444;
         }
 
-        .form-row input,
-        .form-row textarea {
+        .profile-form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .form-group input,
+        .form-group textarea {
             width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 14px;
             padding: 12px 14px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
+            background: var(--input-bg, #f8fafc);
+            color: inherit;
             font-family: inherit;
             font-size: 14px;
-            outline: none;
         }
 
-        .form-row textarea {
-            min-height: 80px;
+        .form-group textarea {
+            min-height: 110px;
             resize: vertical;
         }
 
-        .save-btn {
-            width: 100%;
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.10);
+        }
+
+        .submit-button {
+            width: fit-content;
             border: 0;
-            padding: 15px;
-            border-radius: 13px;
-            background: linear-gradient(135deg, #7357ff, #6045ed);
-            color: white;
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 6px;
-        }
-
-        .logout-row {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .logout-row a {
-            color: #cc3344;
-            font-size: 13px;
+            border-radius: 14px;
+            padding: 12px 22px;
+            background: #4f46e5;
+            color: #fff;
+            font-family: inherit;
             font-weight: 700;
+            cursor: pointer;
+        }
+
+        .flash-message {
+            margin-bottom: 18px;
+            padding: 13px 16px;
+            border-radius: 14px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .profile-cover {
+                height: 140px;
+            }
+
+            .profile-info {
+                padding: 0 18px 22px;
+            }
+
+            .profile-section {
+                padding: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+
+            .profile-action {
+                width: 100%;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="topbar-inner">
-        <a href="/" class="logo">
-            <span class="logo-text" style="color:var(--purple);">LAVREEN</span>
-        </a>
-        <nav class="main-nav">
-            <a href="/">الرئيسية</a>
-            <a href="/ai">✨ مساعد AI</a>
-        </nav>
-        <div class="header-actions">
-            <a href="/my-listings" class="header-link">إعلاناتي</a>
-            <a href="/sell" class="sell-btn">+ أضف إعلان</a>
+    <!-- شريط التنقل -->
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a href="{{ url_for('index') }}" class="brand">
+                Lavreen
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}">الرئيسية</a>
+                <a href="{{ url_for('my_listings') }}">إعلاناتي</a>
+                <a href="{{ url_for('messages') }}">الرسائل</a>
+                <a href="{{ url_for('sell') }}">أضف إعلان</a>
+            </nav>
+
         </div>
-    </div>
-</header>
 
-<main class="profile-page">
+    </header>
 
-    <section class="profile-hero">
-        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" id="avatarForm">
-            <div class="avatar-wrap">
-                {% if user['avatar_path'] %}
-                <img class="avatar-img" src="{{ url_for('static', filename=user['avatar_path']) }}" alt="{{ user['name'] }}">
+
+    <main class="profile-page">
+
+        <!-- رسائل Flask -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- بطاقة الملف -->
+        <section class="profile-card">
+
+            <div class="profile-cover"></div>
+
+            <div class="profile-info">
+
+                <div class="avatar-wrapper">
+
+                    {% if user.avatar_path %}
+                        <img
+                            src="{{ url_for('static', filename=user.avatar_path) }}"
+                            alt="صورة {{ user.name }}"
+                            class="profile-avatar"
+                        >
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ user.name[:1] }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+
+                <h1 class="profile-name">
+                    {{ user.name }}
+                </h1>
+
+                <div class="profile-email">
+                    {{ user.email }}
+                </div>
+
+
+                {% if user.bio %}
+                    <div class="profile-bio">
+                        {{ user.bio }}
+                    </div>
                 {% else %}
-                <div class="avatar-fallback">{{ user['name'][0] if user['name'] else '؟' }}</div>
+                    <div class="profile-bio">
+                        لم تضف نبذة عن نفسك بعد.
+                    </div>
                 {% endif %}
-                <label for="avatarInput" class="avatar-edit-btn">✎</label>
-                <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display:none" onchange="document.getElementById('avatarForm').submit()">
-            </div>
-            <!-- نبعث بقية الحقول الحالية عشان ما تنمسح لو رفع صورة بس -->
-            <input type="hidden" name="name" value="{{ user['name'] }}">
-            <input type="hidden" name="phone" value="{{ user['phone'] or '' }}">
-            <input type="hidden" name="bio" value="{{ user['bio'] or '' }}">
-        </form>
 
-        <h1>{{ user['name'] }}</h1>
-        <p>{{ user['bio'] or 'ما فيه نبذة تعريفية بعد' }}</p>
 
-        <a href="{{ url_for('store', user_id=user['id']) }}" class="store-link-btn">
-            🏪 شوف متجرك العام
-        </a>
-    </section>
+                <div class="profile-actions">
 
-    <div class="profile-stats">
-        <div class="p-stat">
-            <strong>{{ listings_count }}</strong>
-            <span>إعلان</span>
-        </div>
-    </div>
+                    <a
+                        href="{{ url_for('store', user_id=user.id) }}"
+                        class="profile-action primary"
+                    >
+                        🏪 متجري
+                    </a>
 
-    <section class="settings-box">
-        <h2>⚙️ الإعدادات</h2>
+                    <a
+                        href="{{ url_for('my_listings') }}"
+                        class="profile-action"
+                    >
+                        📦 إعلاناتي
+                    </a>
 
-        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+                    <a
+                        href="{{ url_for('messages') }}"
+                        class="profile-action"
+                    >
+                        💬 الرسائل
+                    </a>
 
-            <div class="form-row">
-                <label>الاسم</label>
-                <input type="text" name="name" value="{{ user['name'] }}" required>
-            </div>
+                    <a
+                        href="{{ url_for('logout') }}"
+                        class="profile-action danger"
+                    >
+                        تسجيل الخروج
+                    </a>
 
-            <div class="form-row">
-                <label>رقم الجوال</label>
-                <input type="text" name="phone" value="{{ user['phone'] or '' }}">
+                </div>
+
             </div>
 
-            <div class="form-row">
-                <label>نبذة عن المتجر</label>
-                <textarea name="bio" placeholder="اكتب نبذة بسيطة عنك أو عن متجرك">{{ user['bio'] or '' }}</textarea>
+        </section>
+
+
+        <!-- الإحصائيات -->
+        <section class="profile-section">
+
+            <h2 class="section-title">
+                إحصائيات الحساب
+            </h2>
+
+            <div class="stats-grid">
+
+                <div class="stat-box">
+                    <span class="stat-number">
+                        {{ listings_count|default(0) }}
+                    </span>
+                    <span class="stat-label">
+                        الإعلانات
+                    </span>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-number">
+                        {{ messages_count|default(0) }}
+                    </span>
+                    <span class="stat-label">
+                        الرسائل
+                    </span>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-number">
+                        {{ views_count|default(0) }}
+                    </span>
+                    <span class="stat-label">
+                        المشاهدات
+                    </span>
+                </div>
+
             </div>
 
-            <button type="submit" class="save-btn">💾 حفظ التعديلات</button>
-        </form>
-    </section>
+        </section>
 
-    <div class="logout-row">
-        <a href="{{ url_for('logout') }}">تسجيل الخروج</a>
-    </div>
 
-</main>
+        <!-- تعديل الملف الشخصي -->
+        <section class="profile-section">
+
+            <h2 class="section-title">
+                تعديل الملف الشخصي
+            </h2>
+
+            <form
+                method="POST"
+                action="{{ url_for('update_profile') }}"
+                enctype="multipart/form-data"
+                class="profile-form"
+            >
+
+                <div class="form-group">
+
+                    <label for="name">
+                        الاسم
+                    </label>
+
+                    <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value="{{ user.name }}"
+                        required
+                        maxlength="100"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        رقم الجوال
+                    </label>
+
+                    <input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value="{{ user.phone or '' }}"
+                        placeholder="05xxxxxxxx"
+                        maxlength="30"
+                        dir="ltr"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="bio">
+                        نبذة عنك
+                    </label>
+
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        maxlength="500"
+                        placeholder="اكتب نبذة قصيرة عنك أو عن متجرك..."
+                    >{{ user.bio or '' }}</textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="avatar">
+                        صورة الحساب
+                    </label>
+
+                    <input
+                        id="avatar"
+                        name="avatar"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="submit-button"
+                >
+                    حفظ التغييرات
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
 
 </body>
 </html>
