@@ -46,6 +46,17 @@
             background: var(--card-bg, white);
         }
 
+        .error-box {
+            background: rgba(220, 38, 38, .08);
+            border: 1px solid rgba(220, 38, 38, .35);
+            color: #dc2626;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
         .form-group {
             margin-bottom: 18px;
         }
@@ -219,6 +230,9 @@
         <p>اعرض منتجك أو سيارتك أو عقارك على لافريين</p>
     </div>
 
+    {% if error %}
+        <div class="error-box">{{ error }}</div>
+    {% endif %}
 
     <div class="sell-card">
 
@@ -399,7 +413,7 @@
                 <input
                     type="file"
                     id="media"
-                    name="media"
+                    name="images"
                     accept="image/*,video/*"
                     multiple
                 >
