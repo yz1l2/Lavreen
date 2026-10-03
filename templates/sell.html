@@ -316,7 +316,8 @@
                 </div>
 
 
-                <div class="form-group">
+                <!-- حقول السيارات -->
+                <div class="form-group car-field" id="year-field" style="display: none;">
                     <label for="year">السنة</label>
 
                     <input
@@ -332,7 +333,8 @@
             </div>
 
 
-            <div class="form-row">
+            <!-- حقول السيارات -->
+            <div class="form-row car-field" id="make-model-row" style="display: none;">
 
                 <div class="form-group">
                     <label for="make">الشركة / الماركة</label>
@@ -362,7 +364,9 @@
             </div>
 
 
-            <div class="form-group">
+            <!-- حقل الممشى للسيارات فقط -->
+            <div class="form-group car-field" id="mileage-field" style="display: none;">
+
                 <label for="mileage">الممشى</label>
 
                 <input
@@ -376,6 +380,7 @@
                 <div class="hint">
                     للسيارات فقط، اتركه فارغًا إذا كان غير مناسب.
                 </div>
+
             </div>
 
 
@@ -501,6 +506,33 @@
     };
 
 
+    /*
+     * إظهار وإخفاء حقول السيارات
+     * بدون حذف أي بيانات من النموذج.
+     */
+    const carFields = document.querySelectorAll(".car-field");
+
+    function updateCarFields() {
+
+        const isCar = category.value === "سيارات";
+
+        carFields.forEach(function (field) {
+            field.style.display = isCar ? "" : "none";
+        });
+
+        /*
+         * إذا لم تكن سيارات، نمسح قيم حقول السيارات
+         * حتى لا تنتقل بيانات قديمة إلى إعلان غير سيارة.
+         */
+        if (!isCar) {
+            document.getElementById("year").value = "";
+            document.getElementById("make").value = "";
+            document.getElementById("model").value = "";
+            document.getElementById("mileage").value = "";
+        }
+    }
+
+
     category.addEventListener("change", function () {
 
         const selected = this.value;
@@ -508,22 +540,30 @@
         subCategory.innerHTML =
             '<option value="">اختر التصنيف الفرعي</option>';
 
-        if (!hierarchyData[selected]) {
-            return;
+        if (hierarchyData[selected]) {
+
+            hierarchyData[selected].forEach(function (item) {
+
+                const option = document.createElement("option");
+
+                option.value = item;
+                option.textContent = item;
+
+                subCategory.appendChild(option);
+
+            });
+
         }
 
-        hierarchyData[selected].forEach(function (item) {
-
-            const option = document.createElement("option");
-
-            option.value = item;
-            option.textContent = item;
-
-            subCategory.appendChild(option);
-
-        });
+        updateCarFields();
 
     });
+
+
+    /*
+     * تشغيل الحالة الصحيحة عند تحميل الصفحة.
+     */
+    updateCarFields();
 
 
     const mediaInput = document.getElementById("media");
