@@ -388,7 +388,7 @@
                         إعلاناتي
                     </a>
 
-                    <a href="{{ url_for('messages') }}">
+                    <a href="{{ url_for('messages_inbox') }}">
                         الرسائل
                     </a>
 
@@ -617,18 +617,18 @@
 
                     <div class="seller-info">
 
-                        {% if seller.avatar_path %}
+                        {% if listing.owner_avatar %}
 
                             <img
-                                src="{{ url_for('static', filename=seller.avatar_path) }}"
-                                alt="{{ seller.name }}"
+                                src="{{ url_for('static', filename=listing.owner_avatar) }}"
+                                alt="{{ listing.owner_name }}"
                                 class="seller-avatar"
                             >
 
                         {% else %}
 
                             <div class="seller-placeholder">
-                                {{ seller.name[:1] }}
+                                {{ (listing.owner_name or "؟")[:1] }}
                             </div>
 
                         {% endif %}
@@ -637,11 +637,11 @@
                         <div>
 
                             <div class="seller-name">
-                                {{ seller.name }}
+                                {{ listing.owner_name }}
                             </div>
 
                             <a
-                                href="{{ url_for('store', user_id=seller.id) }}"
+                                href="{{ url_for('store', user_id=listing.owner_id) }}"
                                 class="seller-link"
                             >
                                 مشاهدة متجره ←
@@ -707,7 +707,7 @@
                             <input
                                 type="hidden"
                                 name="receiver_id"
-                                value="{{ seller.id }}"
+                                value="{{ listing.owner_id }}"
                             >
 
                             <textarea
