@@ -273,7 +273,7 @@
             <nav class="nav-links">
                 <a href="{{ url_for('index') }}">الرئيسية</a>
                 <a href="{{ url_for('my_listings') }}">إعلاناتي</a>
-                <a href="{{ url_for('messages') }}">الرسائل</a>
+                <a href="{{ url_for('messages_inbox') }}">الرسائل</a>
                 <a href="{{ url_for('sell') }}">أضف إعلان</a>
             </nav>
 
@@ -357,7 +357,7 @@
                     </a>
 
                     <a
-                        href="{{ url_for('messages') }}"
+                        href="{{ url_for('messages_inbox') }}"
                         class="profile-action"
                     >
                         💬 الرسائل
