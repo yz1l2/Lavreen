@@ -105,7 +105,7 @@ def _python_to_turso(value):
     if isinstance(value, float):
         return {
             "type": "float",
-            "value": str(value)
+            "value": value
         }
 
     if isinstance(value, bytes):
