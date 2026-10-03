@@ -242,11 +242,11 @@
 
                 <div class="listing-card">
 
-                    {% if listing.image_path %}
+                    {% if listing.first_image %}
 
                         <img
                             class="listing-image"
-                            src="{{ url_for('static', filename=listing.image_path.replace('static/', '')) }}"
+                            src="{{ url_for('static', filename=listing.first_image) }}"
                             alt="{{ listing.title }}"
                             loading="lazy">
 
@@ -291,7 +291,7 @@
                         <div class="listing-actions">
 
                             <a
-                                href="{{ url_for('listing_page', listing_id=listing.id) }}"
+                                href="{{ url_for('view_item', item_id=listing.id) }}"
                                 class="action-btn">
                                 عرض
                             </a>
@@ -304,7 +304,7 @@
 
                             <form
                                 method="POST"
-                                action="{{ url_for('delete_listing', listing_id=listing.id) }}"
+                                action="{{ url_for('remove_listing', listing_id=listing.id) }}"
                                 style="flex:1; margin:0;"
                                 onsubmit="return confirm('هل أنت متأكد من حذف هذا الإعلان؟');">
 
