@@ -374,9 +374,9 @@
         .listings {
             display: grid;
 
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
 
-            gap: 16px;
+            gap: 22px;
         }
 
         .listing-card {
@@ -388,7 +388,7 @@
 
             border: 1px solid var(--border);
 
-            border-radius: 18px;
+            border-radius: 20px;
 
             transition: .15s;
         }
@@ -402,7 +402,7 @@
 
         .listing-image {
             width: 100%;
-            height: 190px;
+            aspect-ratio: 1 / 1;
 
             display: block;
 
@@ -412,7 +412,8 @@
         }
 
         .no-image {
-            height: 190px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
 
             display: flex;
             align-items: center;
@@ -420,7 +421,7 @@
 
             background: var(--purple-light);
 
-            font-size: 42px;
+            font-size: 50px;
         }
 
         .favorite {
@@ -448,7 +449,7 @@
         }
 
         .listing-content {
-            padding: 15px;
+            padding: 16px;
         }
 
         .listing-category {
@@ -469,7 +470,7 @@
         }
 
         .listing-title {
-            font-size: 16px;
+            font-size: 17px;
 
             font-weight: 900;
 
@@ -483,7 +484,7 @@
         .listing-price {
             color: var(--purple);
 
-            font-size: 19px;
+            font-size: 20px;
 
             font-weight: 1000;
 
@@ -1048,11 +1049,11 @@
 
                         <a href="/listing/{{ listing.id }}">
 
-                            {% if listing.image_path %}
+                            {% if listing.first_image %}
 
                                 <img
                                     class="listing-image"
-                                    src="{{ url_for('static', filename=listing.image_path.replace('static/', '')) }}"
+                                    src="{{ url_for('static', filename=listing.first_image) }}"
                                     alt="{{ listing.title }}"
                                     loading="lazy"
                                 >
